@@ -25,7 +25,7 @@ public class User extends BaseEntity {
     private List<UserAddress> addresses = new ArrayList<>();
 
     // TODO: Service layer must maintain bidirectional sync:
-    // 1. Set address.setUser(user) before saving.
+    // 1. Set address.setUser(user) before saving. ✅
     // 2. Ensure only one address has isDefault = true per user.
     // 3. For new orders, copy address details to Order entity (Snapshot).
 }
