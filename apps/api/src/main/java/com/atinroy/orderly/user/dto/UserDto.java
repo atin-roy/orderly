@@ -9,7 +9,9 @@ import java.util.List;
  */
 public record UserDto(
         Long id,
-        String keycloakId,
+        String email,
+        String role,
+        String phone,
         List<UserAddressDto> addresses,
         LocalDateTime createdDate
 ) {}

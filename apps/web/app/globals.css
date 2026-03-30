@@ -1,26 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8f1df;
+  --foreground: #231815;
+  --font-sans-stack: "Trebuchet MS", "Segoe UI", sans-serif;
+  --font-mono-stack: "SFMono-Regular", "SF Mono", "Menlo", monospace;
+  --font-serif-stack: "Georgia", "Times New Roman", serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-brand: #d35b1f;
+  --color-brand-light: #f8dfbe;
+  --color-cream: #f8f1df;
+  --color-promo-orange: #db6b20;
+  --color-promo-dark: #234131;
+  --color-subtle: #64554a;
+  --color-marigold: #e4a11b;
+  --color-card: #fffaf0;
+  --font-sans: var(--font-sans-stack);
+  --font-mono: var(--font-mono-stack);
+  --font-serif: var(--font-serif-stack);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans-stack);
+  background-image:
+    radial-gradient(circle at top left, rgba(228, 161, 27, 0.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(19, 136, 80, 0.14), transparent 30%),
+    linear-gradient(180deg, rgba(255, 250, 240, 0.96), rgba(248, 241, 223, 0.98));
 }

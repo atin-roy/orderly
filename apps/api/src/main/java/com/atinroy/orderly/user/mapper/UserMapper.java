@@ -27,7 +27,9 @@ public class UserMapper {
 
         return new UserDto(
                 user.getId(),
-                user.getKeycloakId(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getPhone(),
                 addressDtos,
                 user.getCreatedDate()
         );

@@ -7,11 +7,11 @@ import com.atinroy.orderly.user.model.User;
 import com.atinroy.orderly.user.model.UserAddress;
 import com.atinroy.orderly.user.repository.UserAddressRepository;
 import com.atinroy.orderly.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,24 +20,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
     private final UserMapper userMapper;
-    @Transactional
-    User createUser(String keycloakId) {
-        User user = new User();
-        user.setKeycloakId(keycloakId);
-        user = userRepository.save(user);
-
-        return user;
-    }
 
     @Transactional
-    public UserAddressDto createAddress(
-            CreateUserAddressRequest request,
-            String keycloakId
-    ) {
-        User user = userRepository.findByKeycloakId(keycloakId)
-                .orElse(createUser(keycloakId));
-
-
+    public UserAddressDto createAddress(CreateUserAddressRequest request, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         UserAddress address = userMapper.toEntity(request);
         address.setUser(user);

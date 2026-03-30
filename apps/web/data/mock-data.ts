@@ -1,0 +1,75 @@
+export const mockRestaurants = [
+  {
+    name: "Saffron Courtyard",
+    cuisine: "North Indian Signatures",
+    rating: 4.9,
+    priceLevel: "₹₹₹",
+    deliveryTime: "25-35 min",
+    deliveryFee: "FREE DELIVERY",
+    imageColor: "bg-gradient-to-br from-orange-500 via-amber-500 to-red-700",
+  },
+  {
+    name: "Coastal Curry House",
+    cuisine: "Kerala Seafood",
+    rating: 4.8,
+    priceLevel: "₹₹₹₹",
+    deliveryTime: "35-45 min",
+    deliveryFee: "₹89 DELIVERY",
+    imageColor: "bg-gradient-to-br from-emerald-700 via-teal-700 to-cyan-900",
+  },
+  {
+    name: "Bombay Grill Co.",
+    cuisine: "Street Food Favourites",
+    rating: 4.7,
+    priceLevel: "₹₹",
+    deliveryTime: "15-25 min",
+    deliveryFee: "FREE DELIVERY",
+    imageColor: "bg-gradient-to-br from-fuchsia-700 via-rose-600 to-orange-500",
+  },
+  {
+    name: "Tandoor Terrace",
+    cuisine: "Mughlai & Kebabs",
+    rating: 4.6,
+    priceLevel: "₹₹",
+    deliveryTime: "20-30 min",
+    deliveryFee: "FREE DELIVERY",
+    imageColor: "bg-gradient-to-br from-yellow-700 via-orange-700 to-stone-900",
+  },
+  {
+    name: "Dosa Darbar",
+    cuisine: "South Indian Comfort",
+    rating: 4.8,
+    priceLevel: "₹₹₹",
+    deliveryTime: "30-40 min",
+    deliveryFee: "₹49 DELIVERY",
+    imageColor: "bg-gradient-to-br from-lime-600 via-green-700 to-emerald-900",
+  },
+  {
+    name: "Mithai Mahal",
+    cuisine: "Sweets & Desserts",
+    rating: 4.5,
+    priceLevel: "₹₹₹",
+    deliveryTime: "35-45 min",
+    deliveryFee: "FREE DELIVERY",
+    imageColor: "bg-gradient-to-br from-pink-500 via-rose-500 to-red-700",
+  },
+];
+
+export const mockCategories = [
+  { label: "Thalis", iconKey: "forkKnife" as const },
+  { label: "Biryani", iconKey: "sushi" as const },
+  { label: "Rolls", iconKey: "burger" as const },
+  { label: "Mithai", iconKey: "cake" as const },
+  { label: "Kulfi", iconKey: "dessert" as const },
+  { label: "Veg", iconKey: "leaf" as const },
+  { label: "Dosas", iconKey: "forkKnife" as const },
+  { label: "Kebabs", iconKey: "burger" as const },
+  { label: "Curries", iconKey: "sushi" as const },
+  { label: "Chaat", iconKey: "dessert" as const },
+];
+
+export const maitredPick = {
+  restaurant: "Saffron Courtyard",
+  dish: "Lucknowi Dum Biryani",
+  text: `"The Lucknowi Dum Biryani from 'Saffron Courtyard' is the city favourite this evening."`,
+};
