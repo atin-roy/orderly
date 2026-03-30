@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface UserAddressRepository extends JpaRepository<UserAddress, Long> {
     List<UserAddress> findByUserId(Long userId);
+    boolean existsByUserId(Long userId);
+    Optional<UserAddress> findByUserIdAndIsDefaultTrue(Long userId);
 }

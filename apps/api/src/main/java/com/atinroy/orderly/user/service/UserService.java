@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,11 +37,22 @@ public class UserService {
         User user = userRepository.findByKeycloakId(keycloakId)
                 .orElse(createUser(keycloakId));
 
-        List<UserAddress> userAddresses = userAddressRepository.findByUserId(user.getId());
 
 
         UserAddress address = userMapper.toEntity(request);
         address.setUser(user);
+        user.getAddresses().add(address);
+
+        Optional<UserAddress> defaultAddress = userAddressRepository.findByUserIdAndIsDefaultTrue(user.getId());
+
+        if (defaultAddress.isPresent() && address.isDefault()) {
+            UserAddress oldDefault = defaultAddress.get();
+            oldDefault.setDefault(false);
+            userAddressRepository.save(oldDefault);
+        } else {
+            address.setDefault(true);
+        }
+
         UserAddress savedAddress = userAddressRepository.save(address);
 
         return userMapper.toDto(savedAddress);
