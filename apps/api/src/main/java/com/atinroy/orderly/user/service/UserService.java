@@ -1,6 +1,7 @@
 package com.atinroy.orderly.user.service;
 
 import com.atinroy.orderly.user.dto.CreateUserAddressRequest;
+import com.atinroy.orderly.user.dto.UserDto;
 import com.atinroy.orderly.user.dto.UserAddressDto;
 import com.atinroy.orderly.user.mapper.UserMapper;
 import com.atinroy.orderly.user.model.User;
@@ -21,6 +22,14 @@ public class UserService {
     private final UserAddressRepository userAddressRepository;
     private final UserMapper userMapper;
 
+    @Transactional(readOnly = true)
+    public UserDto getProfile(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        return userMapper.toDto(user);
+    }
+
     @Transactional
     public UserAddressDto createAddress(CreateUserAddressRequest request, String email) {
         User user = userRepository.findByEmail(email)
@@ -40,6 +49,31 @@ public class UserService {
             address.setDefault(true);
         }
 
+        UserAddress savedAddress = userAddressRepository.save(address);
+
+        return userMapper.toDto(savedAddress);
+    }
+
+    @Transactional
+    public UserAddressDto setDefaultAddress(Long addressId, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        UserAddress address = userAddressRepository.findById(addressId)
+                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
+
+        if (!address.getUser().getId().equals(user.getId())) {
+            throw new EntityNotFoundException("Address not found");
+        }
+
+        userAddressRepository.findByUserIdAndIsDefaultTrue(user.getId())
+                .filter(existingDefault -> !existingDefault.getId().equals(address.getId()))
+                .ifPresent(existingDefault -> {
+                    existingDefault.setDefault(false);
+                    userAddressRepository.save(existingDefault);
+                });
+
+        address.setDefault(true);
         UserAddress savedAddress = userAddressRepository.save(address);
 
         return userMapper.toDto(savedAddress);

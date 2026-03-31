@@ -1,6 +1,7 @@
 package com.atinroy.orderly.user.controller;
 
 import com.atinroy.orderly.user.dto.CreateUserAddressRequest;
+import com.atinroy.orderly.user.dto.UserDto;
 import com.atinroy.orderly.user.dto.UserAddressDto;
 import com.atinroy.orderly.user.service.UserService;
 import jakarta.validation.Valid;
@@ -18,6 +19,14 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getProfile(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String email = userDetails.getUsername();
+        return ResponseEntity.ok(userService.getProfile(email));
+    }
+
     @PostMapping("/addresses")
     public ResponseEntity<UserAddressDto> createAddress(
             @Valid @RequestBody CreateUserAddressRequest request,
@@ -26,5 +35,15 @@ public class UserController {
         String email = userDetails.getUsername();
         UserAddressDto response = userService.createAddress(request, email);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PatchMapping("/addresses/{addressId}/default")
+    public ResponseEntity<UserAddressDto> setDefaultAddress(
+            @PathVariable Long addressId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String email = userDetails.getUsername();
+        UserAddressDto response = userService.setDefaultAddress(addressId, email);
+        return ResponseEntity.ok(response);
     }
 }

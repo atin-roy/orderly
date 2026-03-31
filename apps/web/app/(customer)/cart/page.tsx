@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { AuthGuard } from "@/components/auth-guard";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import {
@@ -240,8 +241,9 @@ export default function CartPage() {
   const total = baseTotal - baseDiscount + currentDiscount;
 
   return (
-    <div className="min-h-screen bg-cream">
-      <Header />
+    <AuthGuard requireCustomerRole>
+      <div className="min-h-screen bg-cream">
+        <Header />
 
       <CouponModal
         open={couponModalOpen}
@@ -566,7 +568,8 @@ export default function CartPage() {
         </section>
       </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </AuthGuard>
   );
 }

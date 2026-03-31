@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AuthGuard } from "@/components/auth-guard";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { OrderStatusBadge } from "@/components/order-status-badge";
@@ -40,10 +41,11 @@ export default async function OrdersPage({
   );
 
   return (
-    <div className="min-h-screen bg-cream">
-      <Header />
+    <AuthGuard requireCustomerRole>
+      <div className="min-h-screen bg-cream">
+        <Header />
 
-      <main>
+        <main>
         <section className="border-b border-orange-100 bg-[linear-gradient(180deg,rgba(255,248,238,0.98),rgba(255,248,238,0.8))]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-brand">
@@ -257,9 +259,10 @@ export default async function OrdersPage({
             </div>
           </div>
         </section>
-      </main>
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </AuthGuard>
   );
 }

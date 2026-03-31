@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { HomeLocationCard } from "@/components/home-location-card";
 import { RestaurantCard } from "@/components/restaurant-card";
 import {
   ChevronRightIcon,
   ClockIcon,
-  LocationPinIcon,
   SearchIcon,
   SparklesIcon,
   StarIcon,
@@ -130,22 +130,7 @@ export default function Home() {
 
                   <div className="relative rounded-[2rem] border border-white/15 bg-white/10 p-5 backdrop-blur">
                     <div className="rounded-[1.75rem] bg-white p-5 text-foreground shadow-[0_16px_40px_rgba(0,0,0,0.14)]">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className="rounded-2xl bg-orange-50 p-3 text-brand">
-                            <LocationPinIcon className="h-6 w-6" />
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-brand">
-                              Deliver to
-                            </p>
-                            <p className="mt-1 font-semibold">HSR Layout, Bengaluru</p>
-                          </div>
-                        </div>
-                        <span className="rounded-full bg-emerald-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-800">
-                          Live
-                        </span>
-                      </div>
+                      <HomeLocationCard />
 
                       <div className="mt-5 rounded-2xl border border-orange-100 bg-orange-50/70 px-4 py-4">
                         <div className="flex items-center gap-3 text-subtle">

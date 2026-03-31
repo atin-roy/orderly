@@ -46,8 +46,10 @@ export function AuthShell({
           <div className="mt-8">{children}</div>
         </section>
 
-        <aside className="rounded-[2rem] border border-orange-100 bg-[linear-gradient(180deg,rgba(255,250,240,0.96),rgba(248,223,190,0.92))] p-8 shadow-[0_24px_60px_rgba(211,91,31,0.08)]">
-          {sideContent}
+        <aside className="flex min-h-full items-center justify-center rounded-[2rem] border border-orange-100 bg-[linear-gradient(180deg,rgba(255,250,240,0.96),rgba(248,223,190,0.92))] p-8 shadow-[0_24px_60px_rgba(211,91,31,0.08)]">
+          <div className="w-full max-w-sm text-center">
+            {sideContent}
+          </div>
         </aside>
       </div>
     </div>

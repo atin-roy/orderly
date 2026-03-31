@@ -2,19 +2,25 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { roleIsCustomer } from "@/components/auth-guard";
+import { useSession } from "@/components/session-provider";
 import { CartIcon, LocationPinIcon, MenuIcon, CloseIcon, ProfileIcon } from "./icons";
 import { LocationModal } from "./location-modal";
 
 const navLinks = [
   { href: "/", label: "HOME" },
   { href: "/explore", label: "EXPLORE" },
-  { href: "/orders", label: "ORDERS" },
-  { href: "/cart", label: "CART" },
 ];
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
+  const { isAuthenticated, role } = useSession();
+  const showCustomerLinks = isAuthenticated && roleIsCustomer(role);
+  const links = showCustomerLinks
+    ? [...navLinks, { href: "/orders", label: "ORDERS" }, { href: "/cart", label: "CART" }]
+    : navLinks;
+  const profileHref = isAuthenticated ? "/profile" : "/login";
 
   return (
     <>
@@ -28,7 +34,7 @@ export function Header() {
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
+              {links.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -48,17 +54,19 @@ export function Header() {
               >
                 <LocationPinIcon className="w-5 h-5 text-gray-700" />
               </button>
+              {showCustomerLinks ? (
+                <Link
+                  href="/cart"
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  aria-label="Cart"
+                >
+                  <CartIcon className="w-5 h-5 text-gray-700" />
+                </Link>
+              ) : null}
               <Link
-                href="/cart"
+                href={profileHref}
                 className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                aria-label="Cart"
-              >
-                <CartIcon className="w-5 h-5 text-gray-700" />
-              </Link>
-              <Link
-                href="/login"
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                aria-label="Login"
+                aria-label={isAuthenticated ? "Profile" : "Login"}
               >
                 <ProfileIcon className="w-5 h-5 text-gray-700" />
               </Link>
@@ -81,7 +89,7 @@ export function Header() {
           {/* Mobile Nav */}
           {mobileMenuOpen && (
             <nav className="md:hidden pb-4 border-t border-gray-100 pt-3">
-              {navLinks.map((link) => (
+              {links.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

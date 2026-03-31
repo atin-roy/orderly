@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { AuthGuard } from "@/components/auth-guard";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { useSession } from "@/components/session-provider";
 import {
   ArrowLeftIcon,
   ClockIcon,
@@ -27,7 +29,7 @@ type Address = {
 
 type PaymentMethod = "upi-id" | "upi-qr" | "cod" | "card";
 
-const savedAddresses: Address[] = [
+const fallbackSavedAddresses: Address[] = [
   {
     id: "addr-home",
     label: "Home",
@@ -90,9 +92,6 @@ const paymentMethodCards: Array<{
 
 const subtotal = getCartSubtotal();
 const total = getCartTotal();
-const defaultAddressId =
-  savedAddresses.find((address) => address.isDefault)?.id ?? savedAddresses[0]?.id ?? "";
-
 function hashString(value: string) {
   let hash = 2166136261;
 
@@ -180,7 +179,22 @@ function PaymentQrCode({ value }: { value: string }) {
 }
 
 export default function CheckoutPage() {
-  const [selectedAddressId, setSelectedAddressId] = useState(defaultAddressId);
+  const { profile } = useSession();
+  const profileAddresses: Address[] =
+    profile?.role === "USER" && profile.addresses.length
+      ? profile.addresses.map((address) => ({
+          id: String(address.id),
+          label: address.label,
+          recipient: profile.name || "Orderly customer",
+          phone: address.phone,
+          line1: address.address,
+          area: address.buildingInfo || address.label,
+          city: address.city || "",
+          landmark: address.buildingInfo || undefined,
+          isDefault: address.isDefault,
+        }))
+      : fallbackSavedAddresses;
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi-id");
   const [upiId, setUpiId] = useState("atin@okaxis");
   const [cardName, setCardName] = useState("Atin Kumar");
@@ -188,16 +202,23 @@ export default function CheckoutPage() {
   const [cardExpiry, setCardExpiry] = useState("12/28");
   const [cardCvv, setCardCvv] = useState("123");
 
+  const defaultAddressId =
+    profileAddresses.find((address) => address.isDefault)?.id ??
+    profileAddresses[0]?.id ??
+    "";
+  const activeAddressId = selectedAddressId ?? defaultAddressId;
+
   const selectedAddress =
-    savedAddresses.find((address) => address.id === selectedAddressId) ?? savedAddresses[0];
+    profileAddresses.find((address) => address.id === activeAddressId) ?? profileAddresses[0];
 
   const qrPayload = `upi://pay?pa=orderly@okhdfcbank&pn=Orderly&am=${total}&cu=INR&tn=${encodeURIComponent(
     `${mockCart.restaurantName} order for ${selectedAddress.recipient}`,
   )}`;
 
   return (
-    <div className="min-h-screen bg-cream">
-      <Header />
+    <AuthGuard requireCustomerRole>
+      <div className="min-h-screen bg-cream">
+        <Header />
 
       <main>
         <section className="border-b border-orange-100 bg-[linear-gradient(180deg,rgba(255,248,238,0.98),rgba(255,248,238,0.8))]">
@@ -240,7 +261,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="mt-6 grid gap-4">
-                  {savedAddresses.map((address) => {
+                  {profileAddresses.map((address) => {
                     const isSelected = address.id === selectedAddressId;
 
                     return (
@@ -568,9 +589,10 @@ export default function CheckoutPage() {
             </div>
           </div>
         </section>
-      </main>
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </AuthGuard>
   );
 }

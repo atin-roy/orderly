@@ -208,3 +208,28 @@ export function TagIcon({ className = "w-5 h-5" }: { className?: string }) {
     </svg>
   );
 }
+
+export function EyeIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+    </svg>
+  );
+}
+
+export function EyeOffIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 3l18 18M10.584 10.587A2.999 2.999 0 0012 15a3 3 0 002.414-4.782M9.88 5.09A9.774 9.774 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.752 9.752 0 01-4.042 5.058M6.228 6.228A9.753 9.753 0 002.458 12c1.274 4.057 5.065 7 9.542 7a9.77 9.77 0 005.077-1.417"
+      />
+    </svg>
+  );
+}

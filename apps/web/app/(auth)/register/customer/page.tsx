@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthShell } from "@/components/auth-shell";
-import { SearchIcon, StarIcon } from "@/components/icons";
+import { EyeIcon, EyeOffIcon, SearchIcon, StarIcon } from "@/components/icons";
 import { registerCustomer, validateIndianPhone } from "@/lib/registration";
 
 const inputClassName =
@@ -15,6 +15,8 @@ export default function CustomerRegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,7 +57,7 @@ export default function CustomerRegisterPage() {
     <AuthShell
       eyebrow="Customer signup"
       title="Create your account and get to the food faster."
-      description="This flow stays lean on purpose: email, password, and an Indian-format phone number so checkout and delivery updates can plug in cleanly."
+      description="Sign up in a minute and get straight to ordering."
       sideContent={
         <>
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
@@ -66,9 +68,9 @@ export default function CustomerRegisterPage() {
           </h2>
           <div className="mt-8 space-y-4">
             {[
-              "Indian phone formatting, normalized before hitting the existing auth API.",
-              "Customer flow stays connected to live registration today.",
-              "A shorter path so people can move straight into explore after signup.",
+              "Quick signup so you can start browsing restaurants right away.",
+              "Your account keeps orders, addresses, and updates in one place.",
+              "A short path from signup to your next meal.",
             ].map((item) => (
               <div
                 key={item}
@@ -109,16 +111,27 @@ export default function CustomerRegisterPage() {
             <label htmlFor="password" className="mb-2 block text-sm font-semibold text-foreground">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={inputClassName}
-              placeholder="Minimum 8 characters"
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                required
+                minLength={8}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={`${inputClassName} pr-12`}
+                placeholder="Minimum 8 characters"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((visible) => !visible)}
+                className="absolute inset-y-0 right-0 flex items-center px-4 text-subtle transition hover:text-foreground"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
 
           <div>
@@ -128,16 +141,27 @@ export default function CustomerRegisterPage() {
             >
               Confirm password
             </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              required
-              minLength={8}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className={inputClassName}
-              placeholder="Repeat your password"
-            />
+            <div className="relative">
+              <input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                required
+                minLength={8}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={`${inputClassName} pr-12`}
+                placeholder="Repeat your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((visible) => !visible)}
+                className="absolute inset-y-0 right-0 flex items-center px-4 text-subtle transition hover:text-foreground"
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                aria-pressed={showConfirmPassword}
+              >
+                {showConfirmPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
         </div>
 
