@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/atin-roy/orderly#readme",
   "private": true,
+  "packageManager": "npm@11.8.0",
   "workspaces": [
     "apps/*",
     "packages/*"

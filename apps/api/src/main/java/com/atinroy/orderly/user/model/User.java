@@ -21,6 +21,9 @@ import java.util.List;
         }
 )
 public class User extends BaseEntity {
+    @Column
+    private String name;
+
     @Column(nullable = false, unique = true)
     @NotBlank
     @Email

@@ -47,6 +47,66 @@ export async function authLogin(email: string, password: string): Promise<AuthRe
   return data;
 }
 
+export interface BusinessRegisterPayload {
+  ownerName: string;
+  businessName: string;
+  email: string;
+  password: string;
+  phone: string;
+  city: string;
+  serviceArea: string;
+  businessType: string;
+  cuisineFocus: string;
+}
+
+export interface DeliveryRegisterPayload {
+  fullName: string;
+  email: string;
+  password: string;
+  phone: string;
+  city: string;
+  vehicleType: string;
+  preferredShift: string;
+  serviceZones: string;
+  deliveryExperience: string;
+}
+
+export async function authRegisterBusiness(payload: BusinessRegisterPayload): Promise<AuthResponseData> {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${baseUrl}/auth/register/business`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => null);
+    throw new Error(errorData?.message || "Business registration failed");
+  }
+
+  const data: AuthResponseData = await res.json();
+  localStorage.setItem("token", data.token);
+  return data;
+}
+
+export async function authRegisterDelivery(payload: DeliveryRegisterPayload): Promise<AuthResponseData> {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${baseUrl}/auth/register/delivery`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => null);
+    throw new Error(errorData?.message || "Delivery registration failed");
+  }
+
+  const data: AuthResponseData = await res.json();
+  localStorage.setItem("token", data.token);
+  return data;
+}
+
 export async function authRegister(email: string, password: string, phone: string): Promise<AuthResponseData> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${baseUrl}/auth/register`, {

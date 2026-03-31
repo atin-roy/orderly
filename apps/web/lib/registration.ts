@@ -1,4 +1,4 @@
-import { authRegister, type AuthResponseData } from "@/lib/api";
+import { authRegister, authRegisterBusiness, authRegisterDelivery, type AuthResponseData } from "@/lib/api";
 
 export type SignupRole = "customer" | "business" | "delivery";
 
@@ -12,6 +12,7 @@ export interface BusinessSignupPayload {
   ownerName: string;
   businessName: string;
   email: string;
+  password: string;
   phone: string;
   city: string;
   serviceArea: string;
@@ -22,25 +23,13 @@ export interface BusinessSignupPayload {
 export interface DeliverySignupPayload {
   fullName: string;
   email: string;
+  password: string;
   phone: string;
   city: string;
   vehicleType: string;
   preferredShift: string;
   serviceZones: string;
   deliveryExperience: string;
-}
-
-export interface StagedSignupResult {
-  status: "staged";
-  title: string;
-  message: string;
-  nextStep: string;
-}
-
-function delay(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
 }
 
 export function normalizePhoneForApi(value: string): string {
@@ -98,28 +87,18 @@ export async function registerCustomer(
 
 export async function submitBusinessSignup(
   payload: BusinessSignupPayload
-): Promise<StagedSignupResult> {
-  await delay(500);
-
-  return {
-    status: "staged",
-    title: `Application received for ${payload.businessName}`,
-    message:
-      "Your restaurant partner profile is staged on the frontend and ready for a backend onboarding endpoint later.",
-    nextStep: `Next step: review serviceability in ${payload.city} and confirm menu setup for ${payload.serviceArea}.`,
-  };
+): Promise<AuthResponseData> {
+  return authRegisterBusiness({
+    ...payload,
+    phone: normalizePhoneForApi(payload.phone),
+  });
 }
 
 export async function submitDeliverySignup(
   payload: DeliverySignupPayload
-): Promise<StagedSignupResult> {
-  await delay(500);
-
-  return {
-    status: "staged",
-    title: `Delivery signup received for ${payload.fullName}`,
-    message:
-      "Your delivery partner application is staged on the frontend and can be connected to a future onboarding API without changing the page flow.",
-    nextStep: `Next step: confirm ${payload.vehicleType.toLowerCase()} availability for ${payload.serviceZones}.`,
-  };
+): Promise<AuthResponseData> {
+  return authRegisterDelivery({
+    ...payload,
+    phone: normalizePhoneForApi(payload.phone),
+  });
 }

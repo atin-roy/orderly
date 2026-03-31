@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthShell } from "@/components/auth-shell";
-import { ClockIcon, TruckIcon } from "@/components/icons";
+import { TruckIcon } from "@/components/icons";
 import {
   submitDeliverySignup,
-  type StagedSignupResult,
   validateIndianPhone,
 } from "@/lib/registration";
 
@@ -16,8 +16,11 @@ const inputClassName =
 const selectClassName = `${inputClassName} appearance-none`;
 
 export default function DeliveryRegisterPage() {
+  const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
   const [vehicleType, setVehicleType] = useState("Bike");
@@ -26,11 +29,20 @@ export default function DeliveryRegisterPage() {
   const [deliveryExperience, setDeliveryExperience] = useState("No prior experience");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<StagedSignupResult | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
 
     const phoneError = validateIndianPhone(phone);
     if (phoneError) {
@@ -41,9 +53,10 @@ export default function DeliveryRegisterPage() {
     setLoading(true);
 
     try {
-      const response = await submitDeliverySignup({
+      await submitDeliverySignup({
         fullName,
         email,
+        password,
         phone,
         city,
         vehicleType,
@@ -51,9 +64,9 @@ export default function DeliveryRegisterPage() {
         serviceZones,
         deliveryExperience,
       });
-      setResult(response);
+      router.push("/delivery/deliveries");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to stage delivery signup.");
+      setError(err instanceof Error ? err.message : "Delivery registration failed.");
     } finally {
       setLoading(false);
     }
@@ -90,39 +103,11 @@ export default function DeliveryRegisterPage() {
         </>
       }
     >
-      {result ? (
-        <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50 p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-800">
-            {result.status}
-          </p>
-          <h2 className="mt-3 font-serif text-3xl font-bold text-foreground">{result.title}</h2>
-          <p className="mt-4 text-base leading-8 text-subtle">{result.message}</p>
-          <div className="mt-6 flex items-start gap-3 rounded-2xl bg-white px-4 py-4">
-            <ClockIcon className="mt-1 h-4 w-4 text-emerald-700" />
-            <p className="text-sm leading-7 text-subtle">{result.nextStep}</p>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800"
-            >
-              Back to home
-            </Link>
-            <Link
-              href="/register"
-              className="inline-flex items-center justify-center rounded-2xl border border-emerald-200 bg-white px-5 py-3 text-sm font-semibold text-emerald-800 transition hover:border-emerald-500"
-            >
-              View other signup paths
-            </Link>
-          </div>
+      {error && (
+        <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
         </div>
-      ) : (
-        <>
-          {error && (
-            <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
+      )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
@@ -188,6 +173,40 @@ export default function DeliveryRegisterPage() {
                   onChange={(e) => setCity(e.target.value)}
                   className={inputClassName}
                   placeholder="Hyderabad"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label htmlFor="password" className="mb-2 block text-sm font-semibold text-foreground">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputClassName}
+                  placeholder="Minimum 8 characters"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="mb-2 block text-sm font-semibold text-foreground">
+                  Confirm password
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  required
+                  minLength={8}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={inputClassName}
+                  placeholder="Repeat your password"
                 />
               </div>
             </div>
@@ -279,11 +298,24 @@ export default function DeliveryRegisterPage() {
               disabled={loading}
               className="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-700 px-6 py-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Saving delivery details..." : "Submit delivery signup"}
+              {loading ? "Creating delivery account..." : "Submit delivery signup"}
             </button>
           </form>
-        </>
-      )}
+
+      <div className="mt-6 flex flex-col gap-3 rounded-[1.75rem] border border-emerald-100 bg-emerald-50/70 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-foreground">Already registered?</p>
+          <p className="mt-1 text-sm text-subtle">
+            Sign in to view your delivery assignments.
+          </p>
+        </div>
+        <Link
+          href="/login"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition hover:text-emerald-800"
+        >
+          Log in
+        </Link>
+      </div>
     </AuthShell>
   );
 }

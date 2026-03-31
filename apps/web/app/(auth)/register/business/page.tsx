@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthShell } from "@/components/auth-shell";
-import { ClockIcon, StoreIcon } from "@/components/icons";
+import { StoreIcon } from "@/components/icons";
 import {
   submitBusinessSignup,
-  type StagedSignupResult,
   validateIndianPhone,
 } from "@/lib/registration";
 
@@ -16,9 +16,12 @@ const inputClassName =
 const selectClassName = `${inputClassName} appearance-none`;
 
 export default function BusinessRegisterPage() {
+  const router = useRouter();
   const [ownerName, setOwnerName] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
   const [serviceArea, setServiceArea] = useState("");
@@ -26,11 +29,20 @@ export default function BusinessRegisterPage() {
   const [cuisineFocus, setCuisineFocus] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<StagedSignupResult | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
 
     const phoneError = validateIndianPhone(phone);
     if (phoneError) {
@@ -41,19 +53,20 @@ export default function BusinessRegisterPage() {
     setLoading(true);
 
     try {
-      const response = await submitBusinessSignup({
+      await submitBusinessSignup({
         ownerName,
         businessName,
         email,
+        password,
         phone,
         city,
         serviceArea,
         businessType,
         cuisineFocus,
       });
-      setResult(response);
+      router.push("/owner/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to stage business signup.");
+      setError(err instanceof Error ? err.message : "Business registration failed.");
     } finally {
       setLoading(false);
     }
@@ -90,39 +103,11 @@ export default function BusinessRegisterPage() {
         </>
       }
     >
-      {result ? (
-        <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50 p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-800">
-            {result.status}
-          </p>
-          <h2 className="mt-3 font-serif text-3xl font-bold text-foreground">{result.title}</h2>
-          <p className="mt-4 text-base leading-8 text-subtle">{result.message}</p>
-          <div className="mt-6 flex items-start gap-3 rounded-2xl bg-white px-4 py-4">
-            <ClockIcon className="mt-1 h-4 w-4 text-emerald-700" />
-            <p className="text-sm leading-7 text-subtle">{result.nextStep}</p>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center rounded-2xl bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand/90"
-            >
-              Back to home
-            </Link>
-            <Link
-              href="/register"
-              className="inline-flex items-center justify-center rounded-2xl border border-orange-200 bg-white px-5 py-3 text-sm font-semibold text-brand transition hover:border-brand"
-            >
-              View other signup paths
-            </Link>
-          </div>
+      {error && (
+        <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
         </div>
-      ) : (
-        <>
-          {error && (
-            <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
+      )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
@@ -191,6 +176,40 @@ export default function BusinessRegisterPage() {
                   onChange={(e) => setPhone(e.target.value)}
                   className={inputClassName}
                   placeholder="+91 98765 43210"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label htmlFor="password" className="mb-2 block text-sm font-semibold text-foreground">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputClassName}
+                  placeholder="Minimum 8 characters"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="mb-2 block text-sm font-semibold text-foreground">
+                  Confirm password
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  required
+                  minLength={8}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={inputClassName}
+                  placeholder="Repeat your password"
                 />
               </div>
             </div>
@@ -274,11 +293,24 @@ export default function BusinessRegisterPage() {
               disabled={loading}
               className="inline-flex w-full items-center justify-center rounded-2xl bg-brand px-6 py-4 text-sm font-semibold text-white transition hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Saving partner details..." : "Submit restaurant application"}
+              {loading ? "Creating business account..." : "Submit restaurant application"}
             </button>
           </form>
-        </>
-      )}
+
+      <div className="mt-6 flex flex-col gap-3 rounded-[1.75rem] border border-orange-100 bg-orange-50/70 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-foreground">Already registered?</p>
+          <p className="mt-1 text-sm text-subtle">
+            Sign in to manage your restaurant listings.
+          </p>
+        </div>
+        <Link
+          href="/login"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-brand transition hover:text-brand/80"
+        >
+          Log in
+        </Link>
+      </div>
     </AuthShell>
   );
 }

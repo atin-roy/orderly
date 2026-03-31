@@ -1,8 +1,6 @@
 package com.atinroy.orderly.auth.controller;
 
-import com.atinroy.orderly.auth.dto.AuthResponse;
-import com.atinroy.orderly.auth.dto.LoginRequest;
-import com.atinroy.orderly.auth.dto.RegisterRequest;
+import com.atinroy.orderly.auth.dto.*;
 import com.atinroy.orderly.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +21,16 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
+    }
+
+    @PostMapping("/register/business")
+    public ResponseEntity<AuthResponse> registerBusiness(@Valid @RequestBody BusinessRegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerBusiness(request));
+    }
+
+    @PostMapping("/register/delivery")
+    public ResponseEntity<AuthResponse> registerDelivery(@Valid @RequestBody DeliveryRegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerDelivery(request));
     }
 
     @PostMapping("/login")
