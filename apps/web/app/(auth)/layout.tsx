@@ -2,13 +2,14 @@ import Link from "next/link";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-cream flex flex-col items-center justify-center px-4">
-      <Link href="/" className="font-serif italic text-3xl font-bold text-brand mb-8">
+    <div className="min-h-screen bg-cream px-4 py-10 sm:px-6 lg:px-8">
+      <Link
+        href="/"
+        className="mx-auto mb-8 block w-fit font-serif text-3xl font-bold italic text-brand"
+      >
         Orderly
       </Link>
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-        {children}
-      </div>
+      {children}
     </div>
   );
 }

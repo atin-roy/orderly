@@ -176,53 +176,68 @@ export default function ExplorePage() {
           </div>
         </section>
 
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)]">
-            <aside className="rounded-[2rem] border border-orange-100 bg-white p-6 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
-                Categories
-              </p>
-              <h2 className="mt-3 font-serif text-2xl font-bold">
-                Cravings Map
-              </h2>
-              <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-6 lg:grid-cols-1">
-                {mockCategories.map((category) => (
-                  <CategoryPill
-                    key={category.label}
-                    icon={categoryIcons[category.iconKey]}
-                    label={category.label}
-                  />
-                ))}
+        <section className="mx-auto w-full max-w-[96rem] px-4 py-10 sm:px-6 lg:px-8">
+          <div className="rounded-[2rem] border border-orange-100 bg-white p-6 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
+            <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
+                  Categories
+                </p>
+                <h2 className="mt-3 font-serif text-3xl font-bold">
+                  Cravings Map
+                </h2>
+                <p className="mt-3 max-w-2xl text-subtle">
+                  Jump straight into the kind of food you want instead of
+                  wasting a full column on filters.
+                </p>
               </div>
-            </aside>
+              <div className="rounded-2xl border border-orange-100 bg-[var(--color-card)] px-5 py-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
+                  Open now
+                </p>
+                <p className="mt-1 font-serif text-3xl font-bold">
+                  {mockCategories.length} cravings
+                </p>
+              </div>
+            </div>
 
-            <div>
-              <div className="flex items-end justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
-                    Feed
-                  </p>
-                  <h2 className="mt-3 font-serif text-3xl font-bold">
-                    Restaurants worth comparing
-                  </h2>
-                  <p className="mt-3 max-w-2xl text-subtle">
-                    A denser browse feed for actual selection, with enough
-                    variety to make explore feel separate from the homepage.
-                  </p>
-                </div>
-                <div className="hidden rounded-2xl border border-orange-100 bg-white px-5 py-4 text-right shadow-sm md:block">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
-                    Showing
-                  </p>
-                  <p className="mt-1 font-serif text-3xl font-bold">6 spots</p>
-                </div>
-              </div>
+            <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10">
+              {mockCategories.map((category) => (
+                <CategoryPill
+                  key={category.label}
+                  icon={categoryIcons[category.iconKey]}
+                  label={category.label}
+                />
+              ))}
+            </div>
+          </div>
 
-              <div className="mt-8 grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
-                {mockRestaurants.map((restaurant) => (
-                  <RestaurantCard key={restaurant.name} {...restaurant} />
-                ))}
+          <div className="mt-8">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
+                  Feed
+                </p>
+                <h2 className="mt-3 font-serif text-3xl font-bold">
+                  Restaurants worth comparing
+                </h2>
+                <p className="mt-3 max-w-2xl text-subtle">
+                  A denser browse feed for actual selection, with enough
+                  variety to make explore feel separate from the homepage.
+                </p>
               </div>
+              <div className="hidden rounded-2xl border border-orange-100 bg-white px-5 py-4 text-right shadow-sm md:block">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
+                  Showing
+                </p>
+                <p className="mt-1 font-serif text-3xl font-bold">6 spots</p>
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-8 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+              {mockRestaurants.map((restaurant) => (
+                <RestaurantCard key={restaurant.name} {...restaurant} />
+              ))}
             </div>
           </div>
         </section>

@@ -50,12 +50,11 @@ export default async function OrdersPage({
               Orders
             </p>
             <h1 className="mt-4 font-serif text-4xl font-bold leading-tight md:text-5xl">
-              Track the active order first, then revisit past meals
+              Keep tabs on what is arriving now and what you ordered before
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-subtle">
-              The top section stays focused on what is happening right now. Past
-              orders sit below in pages so the history remains useful instead of
-              becoming one long list.
+              Follow your current delivery, reopen old favourites, and check
+              totals, timing, and payment details in one place.
             </p>
           </div>
         </section>
@@ -222,11 +221,11 @@ export default async function OrdersPage({
           <div className="mt-8 flex flex-col gap-4 rounded-[1.75rem] border border-orange-100 bg-[var(--color-card)] p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
-                Browse pages
+                Order history
               </p>
               <p className="mt-2 text-sm text-subtle">
-                Move through your order history without losing the active order
-                panel at the top.
+                Jump between pages to revisit older meals and reorder what still
+                hits.
               </p>
             </div>
 
