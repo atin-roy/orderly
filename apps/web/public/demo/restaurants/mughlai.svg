@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3a1f12"/>
+      <stop offset="55%" stop-color="#b46e28"/>
+      <stop offset="100%" stop-color="#1c1713"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <ellipse cx="600" cy="450" rx="310" ry="155" fill="#3a2417"/>
+  <ellipse cx="600" cy="438" rx="265" ry="122" fill="#efe1c5"/>
+  <path d="M470 445c90-82 225-88 335-18-55 34-122 58-210 82-55-10-87-24-125-64z" fill="#ad5c25"/>
+  <text x="130" y="150" fill="#f5e5c7" font-family="Georgia, serif" font-size="82" font-weight="700">Rezala House</text>
+  <text x="130" y="218" fill="#f5e5c7" font-family="Arial, sans-serif" font-size="32">Rich Mughlai curries, chaap, rumali roti, and festive plates.</text>
+</svg>

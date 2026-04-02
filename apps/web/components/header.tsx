@@ -20,8 +20,6 @@ export function Header() {
   const links = showCustomerLinks
     ? [...navLinks, { href: "/orders", label: "ORDERS" }, { href: "/cart", label: "CART" }]
     : navLinks;
-  const profileHref = isAuthenticated ? "/profile" : "/login";
-
   return (
     <>
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
@@ -47,13 +45,15 @@ export function Header() {
 
             {/* Right Icons */}
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setLocationOpen(true)}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                aria-label="Select location"
-              >
-                <LocationPinIcon className="w-5 h-5 text-gray-700" />
-              </button>
+              {showCustomerLinks ? (
+                <button
+                  onClick={() => setLocationOpen(true)}
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  aria-label="Select location"
+                >
+                  <LocationPinIcon className="w-5 h-5 text-gray-700" />
+                </button>
+              ) : null}
               {showCustomerLinks ? (
                 <Link
                   href="/cart"
@@ -63,13 +63,22 @@ export function Header() {
                   <CartIcon className="w-5 h-5 text-gray-700" />
                 </Link>
               ) : null}
-              <Link
-                href={profileHref}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                aria-label={isAuthenticated ? "Profile" : "Login"}
-              >
-                <ProfileIcon className="w-5 h-5 text-gray-700" />
-              </Link>
+              {isAuthenticated ? (
+                <Link
+                  href="/profile"
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  aria-label="Profile"
+                >
+                  <ProfileIcon className="w-5 h-5 text-gray-700" />
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand/90"
+                >
+                  Sign In
+                </Link>
+              )}
 
               {/* Mobile menu toggle */}
               <button

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9b2f62"/>
+      <stop offset="55%" stop-color="#d44e74"/>
+      <stop offset="100%" stop-color="#f8bf66"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <rect x="180" y="180" width="840" height="420" rx="48" fill="#fff5f8" opacity="0.9"/>
+  <circle cx="430" cy="450" r="85" fill="#fff1d7"/>
+  <circle cx="610" cy="430" r="85" fill="#f6d9c1"/>
+  <circle cx="790" cy="450" r="85" fill="#fff1d7"/>
+  <circle cx="430" cy="415" r="22" fill="#e9a85c"/>
+  <circle cx="610" cy="395" r="22" fill="#d17861"/>
+  <circle cx="790" cy="415" r="22" fill="#efbe67"/>
+  <text x="170" y="145" fill="#fff2f2" font-family="Georgia, serif" font-size="82" font-weight="700">Sweet Studio</text>
+  <text x="170" y="212" fill="#fff2f2" font-family="Arial, sans-serif" font-size="32">Rosogolla, mishti doi, baked sweets, and gifting boxes.</text>
+</svg>

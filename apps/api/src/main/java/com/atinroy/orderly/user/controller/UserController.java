@@ -1,6 +1,7 @@
 package com.atinroy.orderly.user.controller;
 
 import com.atinroy.orderly.user.dto.CreateUserAddressRequest;
+import com.atinroy.orderly.user.dto.UpdateUserProfileRequest;
 import com.atinroy.orderly.user.dto.UserDto;
 import com.atinroy.orderly.user.dto.UserAddressDto;
 import com.atinroy.orderly.user.service.UserService;
@@ -27,6 +28,15 @@ public class UserController {
         return ResponseEntity.ok(userService.getProfile(email));
     }
 
+    @PatchMapping("/me")
+    public ResponseEntity<UserDto> updateProfile(
+            @Valid @RequestBody UpdateUserProfileRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String email = userDetails.getUsername();
+        return ResponseEntity.ok(userService.updateProfile(request, email));
+    }
+
     @PostMapping("/addresses")
     public ResponseEntity<UserAddressDto> createAddress(
             @Valid @RequestBody CreateUserAddressRequest request,
@@ -45,5 +55,15 @@ public class UserController {
         String email = userDetails.getUsername();
         UserAddressDto response = userService.setDefaultAddress(addressId, email);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/addresses/{addressId}")
+    public ResponseEntity<Void> deleteAddress(
+            @PathVariable Long addressId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String email = userDetails.getUsername();
+        userService.deleteAddress(addressId, email);
+        return ResponseEntity.noContent().build();
     }
 }

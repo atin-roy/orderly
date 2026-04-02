@@ -60,9 +60,17 @@ export default function LoginPage() {
               </p>
             </div>
             <div className="rounded-2xl bg-white/80 px-4 py-4 shadow-sm">
-              <p className="text-sm font-semibold text-foreground">New to Orderly?</p>
+              <p className="text-sm font-semibold text-foreground">Demo accounts</p>
               <p className="mt-2 text-sm leading-7 text-subtle">
-                Create an account and choose whether you are ordering, listing a business, or joining as a delivery partner.
+                Customer: `demo.customer@orderly.local`
+                <br />
+                Owner: `demo.owner@orderly.local`
+                <br />
+                Delivery: `demo.delivery@orderly.local`
+                <br />
+                Admin: `demo.admin@orderly.local`
+                <br />
+                Password for all: `orderly-demo`
               </p>
             </div>
           </div>

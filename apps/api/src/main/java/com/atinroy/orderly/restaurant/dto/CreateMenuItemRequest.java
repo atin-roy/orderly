@@ -1,0 +1,28 @@
+package com.atinroy.orderly.restaurant.dto;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public record CreateMenuItemRequest(
+        @NotBlank(message = "Name is required")
+        String name,
+
+        String description,
+
+        String imageUrl,
+
+        @NotNull(message = "Price is required")
+        @Min(value = 0, message = "Price cannot be negative")
+        Integer price,
+
+        @NotBlank(message = "Category is required")
+        String category,
+
+        Boolean isAvailable,
+
+        Boolean isVeg,
+
+        Integer sortOrder
+) {
+}

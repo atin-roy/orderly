@@ -26,8 +26,8 @@ export interface UserAddress {
   buildingInfo: string | null;
   city: string | null;
   phone: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   isDefault: boolean;
 }
 

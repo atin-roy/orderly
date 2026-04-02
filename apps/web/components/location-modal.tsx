@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { roleIsCustomer } from "@/components/auth-guard";
-import { useLocation } from "@/components/location-provider";
 import { useSession } from "@/components/session-provider";
-import { createUserAddress, setDefaultUserAddress } from "@/lib/api";
+import {
+  createUserAddress,
+  getRestaurantLocalities,
+  setDefaultUserAddress,
+} from "@/lib/api";
 import { CloseIcon, LocationPinIcon, SearchIcon } from "./icons";
 
 interface LocationModalProps {
@@ -16,33 +18,45 @@ const inputClassName =
   "w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand";
 
 export function LocationModal({ open, onClose }: LocationModalProps) {
-  const { profile, refreshProfile, role } = useSession();
-  const { guestLocation, setGuestLocation } = useLocation();
-  const signedInCustomer = roleIsCustomer(role);
-  const [label, setLabel] = useState(guestLocation?.label ?? "Home");
-  const [address, setAddress] = useState(guestLocation?.address ?? "");
+  const { profile, refreshProfile } = useSession();
+  const [label, setLabel] = useState("Home");
+  const [address, setAddress] = useState("");
   const [buildingInfo, setBuildingInfo] = useState("");
-  const [city, setCity] = useState(guestLocation?.city ?? "");
+  const [city, setCity] = useState("");
   const [phone, setPhone] = useState(profile?.phone ?? "");
+  const [isDefault, setIsDefault] = useState(true);
   const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(
-    guestLocation?.latitude != null && guestLocation?.longitude != null
-      ? {
-          latitude: guestLocation.latitude,
-          longitude: guestLocation.longitude,
-        }
-      : null
+    null
   );
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [locating, setLocating] = useState(false);
+  const [localities, setLocalities] = useState<string[]>([]);
 
   useEffect(() => {
     if (!open) {
       return;
     }
 
+    setLabel("Home");
+    setAddress("");
+    setBuildingInfo("");
+    setCity("");
     setPhone(profile?.phone ?? "");
-  }, [open, profile?.phone]);
+    setCoordinates(null);
+    setError("");
+    setIsDefault((profile?.addresses.length ?? 0) === 0);
+  }, [open, profile?.addresses.length, profile?.phone]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    void getRestaurantLocalities()
+      .then((response) => setLocalities(response.data))
+      .catch(() => setLocalities([]));
+  }, [open]);
 
   if (!open) return null;
 
@@ -70,8 +84,12 @@ export function LocationModal({ open, onClose }: LocationModalProps) {
           const resolved =
             data.address?.city ?? data.address?.town ?? data.address?.village ?? "";
           if (resolved) setCity(resolved);
+
+          if (data.display_name) {
+            setAddress(data.display_name);
+          }
         } catch {
-          // Reverse geocoding failed silently — user can type city manually
+          // Reverse geocoding failed silently — user can fill fields manually
         }
       },
       () => {
@@ -108,35 +126,21 @@ export function LocationModal({ open, onClose }: LocationModalProps) {
     setLoading(true);
 
     try {
-      if (signedInCustomer) {
-        if (!phone.trim()) {
-          throw new Error("Phone is required to save a delivery address.");
-        }
-
-        if (!coordinates) {
-          throw new Error("Use current location before saving a new delivery address.");
-        }
-
-        await createUserAddress({
-          label: label.trim(),
-          address: address.trim(),
-          buildingInfo: buildingInfo.trim(),
-          city: city.trim(),
-          phone: phone.trim(),
-          latitude: coordinates.latitude,
-          longitude: coordinates.longitude,
-          isDefault: true,
-        });
-        await refreshProfile();
-      } else {
-        setGuestLocation({
-          label: label.trim(),
-          address: address.trim(),
-          city: city.trim(),
-          latitude: coordinates?.latitude ?? null,
-          longitude: coordinates?.longitude ?? null,
-        });
+      if (!phone.trim()) {
+        throw new Error("Phone is required to save a delivery address.");
       }
+
+      await createUserAddress({
+        label: label.trim(),
+        address: address.trim(),
+        buildingInfo: buildingInfo.trim() || undefined,
+        city: city.trim(),
+        phone: phone.trim(),
+        latitude: coordinates?.latitude ?? null,
+        longitude: coordinates?.longitude ?? null,
+        isDefault,
+      });
+      await refreshProfile();
 
       onClose();
     } catch (err) {
@@ -146,7 +150,7 @@ export function LocationModal({ open, onClose }: LocationModalProps) {
     }
   }
 
-  const savedAddresses = signedInCustomer ? profile?.addresses ?? [] : [];
+  const savedAddresses = profile?.addresses ?? [];
 
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center pt-24">
@@ -157,9 +161,7 @@ export function LocationModal({ open, onClose }: LocationModalProps) {
           <div>
             <h2 className="text-lg font-semibold">Select your location</h2>
             <p className="mt-1 text-sm text-subtle">
-              {signedInCustomer
-                ? "Choose a saved address or add your current location as a new default."
-                : "Pick a location for this device and we will keep using it on the home page."}
+              Choose a saved address or add a new delivery address for customer flows.
             </p>
           </div>
           <button
@@ -217,12 +219,12 @@ export function LocationModal({ open, onClose }: LocationModalProps) {
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
-                {signedInCustomer ? "Add current location" : "Device location"}
+                Add address
               </p>
               <p className="mt-2 text-sm text-subtle">
                 {coordinates
                   ? `Coordinates captured: ${coordinates.latitude.toFixed(4)}, ${coordinates.longitude.toFixed(4)}`
-                  : "Capture your current coordinates first, then confirm the address details below."}
+                  : "Enter the address manually or use your current location to prefill it."}
               </p>
             </div>
             <button
@@ -268,42 +270,74 @@ export function LocationModal({ open, onClose }: LocationModalProps) {
             <SearchIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Enter your delivery address"
+              placeholder="Enter your delivery address or Kolkata locality"
               value={address}
               onChange={(event) => setAddress(event.target.value)}
               className={`${inputClassName} pl-10`}
             />
           </div>
 
-          {signedInCustomer ? (
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-foreground" htmlFor="buildingInfo">
-                  Building info
-                </label>
-                <input
-                  id="buildingInfo"
-                  value={buildingInfo}
-                  onChange={(event) => setBuildingInfo(event.target.value)}
-                  className={inputClassName}
-                  placeholder="Flat 804, Palm Residency"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-foreground" htmlFor="phone">
-                  Phone
-                </label>
-                <input
-                  id="phone"
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  className={inputClassName}
-                  placeholder="+91 98765 43210"
-                />
+          {localities.length > 0 ? (
+            <div className="mt-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
+                Suggested localities
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {localities.slice(0, 10).map((locality) => (
+                  <button
+                    key={locality}
+                    type="button"
+                    onClick={() => {
+                      setCity("Kolkata");
+                      setAddress(locality);
+                      if (!buildingInfo) {
+                        setBuildingInfo(`Near ${locality}`);
+                      }
+                    }}
+                    className="rounded-full border border-orange-200 bg-white px-3 py-2 text-xs font-semibold tracking-wide text-brand"
+                  >
+                    {locality}
+                  </button>
+                ))}
               </div>
             </div>
           ) : null}
+
+          <div className="mt-4">
+            <label className="mb-2 block text-sm font-semibold text-foreground" htmlFor="buildingInfo">
+              Building info
+            </label>
+            <input
+              id="buildingInfo"
+              value={buildingInfo}
+              onChange={(event) => setBuildingInfo(event.target.value)}
+              className={inputClassName}
+              placeholder="Flat 804, Palm Residency"
+            />
+          </div>
+
+          <div className="mt-4">
+            <label className="mb-2 block text-sm font-semibold text-foreground" htmlFor="phone">
+              Phone
+            </label>
+            <input
+              id="phone"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              className={inputClassName}
+              placeholder="+91 98765 43210"
+            />
+          </div>
+
+          <label className="mt-4 flex items-center gap-3 text-sm text-foreground">
+            <input
+              type="checkbox"
+              checked={isDefault}
+              onChange={(event) => setIsDefault(event.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand"
+            />
+            Make this my default delivery address
+          </label>
 
           <button
             type="button"
@@ -311,11 +345,7 @@ export function LocationModal({ open, onClose }: LocationModalProps) {
             disabled={loading}
             className="mt-5 w-full rounded-xl bg-brand py-3 font-medium text-white transition-colors hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading
-              ? "Saving..."
-              : signedInCustomer
-                ? "Save as default delivery address"
-                : "Confirm location"}
+            {loading ? "Saving..." : "Save address"}
           </button>
         </div>
       </div>

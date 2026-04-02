@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <rect width="1200" height="800" fill="#2e180f"/>
+  <rect x="0" y="0" width="1200" height="800" fill="url(#g)"/>
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6d2f12"/>
+      <stop offset="60%" stop-color="#c0561a"/>
+      <stop offset="100%" stop-color="#f0c35d"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="600" cy="450" rx="320" ry="170" fill="#5f2e15"/>
+  <ellipse cx="600" cy="430" rx="280" ry="135" fill="#f7d575"/>
+  <circle cx="520" cy="405" r="42" fill="#d06d2b"/>
+  <circle cx="670" cy="465" r="45" fill="#d06d2b"/>
+  <circle cx="755" cy="395" r="36" fill="#fff0ca"/>
+  <text x="135" y="140" fill="#fff0ca" font-family="Georgia, serif" font-size="84" font-weight="700">Biryani Night</text>
+  <text x="140" y="205" fill="#fff0ca" font-family="Arial, sans-serif" font-size="32">Layered rice, potato, and slow-cooked protein, built for the Kolkata demo feed.</text>
+</svg>

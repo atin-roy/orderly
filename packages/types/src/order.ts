@@ -9,19 +9,74 @@ export enum OrderStatus {
 }
 
 export interface OrderItem {
-  menuItemId: string;
   name: string;
   quantity: number;
   price: number;
+  lineTotal: number;
 }
 
 export interface Order {
-  id: string;
-  customerId: string;
-  restaurantId: string;
+  id: number;
+  restaurantId: number;
+  restaurantName: string;
+  restaurantCuisine: string;
+  imageColor: string;
+  deliveryAddress: string;
+  deliveryCity: string;
+  deliveryPhone: string;
+  deliveryLatitude: number | null;
+  deliveryLongitude: number | null;
+  paymentMethod: string;
+  paymentProvider: string;
+  paymentStatus: string;
+  gatewayOrderId: string | null;
+  gatewayPaymentId: string | null;
+  subtotal: number;
+  deliveryFee: number;
+  platformFee: number;
+  taxes: number;
+  discount: number;
+  couponCode: string | null;
+  total: number;
+  estimatedDeliveryMinutes: number;
+  itemCount: number;
+  timeLabel: string;
+  estimatedArrival: string | null;
+  deliveredAt: string | null;
+  createdDate: string;
   items: OrderItem[];
-  totalAmount: number;
   status: OrderStatus;
-  paymentMethod: "CASH_ON_DELIVERY";
-  createdAt: string;
+  timeline: OrderTimelineEntry[];
+}
+
+export interface OrderTimelineEntry {
+  label: string;
+  timestamp: string;
+  time: string;
+  complete: boolean;
+}
+
+export interface OrderSummary {
+  id: number;
+  restaurantName: string;
+  restaurantCuisine: string;
+  status: OrderStatus;
+  total: number;
+  itemCount: number;
+  timeLabel: string;
+  paymentMethod: string;
+  imageColor: string;
+  estimatedArrival: string | null;
+  deliveredAt: string | null;
+}
+
+export interface OrdersPage {
+  orders: {
+    content: OrderSummary[];
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+  };
+  activeOrder: Order | null;
 }

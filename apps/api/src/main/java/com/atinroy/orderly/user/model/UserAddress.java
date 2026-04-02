@@ -39,12 +39,10 @@ public class UserAddress extends BaseEntity {
     @Column(nullable = false)
     private String phone;
 
-    @NotNull
-    @Column(nullable = false)
+    @Column
     private Double latitude;
 
-    @NotNull
-    @Column(nullable = false)
+    @Column
     private Double longitude;
 
     @Column(nullable = false)

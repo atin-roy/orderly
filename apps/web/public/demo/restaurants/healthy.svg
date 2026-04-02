@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d7032"/>
+      <stop offset="55%" stop-color="#3da270"/>
+      <stop offset="100%" stop-color="#d2cf6b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <rect x="150" y="120" width="900" height="560" rx="52" fill="#f2fbf0" opacity="0.9"/>
+  <ellipse cx="600" cy="455" rx="290" ry="150" fill="#24503a"/>
+  <ellipse cx="600" cy="445" rx="250" ry="115" fill="#eef0d5"/>
+  <circle cx="535" cy="430" r="34" fill="#6cab43"/>
+  <circle cx="610" cy="410" r="34" fill="#e8a444"/>
+  <circle cx="680" cy="455" r="34" fill="#d35a44"/>
+  <text x="170" y="210" fill="#2b6442" font-family="Georgia, serif" font-size="80" font-weight="700">Greens Kitchen</text>
+  <text x="170" y="278" fill="#2b6442" font-family="Arial, sans-serif" font-size="32">Bowls, wraps, salads, and lighter lunch-friendly delivery meals.</text>
+</svg>

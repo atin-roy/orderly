@@ -17,6 +17,7 @@ import java.util.List;
  */
 @Component
 public class UserMapper {
+    private static final double UNKNOWN_COORDINATE = 0D;
 
     public UserDto toDto(User user) {
         List<UserAddressDto> addressDtos = user.getAddresses() == null
@@ -57,8 +58,8 @@ public class UserMapper {
         address.setBuildingInfo(request.buildingInfo());
         address.setCity(request.city());
         address.setPhone(request.phone());
-        address.setLatitude(request.latitude());
-        address.setLongitude(request.longitude());
+        address.setLatitude(normalizeCoordinate(request.latitude()));
+        address.setLongitude(normalizeCoordinate(request.longitude()));
         address.setDefault(request.isDefault());
         return address;
     }
@@ -69,8 +70,12 @@ public class UserMapper {
         address.setBuildingInfo(request.buildingInfo());
         address.setCity(request.city());
         address.setPhone(request.phone());
-        address.setLatitude(request.latitude());
-        address.setLongitude(request.longitude());
+        address.setLatitude(normalizeCoordinate(request.latitude()));
+        address.setLongitude(normalizeCoordinate(request.longitude()));
         address.setDefault(request.isDefault());
+    }
+
+    private Double normalizeCoordinate(Double value) {
+        return value == null ? UNKNOWN_COORDINATE : value;
     }
 }

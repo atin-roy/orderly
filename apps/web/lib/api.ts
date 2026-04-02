@@ -1,4 +1,16 @@
-import type { ApiResponse, UserAddress, UserProfile } from "@orderly/types";
+import type {
+  ApiResponse,
+  Cart,
+  Coupon,
+  CouponValidation,
+  MenuCategory,
+  Order,
+  OrdersPage,
+  PaginatedResponse,
+  Restaurant,
+  UserAddress,
+  UserProfile,
+} from "@orderly/types";
 import {
   clearStoredSession,
   getStoredToken,
@@ -65,6 +77,10 @@ async function requestJson<T>(
       throw new Error(await parseErrorMessage(res, fallbackMessage));
     }
 
+    if (res.status === 204) {
+      return undefined as T;
+    }
+
     return res.json() as Promise<T>;
   } catch (error) {
     throw toApiError(error, fallbackMessage);
@@ -114,9 +130,63 @@ export interface CreateAddressPayload {
   buildingInfo?: string;
   city?: string;
   phone: string;
-  latitude: number;
-  longitude: number;
+  latitude?: number | null;
+  longitude?: number | null;
   isDefault: boolean;
+}
+
+export interface UpdateProfilePayload {
+  name: string | null;
+  phone: string;
+}
+
+export interface CreateRestaurantPayload {
+  name: string;
+  description?: string;
+  cuisineType: string;
+  city: string;
+  locality: string;
+  imageUrl?: string;
+  deliveryTimeMinutes: number;
+  deliveryFee: number;
+  priceLevel: string;
+  imageColor?: string;
+}
+
+export interface UpdateRestaurantPayload extends CreateRestaurantPayload {
+  isActive?: boolean;
+}
+
+export interface MenuItemPayload {
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  price: number;
+  category: string;
+  isAvailable?: boolean;
+  isVeg?: boolean;
+  sortOrder?: number;
+}
+
+export interface AddToCartPayload {
+  menuItemId: number;
+  quantity: number;
+  note?: string;
+}
+
+export interface UpdateCartItemPayload {
+  quantity: number;
+  note?: string;
+}
+
+export interface PlaceOrderPayload {
+  addressId: number;
+  paymentMethod: string;
+  paymentProvider?: string;
+  paymentStatus?: string;
+  gatewayOrderId?: string;
+  gatewayPaymentId?: string;
+  couponCode?: string;
 }
 
 async function storeAuthResponse(
@@ -173,6 +243,19 @@ export async function getMyProfile(): Promise<UserProfile> {
   return requestJson<UserProfile>("/profile/me", undefined, "Unable to load profile");
 }
 
+export async function updateMyProfile(
+  payload: UpdateProfilePayload
+): Promise<UserProfile> {
+  return requestJson<UserProfile>(
+    "/profile/me",
+    {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    },
+    "Unable to update profile"
+  );
+}
+
 export async function createUserAddress(
   payload: CreateAddressPayload
 ): Promise<UserAddress> {
@@ -194,4 +277,171 @@ export async function setDefaultUserAddress(addressId: number): Promise<UserAddr
     },
     "Unable to update default address"
   );
+}
+
+export async function deleteUserAddress(addressId: number): Promise<void> {
+  await requestJson<void>(
+    `/profile/addresses/${addressId}`,
+    {
+      method: "DELETE",
+    },
+    "Unable to delete address"
+  );
+}
+
+export async function getRestaurants(
+  options: {
+    page?: number;
+    size?: number;
+    query?: string;
+    locality?: string;
+    isVeg?: boolean;
+    sort?: string;
+  } = {}
+): Promise<ApiResponse<PaginatedResponse<Restaurant>>> {
+  const params = new URLSearchParams();
+  params.set("page", String(options.page ?? 0));
+  params.set("size", String(options.size ?? 12));
+  if (options.query) {
+    params.set("query", options.query);
+  }
+  if (options.locality) {
+    params.set("locality", options.locality);
+  }
+  if (options.isVeg !== undefined) {
+    params.set("isVeg", String(options.isVeg));
+  }
+  if (options.sort) {
+    params.set("sort", options.sort);
+  }
+
+  return apiClient<PaginatedResponse<Restaurant>>(`/restaurants?${params.toString()}`);
+}
+
+export async function getRestaurant(restaurantId: number): Promise<ApiResponse<Restaurant>> {
+  return apiClient<Restaurant>(`/restaurants/${restaurantId}`);
+}
+
+export async function getRestaurantMenu(
+  restaurantId: number
+): Promise<ApiResponse<MenuCategory[]>> {
+  return apiClient<MenuCategory[]>(`/restaurants/${restaurantId}/menu`);
+}
+
+export async function getRestaurantLocalities(city = "Kolkata"): Promise<ApiResponse<string[]>> {
+  return apiClient<string[]>(`/restaurants/localities?city=${encodeURIComponent(city)}`);
+}
+
+export async function getMyRestaurants(): Promise<ApiResponse<Restaurant[]>> {
+  return apiClient<Restaurant[]>("/restaurants/mine");
+}
+
+export async function createRestaurant(
+  payload: CreateRestaurantPayload
+): Promise<ApiResponse<Restaurant>> {
+  return apiClient<Restaurant>("/restaurants", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateRestaurant(
+  restaurantId: number,
+  payload: UpdateRestaurantPayload
+): Promise<ApiResponse<Restaurant>> {
+  return apiClient<Restaurant>(`/restaurants/${restaurantId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function createMenuItem(
+  restaurantId: number,
+  payload: MenuItemPayload
+): Promise<ApiResponse<unknown>> {
+  return apiClient(`/restaurants/${restaurantId}/menu`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateMenuItem(
+  restaurantId: number,
+  itemId: number,
+  payload: MenuItemPayload
+): Promise<ApiResponse<unknown>> {
+  return apiClient(`/restaurants/${restaurantId}/menu/${itemId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteMenuItem(
+  restaurantId: number,
+  itemId: number
+): Promise<ApiResponse<void>> {
+  return apiClient<void>(`/restaurants/${restaurantId}/menu/${itemId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function getCart(): Promise<ApiResponse<Cart>> {
+  return apiClient<Cart>("/cart");
+}
+
+export async function addToCart(payload: AddToCartPayload): Promise<ApiResponse<Cart>> {
+  return apiClient<Cart>("/cart/items", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateCartItem(
+  itemId: number,
+  payload: UpdateCartItemPayload
+): Promise<ApiResponse<Cart>> {
+  return apiClient<Cart>(`/cart/items/${itemId}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function removeCartItem(itemId: number): Promise<ApiResponse<Cart>> {
+  return apiClient<Cart>(`/cart/items/${itemId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function clearCart(): Promise<ApiResponse<void>> {
+  return apiClient<void>("/cart", {
+    method: "DELETE",
+  });
+}
+
+export async function getCoupons(): Promise<ApiResponse<Coupon[]>> {
+  return apiClient<Coupon[]>("/coupons");
+}
+
+export async function validateCoupon(code: string): Promise<ApiResponse<CouponValidation>> {
+  return apiClient<CouponValidation>("/coupons/validate", {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
+}
+
+export async function placeOrder(
+  payload: PlaceOrderPayload
+): Promise<ApiResponse<Order>> {
+  return apiClient<Order>("/orders", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getOrders(page = 0, size = 4): Promise<ApiResponse<OrdersPage>> {
+  return apiClient<OrdersPage>(`/orders?page=${page}&size=${size}`);
+}
+
+export async function getOrder(orderId: number): Promise<ApiResponse<Order>> {
+  return apiClient<Order>(`/orders/${orderId}`);
 }

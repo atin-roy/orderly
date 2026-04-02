@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4b1d0f"/>
+      <stop offset="50%" stop-color="#d35b1f"/>
+      <stop offset="100%" stop-color="#f4b13d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <circle cx="920" cy="180" r="120" fill="#fff2d8" opacity="0.25"/>
+  <circle cx="230" cy="620" r="180" fill="#fff2d8" opacity="0.16"/>
+  <rect x="120" y="130" width="960" height="540" rx="52" fill="#fff6e9" opacity="0.9"/>
+  <ellipse cx="600" cy="430" rx="290" ry="160" fill="#b24b1b"/>
+  <ellipse cx="600" cy="430" rx="250" ry="125" fill="#f7d37a"/>
+  <text x="120" y="90" fill="#fff6e9" font-family="Georgia, serif" font-size="60" font-weight="700">Orderly Demo</text>
+  <text x="160" y="250" fill="#7b3216" font-family="Georgia, serif" font-size="72" font-weight="700">North Indian</text>
+  <text x="160" y="330" fill="#7b3216" font-family="Arial, sans-serif" font-size="34">Kolkata dinner classics with biryani, kebabs, and comfort curries.</text>
+</svg>

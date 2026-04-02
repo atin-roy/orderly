@@ -1,5 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import type { Restaurant } from "@orderly/types";
 import { Header } from "@/components/header";
+import { useSession } from "@/components/session-provider";
 import { Footer } from "@/components/footer";
 import { HomeLocationCard } from "@/components/home-location-card";
 import { RestaurantCard } from "@/components/restaurant-card";
@@ -11,7 +16,7 @@ import {
   StarIcon,
   StoreIcon,
 } from "@/components/icons";
-import { mockRestaurants } from "@/data/mock-data";
+import { getRestaurants } from "@/lib/api";
 
 const featuredStats = [
   { label: "Average dinner ETA", value: "24 min" },
@@ -58,6 +63,29 @@ const courierBenefits = [
 ];
 
 export default function Home() {
+  const { isAuthenticated } = useSession();
+  const [featuredRestaurants, setFeaturedRestaurants] = useState<Restaurant[]>([]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    void getRestaurants({ size: 3, sort: "rating" })
+      .then((response) => {
+        if (!ignore) {
+          setFeaturedRestaurants(response.data.content);
+        }
+      })
+      .catch(() => {
+        if (!ignore) {
+          setFeaturedRestaurants([]);
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-cream text-foreground">
       <Header />
@@ -255,121 +283,141 @@ export default function Home() {
           </div>
 
           <div className="mt-8 grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
-            {mockRestaurants.slice(0, 3).map((restaurant) => (
-              <RestaurantCard key={restaurant.name} {...restaurant} />
+            {featuredRestaurants.map((restaurant) => (
+              <RestaurantCard
+                key={restaurant.id}
+                href={`/restaurants/${restaurant.id}`}
+                name={restaurant.name}
+                cuisine={restaurant.cuisineType}
+                locality={restaurant.locality}
+                rating={restaurant.rating}
+                priceLevel={restaurant.priceLevel}
+                deliveryTime={`${restaurant.deliveryTimeMinutes} min`}
+                deliveryFee={
+                  restaurant.deliveryFee === 0
+                    ? "FREE DELIVERY"
+                    : `₹${restaurant.deliveryFee} DELIVERY`
+                }
+                imageColor={restaurant.imageColor}
+                imageUrl={restaurant.imageUrl}
+              />
             ))}
           </div>
         </section>
 
-        <section
-          id="business"
-          className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12 lg:px-8"
-        >
-          <div className="grid gap-8 rounded-[2.5rem] border border-orange-200 bg-[linear-gradient(135deg,_rgba(255,250,240,0.95),_rgba(248,223,190,0.9))] p-8 shadow-[0_24px_60px_rgba(211,91,31,0.08)] lg:grid-cols-[minmax(0,1fr)_340px] lg:items-center md:p-10">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-brand">
-                Add your business
-              </p>
-              <h2 className="mt-4 font-serif text-4xl font-bold tracking-tight">
-                Turn local demand into repeat food orders.
-              </h2>
-              <p className="mt-4 max-w-2xl text-base leading-8 text-subtle">
-                Restaurant owners should see a practical path immediately: share your
-                service area, define what you sell, and get ready for a cleaner partner
-                onboarding API later.
-              </p>
-
-              <div className="mt-6 grid gap-3">
-                {businessBenefits.map((benefit) => (
-                  <div
-                    key={benefit}
-                    className="flex items-start gap-3 rounded-2xl bg-white/80 px-4 py-4 shadow-sm"
-                  >
-                    <StoreIcon className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
-                    <span className="text-sm leading-7 text-subtle">{benefit}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] bg-[#231815] p-6 text-white shadow-[0_18px_40px_rgba(35,24,21,0.16)]">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/60">
-                Partner snapshot
-              </p>
-              <div className="mt-6 space-y-5">
+        {!isAuthenticated ? (
+          <>
+            <section
+              id="business"
+              className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12 lg:px-8"
+            >
+              <div className="grid gap-8 rounded-[2.5rem] border border-orange-200 bg-[linear-gradient(135deg,_rgba(255,250,240,0.95),_rgba(248,223,190,0.9))] p-8 shadow-[0_24px_60px_rgba(211,91,31,0.08)] lg:grid-cols-[minmax(0,1fr)_340px] lg:items-center md:p-10">
                 <div>
-                  <p className="font-serif text-4xl font-bold">Operational v1</p>
-                  <p className="mt-2 text-sm text-white/75">
-                    Owner details, city coverage, service area, and cuisine focus.
+                  <p className="text-xs font-semibold uppercase tracking-[0.32em] text-brand">
+                    Add your business
                   </p>
-                </div>
-                <div className="flex items-center gap-3 rounded-2xl bg-white/8 px-4 py-4">
-                  <ClockIcon className="h-5 w-5 text-marigold" />
-                  <div>
-                    <p className="text-sm font-semibold">Frontend staged, backend ready later</p>
-                    <p className="text-xs text-white/65">
-                      The page flow is ready before the partner API exists.
-                    </p>
+                  <h2 className="mt-4 font-serif text-4xl font-bold tracking-tight">
+                    Turn local demand into repeat food orders.
+                  </h2>
+                  <p className="mt-4 max-w-2xl text-base leading-8 text-subtle">
+                    Restaurant owners should see a practical path immediately: share your
+                    service area, define what you sell, and get ready for a cleaner partner
+                    onboarding API later.
+                  </p>
+
+                  <div className="mt-6 grid gap-3">
+                    {businessBenefits.map((benefit) => (
+                      <div
+                        key={benefit}
+                        className="flex items-start gap-3 rounded-2xl bg-white/80 px-4 py-4 shadow-sm"
+                      >
+                        <StoreIcon className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
+                        <span className="text-sm leading-7 text-subtle">{benefit}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <Link
-                  href="/register/business"
-                  className="inline-flex w-full items-center justify-center rounded-2xl bg-brand px-5 py-4 text-sm font-semibold text-white transition hover:bg-brand/90"
-                >
-                  Apply to list your restaurant
-                </Link>
+
+                <div className="rounded-[2rem] bg-[#231815] p-6 text-white shadow-[0_18px_40px_rgba(35,24,21,0.16)]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/60">
+                    Partner snapshot
+                  </p>
+                  <div className="mt-6 space-y-5">
+                    <div>
+                      <p className="font-serif text-4xl font-bold">Operational v1</p>
+                      <p className="mt-2 text-sm text-white/75">
+                        Owner details, city coverage, service area, and cuisine focus.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 rounded-2xl bg-white/8 px-4 py-4">
+                      <ClockIcon className="h-5 w-5 text-marigold" />
+                      <div>
+                        <p className="text-sm font-semibold">Frontend staged, backend ready later</p>
+                        <p className="text-xs text-white/65">
+                          The page flow is ready before the partner API exists.
+                        </p>
+                      </div>
+                    </div>
+                    <Link
+                      href="/register/business"
+                      className="inline-flex w-full items-center justify-center rounded-2xl bg-brand px-5 py-4 text-sm font-semibold text-white transition hover:bg-brand/90"
+                    >
+                      Apply to list your restaurant
+                    </Link>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
 
-        <section
-          id="delivery"
-          className="mx-auto max-w-7xl px-4 py-8 pb-20 sm:px-6 md:py-12 md:pb-24 lg:px-8"
-        >
-          <div className="grid gap-8 rounded-[2.5rem] border border-emerald-200 bg-[linear-gradient(140deg,_rgba(16,48,38,0.96),_rgba(19,136,80,0.92))] p-8 shadow-[0_30px_70px_rgba(19,136,80,0.18)] lg:grid-cols-[320px_minmax(0,1fr)] lg:items-center md:p-10">
-            <div className="rounded-[2rem] border border-white/15 bg-white/10 p-6 text-white backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/60">
-                Delivery partner path
-              </p>
-              <p className="mt-4 font-serif text-4xl font-bold">Flexible shifts. Dense routes.</p>
-              <p className="mt-4 text-sm leading-7 text-white/75">
-                Delivery signup now captures city, shift preference, vehicle type, and
-                preferred zones so the future API can plug in without a UI rewrite.
-              </p>
-              <Link
-                href="/register/delivery"
-                className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-white px-5 py-4 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-50"
-              >
-                Start as a delivery partner
-              </Link>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-emerald-100">
-                Become a delivery partner
-              </p>
-              <h2 className="mt-4 font-serif text-4xl font-bold tracking-tight text-white">
-                Stay close to high-intent orders instead of wasting miles.
-              </h2>
-              <p className="mt-4 max-w-2xl text-base leading-8 text-emerald-50/85">
-                The delivery section should sound like real work: where demand spikes,
-                when shifts are busiest, and why local route density matters.
-              </p>
-
-              <div className="mt-6 grid gap-3 md:grid-cols-3">
-                {courierBenefits.map((benefit) => (
-                  <div
-                    key={benefit}
-                    className="rounded-[1.75rem] border border-white/10 bg-white/10 p-5 text-sm leading-7 text-white/85 backdrop-blur"
+            <section
+              id="delivery"
+              className="mx-auto max-w-7xl px-4 py-8 pb-20 sm:px-6 md:py-12 md:pb-24 lg:px-8"
+            >
+              <div className="grid gap-8 rounded-[2.5rem] border border-emerald-200 bg-[linear-gradient(140deg,_rgba(16,48,38,0.96),_rgba(19,136,80,0.92))] p-8 shadow-[0_30px_70px_rgba(19,136,80,0.18)] lg:grid-cols-[320px_minmax(0,1fr)] lg:items-center md:p-10">
+                <div className="rounded-[2rem] border border-white/15 bg-white/10 p-6 text-white backdrop-blur">
+                  <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/60">
+                    Delivery partner path
+                  </p>
+                  <p className="mt-4 font-serif text-4xl font-bold">Flexible shifts. Dense routes.</p>
+                  <p className="mt-4 text-sm leading-7 text-white/75">
+                    Delivery signup now captures city, shift preference, vehicle type, and
+                    preferred zones so the future API can plug in without a UI rewrite.
+                  </p>
+                  <Link
+                    href="/register/delivery"
+                    className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-white px-5 py-4 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-50"
                   >
-                    {benefit}
+                    Start as a delivery partner
+                  </Link>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.32em] text-emerald-100">
+                    Become a delivery partner
+                  </p>
+                  <h2 className="mt-4 font-serif text-4xl font-bold tracking-tight text-white">
+                    Stay close to high-intent orders instead of wasting miles.
+                  </h2>
+                  <p className="mt-4 max-w-2xl text-base leading-8 text-emerald-50/85">
+                    The delivery section should sound like real work: where demand spikes,
+                    when shifts are busiest, and why local route density matters.
+                  </p>
+
+                  <div className="mt-6 grid gap-3 md:grid-cols-3">
+                    {courierBenefits.map((benefit) => (
+                      <div
+                        key={benefit}
+                        className="rounded-[1.75rem] border border-white/10 bg-white/10 p-5 text-sm leading-7 text-white/85 backdrop-blur"
+                      >
+                        {benefit}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
+          </>
+        ) : null}
       </main>
 
       <Footer />

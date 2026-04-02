@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06314a"/>
+      <stop offset="55%" stop-color="#0f6f8e"/>
+      <stop offset="100%" stop-color="#54b7d4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <rect x="150" y="130" width="900" height="540" rx="50" fill="#eef7fb" opacity="0.92"/>
+  <ellipse cx="610" cy="455" rx="290" ry="145" fill="#12465e"/>
+  <ellipse cx="610" cy="445" rx="240" ry="105" fill="#faf0d9"/>
+  <path d="M470 405c80-40 180-40 270 0-55 52-145 84-270 0z" fill="#d07e33"/>
+  <text x="175" y="220" fill="#0e4e68" font-family="Georgia, serif" font-size="78" font-weight="700">Bowl Company</text>
+  <text x="175" y="288" fill="#0e4e68" font-family="Arial, sans-serif" font-size="32">Fast office bowls, noodles, and small plates for workday delivery.</text>
+</svg>
