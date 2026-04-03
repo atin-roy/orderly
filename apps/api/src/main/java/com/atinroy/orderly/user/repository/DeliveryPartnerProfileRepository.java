@@ -25,7 +25,7 @@ public interface DeliveryPartnerProfileRepository extends JpaRepository<Delivery
             select profile
             from DeliveryPartnerProfile profile
             join profile.user user
-            where (:query is null
+            where (:query = ''
                 or lower(user.name) like lower(concat('%', :query, '%'))
                 or lower(user.email) like lower(concat('%', :query, '%'))
                 or lower(user.phone) like lower(concat('%', :query, '%'))

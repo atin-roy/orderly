@@ -148,9 +148,10 @@ public class UserService {
             String shift
     ) {
         requireAdmin(email);
+        String normalizedQuery = normalizeOptional(query);
 
         var profiles = deliveryPartnerProfileRepository.searchAdminProfiles(
-                        normalizeOptional(query),
+                        normalizedQuery == null ? "" : normalizedQuery,
                         normalizeOptional(shift),
                         PageRequest.of(Math.max(page, 0), Math.max(size, 1), Sort.by("id").ascending())
                 );

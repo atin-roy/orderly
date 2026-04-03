@@ -53,7 +53,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
             select r
             from Restaurant r
             left join r.owner owner
-            where (:query is null
+            where (:query = ''
                 or lower(r.name) like lower(concat('%', :query, '%'))
                 or lower(r.locality) like lower(concat('%', :query, '%'))
                 or lower(r.city) like lower(concat('%', :query, '%'))

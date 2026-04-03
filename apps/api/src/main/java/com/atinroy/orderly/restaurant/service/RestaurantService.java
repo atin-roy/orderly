@@ -250,8 +250,9 @@ public class RestaurantService {
             String status
     ) {
         getAdminUser(email);
+        String normalizedQuery = normalize(query);
         var restaurants = restaurantRepository.searchAdminRestaurants(
-                        normalize(query),
+                        normalizedQuery == null ? "" : normalizedQuery,
                         toRestaurantStatus(status),
                         PageRequest.of(Math.max(page, 0), Math.max(size, 1), Sort.by(Sort.Order.desc("id")))
                 )
