@@ -10,6 +10,10 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/orderly}
     username: ${SPRING_DATASOURCE_USERNAME:orderly}
     password: ${SPRING_DATASOURCE_PASSWORD:orderly}
+  servlet:
+    multipart:
+      max-file-size: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:5MB}
+      max-request-size: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE:5MB}
   jpa:
     hibernate:
       ddl-auto: update

@@ -40,6 +40,7 @@ export default function AdminDashboardPage() {
   const [message, setMessage] = useState("");
   const [couponError, setCouponError] = useState("");
   const [couponSaving, setCouponSaving] = useState(false);
+  const [couponLoadError, setCouponLoadError] = useState("");
 
   useEffect(() => {
     let ignore = false;
@@ -84,12 +85,16 @@ export default function AdminDashboardPage() {
         setCoupons(response.data.content);
         setCouponTotalPages(response.data.totalPages);
         setCouponTotalElements(response.data.totalElements);
+        setCouponLoadError("");
       })
-      .catch(() => {
+      .catch((error) => {
         if (!ignore) {
           setCoupons([]);
           setCouponTotalPages(1);
           setCouponTotalElements(0);
+          setCouponLoadError(
+            error instanceof Error ? error.message : "Unable to load available coupons."
+          );
         }
       });
 
@@ -165,7 +170,15 @@ export default function AdminDashboardPage() {
       setEditingCouponId(null);
       setCouponForm(emptyCouponForm);
     } catch (error) {
-      setCouponError(error instanceof Error ? error.message : "Unable to save coupon.");
+      const errorMessage = error instanceof Error ? error.message : "Unable to save coupon.";
+      setCouponError(errorMessage);
+
+      if (!editingCouponId && /already exists/i.test(errorMessage)) {
+        setCouponQuery(code);
+        setCouponStatus("all");
+        setCouponPage(0);
+        await refreshCoupons(0, { query: code, status: "all" });
+      }
     } finally {
       setCouponSaving(false);
     }
@@ -463,6 +476,11 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          {couponLoadError ? (
+            <div className="rounded-[1.6rem] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 lg:col-span-2">
+              {couponLoadError}
+            </div>
+          ) : null}
           {coupons.map((coupon) => (
             <div
               key={coupon.id}

@@ -76,8 +76,25 @@ function toApiError(error: unknown, fallbackMessage: string) {
 }
 
 async function parseErrorMessage(res: Response, fallbackMessage: string) {
-  const errorData = await res.json().catch(() => null);
-  return errorData?.message || fallbackMessage;
+  if (res.status === 413) {
+    return "Image exceeds the 5 MB limit.";
+  }
+
+  const errorText = await res.text().catch(() => "");
+  if (!errorText) {
+    return fallbackMessage;
+  }
+
+  try {
+    const errorData = JSON.parse(errorText) as { message?: string };
+    if (errorData.message) {
+      return errorData.message;
+    }
+  } catch {
+    return errorText;
+  }
+
+  return errorText;
 }
 
 async function requestJson<T>(

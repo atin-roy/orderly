@@ -89,7 +89,7 @@ export default function ProfilePage() {
     <AuthGuard>
       {isAdmin ? (
         <AdminShell>
-          <main className="grid min-h-full gap-6 xl:grid-cols-[minmax(0,1.2fr)_360px] xl:items-center">
+          <main className="grid min-h-full content-start gap-6 xl:grid-cols-[minmax(0,1.2fr)_360px] xl:items-start">
             <div className="space-y-6">
               <section className="rounded-[2.2rem] border border-orange-200 bg-[radial-gradient(circle_at_top_left,rgba(253,186,116,0.24),transparent_26%),linear-gradient(135deg,#fff7ed_0%,#ffffff_100%)] px-6 py-7 shadow-[0_24px_80px_rgba(211,91,31,0.10)] sm:px-8">
                 <p className="text-xs font-semibold uppercase tracking-[0.34em] text-brand">
