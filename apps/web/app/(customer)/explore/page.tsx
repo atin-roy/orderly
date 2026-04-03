@@ -1,7 +1,6 @@
 "use client";
 
 import type { Restaurant } from "@orderly/types";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
@@ -66,6 +65,15 @@ export default function ExplorePage() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [localities, setLocalities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const hasActiveFilters =
+    query.trim().length > 0 || locality.length > 0 || sort !== "rating" || vegOnly;
+
+  function resetFilters() {
+    setQuery("");
+    setLocality("");
+    setSort("rating");
+    setVegOnly(false);
+  }
 
   function handleCategorySelect(label: string) {
     const nextFilter = categorySearchMap[label];
@@ -172,66 +180,88 @@ export default function ExplorePage() {
                 </p>
               </div>
 
-              <div className="w-full max-w-2xl space-y-4">
+              <div className="w-full max-w-2xl rounded-[2rem] border border-orange-200/80 bg-white/90 p-4 shadow-[0_18px_50px_rgba(211,91,31,0.10)] backdrop-blur sm:p-5">
+                <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand">
+                      Filters
+                    </p>
+                    <p className="mt-1 text-sm text-subtle">
+                      Search by dish, area, delivery preference, or veg-only spots.
+                    </p>
+                  </div>
+                  {hasActiveFilters ? (
+                    <button
+                      type="button"
+                      onClick={resetFilters}
+                      className="inline-flex h-10 items-center justify-center self-start rounded-full border border-orange-200 px-4 text-sm font-semibold text-brand transition-colors hover:border-orange-300 hover:bg-orange-50 sm:self-auto"
+                    >
+                      Clear all
+                    </button>
+                  ) : null}
+                </div>
+
                 <div className="relative">
-                  <SearchIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  <SearchIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" />
                   <input
                     type="text"
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder="Search cuisines, dishes, or Kolkata areas"
-                    className="w-full rounded-2xl border border-orange-200 bg-white py-4 pl-12 pr-4 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="h-14 w-full rounded-[1.4rem] border border-orange-200 bg-[var(--color-card)] pl-12 pr-4 text-[15px] shadow-sm outline-none transition focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand/15"
                   />
                 </div>
 
-                <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_180px_160px_auto]">
-                  <select
-                    value={locality}
-                    onChange={(event) => setLocality(event.target.value)}
-                    className="rounded-2xl border border-orange-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                  >
-                    <option value="">All Kolkata localities</option>
-                    {localities.map((item) => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                  </select>
+                <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_auto]">
+                  <label className="flex flex-col gap-2">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-subtle">
+                      Locality
+                    </span>
+                    <select
+                      value={locality}
+                      onChange={(event) => setLocality(event.target.value)}
+                      className="h-12 rounded-[1.1rem] border border-orange-200 bg-white px-4 text-sm shadow-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
+                    >
+                      <option value="">All Kolkata localities</option>
+                      {localities.map((item) => (
+                        <option key={item} value={item}>
+                          {item}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-                  <select
-                    value={sort}
-                    onChange={(event) => setSort(event.target.value)}
-                    className="rounded-2xl border border-orange-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                  >
-                    <option value="rating">Top rated</option>
-                    <option value="delivery-time">Fastest delivery</option>
-                    <option value="name">Name</option>
-                  </select>
+                  <label className="flex flex-col gap-2">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-subtle">
+                      Sort by
+                    </span>
+                    <select
+                      value={sort}
+                      onChange={(event) => setSort(event.target.value)}
+                      className="h-12 rounded-[1.1rem] border border-orange-200 bg-white px-4 text-sm shadow-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
+                    >
+                      <option value="rating">Top rated</option>
+                      <option value="delivery-time">Fastest delivery</option>
+                      <option value="name">Name</option>
+                    </select>
+                  </label>
 
-                  <button
-                    type="button"
-                    onClick={() => setVegOnly((current) => !current)}
-                    className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition-colors ${
-                      vegOnly
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-900"
-                        : "border-orange-200 bg-white text-brand"
-                    }`}
-                  >
-                    {vegOnly ? "Veg only on" : "Veg only"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setQuery("");
-                      setLocality("");
-                      setSort("rating");
-                      setVegOnly(false);
-                    }}
-                    className="rounded-2xl border border-orange-200 bg-white px-4 py-3 text-sm font-semibold text-brand"
-                  >
-                    Reset
-                  </button>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-subtle">
+                      Dietary
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setVegOnly((current) => !current)}
+                      className={`inline-flex h-12 items-center justify-center rounded-[1.1rem] border px-5 text-sm font-semibold transition ${
+                        vegOnly
+                          ? "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-[0_10px_25px_rgba(16,185,129,0.10)]"
+                          : "border-orange-200 bg-white text-brand hover:border-orange-300 hover:bg-orange-50"
+                      }`}
+                    >
+                      {vegOnly ? "Veg only enabled" : "Veg only"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -240,7 +270,7 @@ export default function ExplorePage() {
 
         <section className="mx-auto w-full max-w-[96rem] px-4 py-10 sm:px-6 lg:px-8">
           <div className="rounded-[2rem] border border-orange-100 bg-white p-6 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
-            <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+            <div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
                   Categories
@@ -250,20 +280,6 @@ export default function ExplorePage() {
                   Tap a craving to narrow the feed instantly, whether you want biryani, sweets,
                   dosas, or a veg-only shortlist.
                 </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="rounded-2xl border border-orange-100 bg-[var(--color-card)] px-5 py-4 shadow-sm">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
-                    Open now
-                  </p>
-                  <p className="mt-1 font-serif text-3xl font-bold">{restaurants.length} spots</p>
-                </div>
-                <Link
-                  href="/"
-                  className="hidden text-xs font-semibold uppercase tracking-[0.25em] text-brand transition-colors hover:text-brand/80 md:inline-flex"
-                >
-                  Back Home
-                </Link>
               </div>
             </div>
 
