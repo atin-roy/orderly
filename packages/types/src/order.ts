@@ -162,6 +162,7 @@ export interface AdminDeliveryPartner {
   vehicleType: string;
   preferredShift: string;
   serviceZones: string;
+  deliveryExperience: string;
   avatarUrl: string;
   activeOrders: number;
   activeNow: boolean;

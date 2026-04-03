@@ -20,8 +20,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(255,205,124,0.24),transparent_26%),linear-gradient(180deg,#fffaf3_0%,#f6efe7_100%)] text-stone-900">
-      <div className="mx-auto grid min-h-screen max-w-[96rem] gap-6 px-4 py-4 sm:px-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:px-8">
-        <aside className="rounded-[2rem] border border-orange-200/80 bg-stone-950 p-5 text-white shadow-[0_24px_80px_rgba(28,25,23,0.22)]">
+      <div className="mx-auto grid min-h-screen max-w-[96rem] gap-6 px-4 py-4 sm:px-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:px-8">
+        <aside className="rounded-[2rem] border border-orange-200/80 bg-stone-950 p-5 text-white shadow-[0_24px_80px_rgba(28,25,23,0.22)] lg:sticky lg:top-4 lg:self-start">
           <Link href="/admin/dashboard" className="block font-serif text-3xl font-bold italic text-orange-200">
             Orderly
           </Link>
@@ -52,7 +52,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </nav>
         </aside>
 
-        <div className="min-w-0 py-1">{children}</div>
+        <div className="min-w-0 py-1 lg:flex lg:min-h-[calc(100vh-2rem)] lg:flex-col">{children}</div>
       </div>
     </div>
   );

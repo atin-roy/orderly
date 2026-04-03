@@ -109,6 +109,15 @@ public class RestaurantController {
         ));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteRestaurant(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        restaurantService.deleteRestaurant(id, userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.success("Restaurant deleted successfully", null));
+    }
+
     @GetMapping("/admin/{id}")
     public ResponseEntity<ApiResponse<RestaurantDto>> getAdminRestaurant(
             @PathVariable Long id,

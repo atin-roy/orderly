@@ -45,4 +45,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     int countByStatusIn(Collection<OrderStatus> statuses);
     long countByRestaurantId(Long restaurantId);
     long countByRestaurantIdAndStatusIn(Long restaurantId, Collection<OrderStatus> statuses);
+    long countByAssignedDeliveryPartnerId(Long deliveryPartnerId);
 }

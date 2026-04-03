@@ -132,6 +132,15 @@ public class RestaurantService {
     }
 
     @Transactional
+    public void deleteRestaurant(Long restaurantId, String email) {
+        Restaurant restaurant = getManageableRestaurant(restaurantId, email);
+        if (orderRepository.countByRestaurantId(restaurantId) > 0) {
+            throw new IllegalStateException("This restaurant already has order history and cannot be deleted.");
+        }
+        restaurantRepository.delete(restaurant);
+    }
+
+    @Transactional
     public MenuItemDto createMenuItem(Long restaurantId, CreateMenuItemRequest request, String email) {
         Restaurant restaurant = getManageableRestaurant(restaurantId, email);
 

@@ -89,86 +89,140 @@ export default function ProfilePage() {
     <AuthGuard>
       {isAdmin ? (
         <AdminShell>
-          <main className="space-y-6">
-            <section className="rounded-[2.2rem] border border-orange-200 bg-[radial-gradient(circle_at_top_left,rgba(253,186,116,0.24),transparent_26%),linear-gradient(135deg,#fff7ed_0%,#ffffff_100%)] px-6 py-7 shadow-[0_24px_80px_rgba(211,91,31,0.10)] sm:px-8">
-              <p className="text-xs font-semibold uppercase tracking-[0.34em] text-brand">
-                Account
-              </p>
-              <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                <div className="max-w-3xl">
-                  <h1 className="font-serif text-4xl font-bold leading-tight sm:text-5xl">
-                    Your admin account
-                  </h1>
-                  <p className="mt-4 max-w-2xl text-base leading-7 text-subtle">
-                    Review your sign-in details and keep account access inside the same admin
-                    workspace as catalog and dispatch operations.
-                  </p>
-                </div>
-                <div className="rounded-[1.6rem] border border-orange-200 bg-white/80 px-5 py-4 text-right shadow-sm">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand">
-                    Role
-                  </p>
-                  <p className="mt-2 font-serif text-3xl font-bold">{profile?.role ?? "ADMIN"}</p>
-                </div>
-              </div>
-            </section>
-
-            <section>
-              <div className="rounded-[2rem] border border-orange-200 bg-white/90 p-6 shadow-[0_20px_70px_rgba(211,91,31,0.08)]">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand">
-                      Account details
+          <main className="grid min-h-full gap-6 xl:grid-cols-[minmax(0,1.2fr)_360px] xl:items-center">
+            <div className="space-y-6">
+              <section className="rounded-[2.2rem] border border-orange-200 bg-[radial-gradient(circle_at_top_left,rgba(253,186,116,0.24),transparent_26%),linear-gradient(135deg,#fff7ed_0%,#ffffff_100%)] px-6 py-7 shadow-[0_24px_80px_rgba(211,91,31,0.10)] sm:px-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.34em] text-brand">
+                  Account
+                </p>
+                <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                  <div className="max-w-3xl">
+                    <h1 className="font-serif text-4xl font-bold leading-tight sm:text-5xl">
+                      Your admin account
+                    </h1>
+                    <p className="mt-4 max-w-2xl text-base leading-7 text-subtle">
+                      Review your sign-in details and keep account access inside the same admin
+                      workspace as catalog and dispatch operations.
                     </p>
-                    <h2 className="mt-2 font-serif text-3xl font-bold">Profile access</h2>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => logout("/login")}
-                    className="inline-flex items-center justify-center rounded-full border border-orange-200 bg-white px-5 py-3 text-sm font-semibold text-brand transition hover:border-brand"
-                  >
-                    Log out
-                  </button>
+                  <div className="rounded-[1.6rem] border border-orange-200 bg-white/80 px-5 py-4 text-right shadow-sm">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand">
+                      Role
+                    </p>
+                    <p className="mt-2 font-serif text-3xl font-bold">
+                      {profile?.role ?? "ADMIN"}
+                    </p>
+                  </div>
                 </div>
+              </section>
 
-                <dl className="mt-6 grid gap-5 md:grid-cols-2">
-                  <div className="rounded-[1.6rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.86),#fff)] p-5">
-                    <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">
-                      Name
-                    </dt>
-                    <dd className="mt-3 text-lg font-semibold text-foreground">
-                      {profile?.name || "Not provided"}
-                    </dd>
+              <section>
+                <div className="rounded-[2rem] border border-orange-200 bg-white/90 p-6 shadow-[0_20px_70px_rgba(211,91,31,0.08)]">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand">
+                        Account details
+                      </p>
+                      <h2 className="mt-2 font-serif text-3xl font-bold">Profile access</h2>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => logout("/login")}
+                      className="inline-flex items-center justify-center rounded-full border border-orange-200 bg-white px-5 py-3 text-sm font-semibold text-brand transition hover:border-brand"
+                    >
+                      Log out
+                    </button>
                   </div>
-                  <div className="rounded-[1.6rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.86),#fff)] p-5">
-                    <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">
-                      Email
-                    </dt>
-                    <dd className="mt-3 text-lg font-semibold text-foreground">
+
+                  <dl className="mt-6 grid gap-5 md:grid-cols-2">
+                    <div className="rounded-[1.6rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.86),#fff)] p-5">
+                      <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">
+                        Name
+                      </dt>
+                      <dd className="mt-3 text-lg font-semibold text-foreground">
+                        {profile?.name || "Not provided"}
+                      </dd>
+                    </div>
+                    <div className="rounded-[1.6rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.86),#fff)] p-5">
+                      <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">
+                        Email
+                      </dt>
+                      <dd className="mt-3 text-lg font-semibold text-foreground">
+                        {profile?.email || "Not provided"}
+                      </dd>
+                    </div>
+                    <div className="rounded-[1.6rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.86),#fff)] p-5">
+                      <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">
+                        Phone
+                      </dt>
+                      <dd className="mt-3 text-lg font-semibold text-foreground">
+                        {profile?.phone || "Not provided"}
+                      </dd>
+                    </div>
+                    <div className="rounded-[1.6rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.86),#fff)] p-5">
+                      <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">
+                        Current location
+                      </dt>
+                      <dd className="mt-3 text-lg font-semibold text-foreground">
+                        {activeLocation
+                          ? [activeLocation.address, activeLocation.city].filter(Boolean).join(", ")
+                          : "No location selected yet"}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </section>
+            </div>
+
+            <aside className="space-y-6">
+              <section className="rounded-[2rem] border border-orange-200 bg-white/90 p-6 shadow-[0_20px_70px_rgba(211,91,31,0.08)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand">
+                  Workspace status
+                </p>
+                <div className="mt-5 grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+                  <div className="rounded-[1.5rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.86),#fff)] p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">
+                      Session role
+                    </p>
+                    <p className="mt-3 font-serif text-3xl font-bold text-foreground">
+                      {profile?.role ?? "ADMIN"}
+                    </p>
+                  </div>
+                  <div className="rounded-[1.5rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.86),#fff)] p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">
+                      Access email
+                    </p>
+                    <p className="mt-3 break-all text-sm font-semibold text-foreground">
                       {profile?.email || "Not provided"}
-                    </dd>
+                    </p>
                   </div>
-                  <div className="rounded-[1.6rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.86),#fff)] p-5">
-                    <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">
-                      Phone
-                    </dt>
-                    <dd className="mt-3 text-lg font-semibold text-foreground">
-                      {profile?.phone || "Not provided"}
-                    </dd>
+                  <div className="rounded-[1.5rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.86),#fff)] p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-subtle">
+                      Location sync
+                    </p>
+                    <p className="mt-3 text-sm font-semibold text-foreground">
+                      {activeLocation ? "Connected to a selected location" : "Waiting for location"}
+                    </p>
                   </div>
-                  <div className="rounded-[1.6rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.86),#fff)] p-5">
-                    <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">
-                      Current location
-                    </dt>
-                    <dd className="mt-3 text-lg font-semibold text-foreground">
-                      {activeLocation
-                        ? [activeLocation.address, activeLocation.city].filter(Boolean).join(", ")
-                        : "No location selected yet"}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            </section>
+                </div>
+              </section>
+
+              <section className="rounded-[2rem] border border-orange-200 bg-[linear-gradient(180deg,rgba(255,248,238,0.98),rgba(255,255,255,0.92))] p-6 shadow-[0_20px_70px_rgba(211,91,31,0.08)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand">
+                  Workspace notes
+                </p>
+                <div className="mt-4 space-y-4 text-sm leading-6 text-subtle">
+                  <p>
+                    This admin account shares the same authenticated workspace used for restaurant,
+                    rider, and promotion operations.
+                  </p>
+                  <p>
+                    Current location is shown here for quick verification whenever catalog or
+                    dispatch tasks depend on service area context.
+                  </p>
+                </div>
+              </section>
+            </aside>
           </main>
         </AdminShell>
       ) : (

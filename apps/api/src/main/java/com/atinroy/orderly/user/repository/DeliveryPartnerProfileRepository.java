@@ -11,12 +11,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DeliveryPartnerProfileRepository extends JpaRepository<DeliveryPartnerProfile, Long> {
     List<DeliveryPartnerProfile> findAllByOrderByIdAsc();
     List<DeliveryPartnerProfile> findByUserIdIn(Collection<Long> userIds);
     DeliveryPartnerProfile findByUserId(Long userId);
+    Optional<DeliveryPartnerProfile> findById(Long id);
 
     @EntityGraph(attributePaths = "user")
     @Query("""

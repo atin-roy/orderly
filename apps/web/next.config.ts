@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: `${internalApiUrl}/:path*`,
       },
+      {
+        source: "/uploads/:path*",
+        destination: `${internalApiUrl}/uploads/:path*`,
+      },
     ];
   },
 };

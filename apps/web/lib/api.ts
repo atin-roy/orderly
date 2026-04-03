@@ -30,6 +30,27 @@ function getApiBaseUrl() {
   return process.env.NEXT_PUBLIC_API_URL || "/api";
 }
 
+export function resolveAssetUrl(path?: string | null) {
+  if (!path) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
+  const baseUrl = getApiBaseUrl();
+  if (/^https?:\/\//i.test(baseUrl)) {
+    try {
+      return new URL(path, baseUrl).toString();
+    } catch {
+      return path;
+    }
+  }
+
+  return path;
+}
+
 const CART_UPDATED_EVENT = "orderly:cart-updated";
 
 function notifyCartUpdated() {
@@ -133,6 +154,19 @@ export interface DeliveryRegisterPayload {
   fullName: string;
   email: string;
   password: string;
+  phone: string;
+  city: string;
+  vehicleType: string;
+  preferredShift: string;
+  serviceZones: string;
+  deliveryExperience: string;
+}
+
+export type AdminCreateDeliveryPartnerPayload = DeliveryRegisterPayload;
+
+export interface AdminUpdateDeliveryPartnerPayload {
+  fullName: string;
+  email: string;
   phone: string;
   city: string;
   vehicleType: string;
@@ -420,6 +454,12 @@ export async function updateRestaurant(
   });
 }
 
+export async function deleteRestaurant(restaurantId: number): Promise<ApiResponse<void>> {
+  return apiClient<void>(`/restaurants/${restaurantId}`, {
+    method: "DELETE",
+  });
+}
+
 export async function adminCreateRestaurant(
   payload: AdminCreateRestaurantPayload
 ): Promise<ApiResponse<Restaurant>> {
@@ -628,4 +668,31 @@ export async function getAdminDeliveryPartners(options: {
   return apiClient<PaginatedResponse<AdminDeliveryPartner>>(
     `/admin/delivery-partners?${params.toString()}`
   );
+}
+
+export async function createAdminDeliveryPartner(
+  payload: AdminCreateDeliveryPartnerPayload
+): Promise<ApiResponse<AdminDeliveryPartner>> {
+  return apiClient<AdminDeliveryPartner>("/admin/delivery-partners", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateAdminDeliveryPartner(
+  partnerId: number,
+  payload: AdminUpdateDeliveryPartnerPayload
+): Promise<ApiResponse<AdminDeliveryPartner>> {
+  return apiClient<AdminDeliveryPartner>(`/admin/delivery-partners/${partnerId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteAdminDeliveryPartner(
+  partnerId: number
+): Promise<ApiResponse<void>> {
+  return apiClient<void>(`/admin/delivery-partners/${partnerId}`, {
+    method: "DELETE",
+  });
 }

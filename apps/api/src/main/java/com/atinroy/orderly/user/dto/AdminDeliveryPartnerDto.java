@@ -9,6 +9,7 @@ public record AdminDeliveryPartnerDto(
         String vehicleType,
         String preferredShift,
         String serviceZones,
+        String deliveryExperience,
         String avatarUrl,
         long activeOrders,
         boolean activeNow

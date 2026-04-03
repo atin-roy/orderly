@@ -38,6 +38,8 @@ export default function AdminDashboardPage() {
   const [couponForm, setCouponForm] = useState(emptyCouponForm);
   const [editingCouponId, setEditingCouponId] = useState<number | null>(null);
   const [message, setMessage] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [couponSaving, setCouponSaving] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -114,30 +116,59 @@ export default function AdminDashboardPage() {
   }
 
   async function handleSaveCoupon() {
+    const code = couponForm.code.trim().toUpperCase();
+    const title = couponForm.title.trim();
+    const description = couponForm.description.trim();
+
+    if (!code || !title || !description) {
+      setCouponError("Code, title, and description are required.");
+      return;
+    }
+
+    if (!Number.isFinite(couponForm.discountAmount) || couponForm.discountAmount < 1) {
+      setCouponError("Discount amount must be at least 1.");
+      return;
+    }
+
+    if (!Number.isFinite(couponForm.minOrderAmount) || couponForm.minOrderAmount < 0) {
+      setCouponError("Minimum order amount cannot be negative.");
+      return;
+    }
+
+    setCouponSaving(true);
+    setCouponError("");
+    setMessage("");
+
     const payload = {
-      code: couponForm.code,
-      title: couponForm.title,
-      description: couponForm.description,
+      code,
+      title,
+      description,
       discountAmount: couponForm.discountAmount,
       minOrderAmount: couponForm.minOrderAmount,
       enabled: couponForm.enabled,
     };
 
-    if (editingCouponId) {
-      await updateCoupon(editingCouponId, payload);
-      setMessage("Coupon updated.");
-      await refreshCoupons(couponPage);
-    } else {
-      await createCoupon(payload);
-      setMessage("Coupon created.");
-      setCouponQuery("");
-      setCouponStatus("all");
-      setCouponPage(0);
-      await refreshCoupons(0, { query: "", status: "all" });
-    }
+    try {
+      if (editingCouponId) {
+        await updateCoupon(editingCouponId, payload);
+        setMessage("Coupon updated.");
+        await refreshCoupons(couponPage);
+      } else {
+        await createCoupon(payload);
+        setMessage("Coupon created.");
+        setCouponQuery("");
+        setCouponStatus("all");
+        setCouponPage(0);
+        await refreshCoupons(0, { query: "", status: "all" });
+      }
 
-    setEditingCouponId(null);
-    setCouponForm(emptyCouponForm);
+      setEditingCouponId(null);
+      setCouponForm(emptyCouponForm);
+    } catch (error) {
+      setCouponError(error instanceof Error ? error.message : "Unable to save coupon.");
+    } finally {
+      setCouponSaving(false);
+    }
   }
 
   async function handleDeleteCoupon(couponId: number) {
@@ -278,6 +309,7 @@ export default function AdminDashboardPage() {
                 setEditingCouponId(null);
                 setCouponForm(emptyCouponForm);
                 setMessage("");
+                setCouponError("");
               }}
               className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand"
             >
@@ -290,8 +322,19 @@ export default function AdminDashboardPage() {
               {message}
             </div>
           ) : null}
+          {couponError ? (
+            <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {couponError}
+            </div>
+          ) : null}
 
-          <div className="mt-6 grid gap-4">
+          <form
+            className="mt-6 grid gap-4"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void handleSaveCoupon();
+            }}
+          >
             <label className="text-sm">
               <span className="mb-2 block font-semibold text-foreground">Coupon code</span>
               <input
@@ -303,6 +346,7 @@ export default function AdminDashboardPage() {
                   }))
                 }
                 className="w-full rounded-2xl border border-orange-200 px-4 py-3"
+                required
               />
             </label>
             <label className="text-sm">
@@ -313,6 +357,7 @@ export default function AdminDashboardPage() {
                   setCouponForm((current) => ({ ...current, title: event.target.value }))
                 }
                 className="w-full rounded-2xl border border-orange-200 px-4 py-3"
+                required
               />
             </label>
             <label className="text-sm">
@@ -326,6 +371,7 @@ export default function AdminDashboardPage() {
                   }))
                 }
                 className="min-h-28 w-full rounded-2xl border border-orange-200 px-4 py-3"
+                required
               />
             </label>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -341,6 +387,8 @@ export default function AdminDashboardPage() {
                     }))
                   }
                   className="w-full rounded-2xl border border-orange-200 px-4 py-3"
+                  min={1}
+                  required
                 />
               </label>
               <label className="text-sm">
@@ -355,6 +403,8 @@ export default function AdminDashboardPage() {
                     }))
                   }
                   className="w-full rounded-2xl border border-orange-200 px-4 py-3"
+                  min={0}
+                  required
                 />
               </label>
             </div>
@@ -369,13 +419,13 @@ export default function AdminDashboardPage() {
               Enabled for users
             </label>
             <button
-              type="button"
-              onClick={() => void handleSaveCoupon()}
-              className="rounded-2xl bg-brand px-5 py-4 text-sm font-semibold text-white"
+              type="submit"
+              disabled={couponSaving}
+              className="rounded-2xl bg-brand px-5 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {editingCouponId ? "Save coupon" : "Create coupon"}
+              {couponSaving ? "Saving..." : editingCouponId ? "Save coupon" : "Create coupon"}
             </button>
-          </div>
+          </form>
         </section>
       </section>
 
