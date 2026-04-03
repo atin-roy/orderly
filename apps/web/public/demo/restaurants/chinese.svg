@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6b1818"/>
+      <stop offset="55%" stop-color="#be4a20"/>
+      <stop offset="100%" stop-color="#f3b74d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <ellipse cx="600" cy="460" rx="300" ry="140" fill="#481b14"/>
+  <ellipse cx="600" cy="448" rx="250" ry="105" fill="#f4ead1"/>
+  <path d="M450 420c60 20 125 30 200 30s140-10 215-30c-35 80-120 115-215 115s-180-35-200-115z" fill="#d28b34"/>
+  <text x="145" y="150" fill="#fff0d3" font-family="Georgia, serif" font-size="80" font-weight="700">Wok Lab</text>
+  <text x="145" y="218" fill="#fff0d3" font-family="Arial, sans-serif" font-size="32">Indo-Chinese comfort food, fried rice, noodles, and group-order staples.</text>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#164f2c"/>
+      <stop offset="60%" stop-color="#23985e"/>
+      <stop offset="100%" stop-color="#d3c65f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <ellipse cx="620" cy="450" rx="310" ry="150" fill="#15432f"/>
+  <ellipse cx="620" cy="450" rx="270" ry="120" fill="#fff2cc"/>
+  <path d="M390 430c60-120 260-180 430-90-95 20-165 70-220 160-65-12-128-28-210-70z" fill="#d79534"/>
+  <circle cx="820" cy="420" r="34" fill="#f7a64d"/>
+  <circle cx="840" cy="470" r="34" fill="#d46a2b"/>
+  <text x="130" y="150" fill="#eef8d8" font-family="Georgia, serif" font-size="78" font-weight="700">South Indian</text>
+  <text x="130" y="218" fill="#eef8d8" font-family="Arial, sans-serif" font-size="32">Dosas, tiffins, idli, and coffee built for all-day comfort orders.</text>
+</svg>

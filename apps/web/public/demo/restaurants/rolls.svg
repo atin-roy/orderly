@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#481126"/>
+      <stop offset="55%" stop-color="#a02749"/>
+      <stop offset="100%" stop-color="#ff9a3c"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <rect x="140" y="120" width="920" height="560" rx="48" fill="#fff5ed" opacity="0.9"/>
+  <rect x="360" y="270" width="470" height="120" rx="60" fill="#d79b52" transform="rotate(-15 600 330)"/>
+  <rect x="380" y="288" width="430" height="82" rx="41" fill="#5a2d17" transform="rotate(-15 600 330)"/>
+  <rect x="700" y="250" width="110" height="160" rx="50" fill="#f2d8af" transform="rotate(-15 755 330)"/>
+  <text x="160" y="210" fill="#6e1e36" font-family="Georgia, serif" font-size="76" font-weight="700">Roll Room</text>
+  <text x="160" y="280" fill="#6e1e36" font-family="Arial, sans-serif" font-size="32">Street-style kathi wraps and fast evening snack orders.</text>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18130f"/>
+      <stop offset="55%" stop-color="#7a3615"/>
+      <stop offset="100%" stop-color="#ec9e37"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <ellipse cx="600" cy="455" rx="315" ry="145" fill="#2b1f18"/>
+  <ellipse cx="600" cy="445" rx="280" ry="110" fill="#f2dcbc"/>
+  <rect x="420" y="390" width="360" height="26" rx="12" fill="#c66b29"/>
+  <rect x="430" y="430" width="340" height="26" rx="12" fill="#b5551f"/>
+  <rect x="450" y="470" width="300" height="26" rx="12" fill="#d77a31"/>
+  <text x="135" y="148" fill="#f7e3c9" font-family="Georgia, serif" font-size="78" font-weight="700">Grill Garden</text>
+  <text x="135" y="214" fill="#f7e3c9" font-family="Arial, sans-serif" font-size="32">Skewers, smoky mains, naan, and larger shared dinner orders.</text>
+</svg>

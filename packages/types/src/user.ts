@@ -1,7 +1,7 @@
 export enum Role {
-  CUSTOMER = "CUSTOMER",
-  OWNER = "OWNER",
-  DELIVERY = "DELIVERY",
+  USER = "USER",
+  BUSINESS = "BUSINESS",
+  DELIVERY_PARTNER = "DELIVERY_PARTNER",
   ADMIN = "ADMIN",
 }
 
@@ -17,4 +17,26 @@ export interface AuthUser {
   email: string;
   name: string;
   role: Role;
+}
+
+export interface UserAddress {
+  id: number;
+  label: string;
+  address: string;
+  buildingInfo: string | null;
+  city: string | null;
+  phone: string;
+  latitude: number | null;
+  longitude: number | null;
+  isDefault: boolean;
+}
+
+export interface UserProfile {
+  id: number;
+  name: string | null;
+  email: string;
+  role: Role;
+  phone: string;
+  addresses: UserAddress[];
+  createdDate: string;
 }

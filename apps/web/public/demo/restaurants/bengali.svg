@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6d171a"/>
+      <stop offset="55%" stop-color="#ba5a1b"/>
+      <stop offset="100%" stop-color="#f1b954"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <rect x="160" y="115" width="880" height="570" rx="56" fill="#fff7ed" opacity="0.9"/>
+  <ellipse cx="600" cy="450" rx="280" ry="145" fill="#7a2a18"/>
+  <ellipse cx="600" cy="435" rx="250" ry="112" fill="#f0d793"/>
+  <path d="M690 405c88-72 188 5 165 78-58-4-111-18-165-78z" fill="#d38d35"/>
+  <text x="190" y="210" fill="#7c2817" font-family="Georgia, serif" font-size="76" font-weight="700">Bengali Kitchen</text>
+  <text x="190" y="280" fill="#7c2817" font-family="Arial, sans-serif" font-size="32">Kosha gravies, fish fry, rice plates, and Kolkata comfort mains.</text>
+</svg>

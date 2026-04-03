@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#792141"/>
+      <stop offset="55%" stop-color="#d14d56"/>
+      <stop offset="100%" stop-color="#ffb14f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <rect x="150" y="120" width="900" height="560" rx="48" fill="#fff7f1" opacity="0.9"/>
+  <circle cx="480" cy="450" r="90" fill="#d2a157"/>
+  <circle cx="600" cy="450" r="90" fill="#dbb164"/>
+  <circle cx="720" cy="450" r="90" fill="#d29f4b"/>
+  <circle cx="550" cy="415" r="16" fill="#6fb04e"/>
+  <circle cx="680" cy="488" r="16" fill="#c63b30"/>
+  <text x="180" y="210" fill="#8a2748" font-family="Georgia, serif" font-size="80" font-weight="700">Chaat Gallery</text>
+  <text x="180" y="278" fill="#8a2748" font-family="Arial, sans-serif" font-size="32">Phuchka, papdi, jhalmuri, and fast-bite snack orders.</text>
+</svg>
