@@ -3,7 +3,7 @@
 import type { Restaurant } from "@orderly/types";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { RestaurantCard } from "@/components/restaurant-card";
@@ -29,26 +29,18 @@ const categoryIcons: Record<string, React.ReactNode> = {
   leaf: <LeafIcon />,
 };
 
-const collectionCards = [
-  {
-    title: "Park Street Tonight",
-    subtitle: "Biryani, rezala, grills, and larger dinner orders moving fastest.",
-    accent: "from-orange-500 via-amber-400 to-yellow-300",
-    meta: "Central Kolkata rush",
-  },
-  {
-    title: "Salt Lake Workday",
-    subtitle: "Quick bowls, tiffins, and office lunch spots around Sector I and V.",
-    accent: "from-emerald-700 via-lime-600 to-yellow-500",
-    meta: "Office-hour winners",
-  },
-  {
-    title: "South Kolkata Comfort",
-    subtitle: "Rolls, sweets, Bengali mains, and casual late-evening cravings.",
-    accent: "from-stone-900 via-orange-700 to-rose-500",
-    meta: "Ballygunge to Gariahat",
-  },
-];
+const categorySearchMap: Record<string, { query?: string; vegOnly?: boolean }> = {
+  Biryani: { query: "Biryani" },
+  Rolls: { query: "Rolls" },
+  Kebabs: { query: "Kebab" },
+  Mithai: { query: "Mithai" },
+  Desserts: { query: "Dessert" },
+  Veg: { vegOnly: true },
+  Dosas: { query: "Dosa" },
+  Bowls: { query: "Bowl" },
+  Bengali: { query: "Bengali" },
+  Chaat: { query: "Chaat" },
+};
 
 export default function ExplorePage() {
   const router = useRouter();
@@ -74,6 +66,29 @@ export default function ExplorePage() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [localities, setLocalities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+
+  function handleCategorySelect(label: string) {
+    const nextFilter = categorySearchMap[label];
+    if (!nextFilter) {
+      return;
+    }
+
+    setQuery(nextFilter.query ?? "");
+    setVegOnly(nextFilter.vegOnly ?? false);
+  }
+
+  function isCategoryActive(label: string) {
+    const filter = categorySearchMap[label];
+    if (!filter) {
+      return false;
+    }
+
+    if (filter.vegOnly) {
+      return vegOnly && query.trim() === "";
+    }
+
+    return query.trim().toLowerCase() === filter.query?.toLowerCase() && !vegOnly;
+  }
 
   useEffect(() => {
     void getRestaurantLocalities()
@@ -136,23 +151,6 @@ export default function ExplorePage() {
     };
   }, [locality, query, sort, vegOnly]);
 
-  const neighbourhoodBoards = useMemo(
-    () =>
-      localities.slice(0, 6).map((name, index) => ({
-        name,
-        mood:
-          [
-            "Biryani, kebabs, and late dinner runs",
-            "Office bowls, tiffins, and coffee resets",
-            "Rolls, sweets, and casual evening cravings",
-            "Comfort Bengali mains and family orders",
-            "Fast lunches, chaat, and after-work snacks",
-            "Desserts, kebabs, and sharable comfort food",
-          ][index % 6],
-      })),
-    [localities]
-  );
-
   return (
     <div className="min-h-screen bg-cream">
       <Header />
@@ -169,8 +167,8 @@ export default function ExplorePage() {
                   Search restaurants, dishes, and local favourites by neighbourhood
                 </h1>
                 <p className="mt-4 max-w-2xl text-base leading-7 text-subtle">
-                  Browse a Kolkata-focused feed with live restaurant data, searchable dishes,
-                  and locality filters that actually reflect what is seeded in the backend.
+                  Browse a Kolkata-wide feed built for quick dinner decisions, from signature
+                  dishes to trusted neighbourhood regulars.
                 </p>
               </div>
 
@@ -240,73 +238,6 @@ export default function ExplorePage() {
           </div>
         </section>
 
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.85fr)]">
-            <div className="rounded-[2rem] border border-orange-100 bg-white p-6 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
-                    Collections
-                  </p>
-                  <h2 className="mt-3 font-serif text-3xl font-bold">
-                    Start with Kolkata lanes
-                  </h2>
-                </div>
-                <Link
-                  href="/"
-                  className="text-xs font-semibold uppercase tracking-[0.25em] text-brand transition-colors hover:text-brand/80"
-                >
-                  Back Home
-                </Link>
-              </div>
-
-              <div className="mt-7 grid gap-4 md:grid-cols-3">
-                {collectionCards.map((card) => (
-                  <div
-                    key={card.title}
-                    className={`overflow-hidden rounded-[1.75rem] bg-gradient-to-br ${card.accent} p-5 text-white shadow-lg`}
-                  >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/80">
-                      {card.meta}
-                    </p>
-                    <h3 className="mt-10 font-serif text-2xl font-bold leading-tight">
-                      {card.title}
-                    </h3>
-                    <p className="mt-3 text-sm leading-6 text-white/88">
-                      {card.subtitle}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-orange-100 bg-[var(--color-card)] p-6 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
-                Locality boards
-              </p>
-              <h2 className="mt-3 font-serif text-3xl font-bold">Browse by area</h2>
-              <div className="mt-6 space-y-3">
-                {neighbourhoodBoards.map((board) => (
-                  <button
-                    key={board.name}
-                    type="button"
-                    onClick={() => setLocality(board.name)}
-                    className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-4 text-left shadow-sm"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <h3 className="font-semibold text-foreground">{board.name}</h3>
-                      <span className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
-                        View
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm text-subtle">{board.mood}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section className="mx-auto w-full max-w-[96rem] px-4 py-10 sm:px-6 lg:px-8">
           <div className="rounded-[2rem] border border-orange-100 bg-white p-6 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
             <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
@@ -316,14 +247,23 @@ export default function ExplorePage() {
                 </p>
                 <h2 className="mt-3 font-serif text-3xl font-bold">Cravings map</h2>
                 <p className="mt-3 max-w-2xl text-subtle">
-                  Quick visual shortcuts for the seeded dataset instead of dead landing-page filler.
+                  Tap a craving to narrow the feed instantly, whether you want biryani, sweets,
+                  dosas, or a veg-only shortlist.
                 </p>
               </div>
-              <div className="rounded-2xl border border-orange-100 bg-[var(--color-card)] px-5 py-4 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
-                  Live now
-                </p>
-                <p className="mt-1 font-serif text-3xl font-bold">{restaurants.length} spots</p>
+              <div className="flex items-center gap-3">
+                <div className="rounded-2xl border border-orange-100 bg-[var(--color-card)] px-5 py-4 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
+                    Open now
+                  </p>
+                  <p className="mt-1 font-serif text-3xl font-bold">{restaurants.length} spots</p>
+                </div>
+                <Link
+                  href="/"
+                  className="hidden text-xs font-semibold uppercase tracking-[0.25em] text-brand transition-colors hover:text-brand/80 md:inline-flex"
+                >
+                  Back Home
+                </Link>
               </div>
             </div>
 
@@ -333,6 +273,8 @@ export default function ExplorePage() {
                   key={category.label}
                   icon={categoryIcons[category.iconKey]}
                   label={category.label}
+                  onClick={() => handleCategorySelect(category.label)}
+                  isActive={isCategoryActive(category.label)}
                 />
               ))}
             </div>
@@ -348,7 +290,7 @@ export default function ExplorePage() {
                   Restaurants worth comparing
                 </h2>
                 <p className="mt-3 max-w-2xl text-subtle">
-                  Search works across restaurant names, cuisine tags, localities, and seeded dish names.
+                  Search works across restaurant names, cuisines, localities, and popular dishes.
                 </p>
               </div>
               <div className="hidden rounded-2xl border border-orange-100 bg-white px-5 py-4 text-right shadow-sm md:block">

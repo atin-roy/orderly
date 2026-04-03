@@ -64,11 +64,11 @@ function FakeRazorpaySheet({
       <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] bg-white shadow-[0_30px_80px_rgba(35,24,21,0.22)]">
         <div className="bg-[linear-gradient(135deg,#072654,#1153a4_42%,#2eb6ff)] px-6 py-6 text-white">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/70">
-            Razorpay demo
+            Razorpay preview
           </p>
           <h2 className="mt-3 font-serif text-3xl font-bold">Secure checkout</h2>
           <p className="mt-2 text-sm text-white/85">
-            Fake gateway flow for the professor demo. No real payment is processed.
+            A guided payment preview with the same confirmation flow you would expect at checkout.
           </p>
         </div>
 
@@ -88,7 +88,7 @@ function FakeRazorpaySheet({
           <div className="rounded-2xl border border-slate-200 px-4 py-4">
             <p className="text-sm font-semibold text-slate-900">What this simulates</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Gateway order creation, payment capture, and a believable post-payment receipt trail.
+              Payment confirmation, order placement, and the handoff into your order timeline.
             </p>
           </div>
 
@@ -239,10 +239,10 @@ export default function CheckoutPage() {
                 Checkout
               </p>
               <h1 className="mt-4 font-serif text-4xl font-bold leading-tight md:text-5xl">
-                Fake Razorpay checkout, real backend order placement
+                Confirm your address, payment method, and final total
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-7 text-subtle">
-                The payment sheet is simulated, but the resulting order, totals, and payment metadata are persisted through the backend.
+                Finish your order with a familiar payment flow, then head straight to live order tracking.
               </p>
             </div>
           </section>
@@ -258,7 +258,7 @@ export default function CheckoutPage() {
                       </p>
                       <h2 className="mt-3 font-serif text-3xl font-bold">Select delivery address</h2>
                     </div>
-                    <p className="text-sm text-subtle">Saved Kolkata addresses from the seeded demo user</p>
+                    <p className="text-sm text-subtle">Choose where this order should be delivered</p>
                   </div>
 
                   <div className="mt-6 grid gap-4">

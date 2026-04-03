@@ -25,7 +25,7 @@ const roleCards = [
     icon: TruckIcon,
     eyebrow: "Delivery Partner",
     title: "Join active routes and earning windows",
-    body: "Tell us your city, preferred shift, and vehicle so delivery onboarding can connect later.",
+    body: "Tell us your city, preferred shift, and vehicle so we can match you with the right delivery rhythm.",
     accent:
       "border-emerald-200 bg-[linear-gradient(180deg,rgba(16,48,38,0.96),rgba(19,136,80,0.92))] text-white",
   },
@@ -87,7 +87,7 @@ export default function RegisterChooserPage() {
                   <div>
                     <p className="text-sm font-semibold text-foreground">Delivery partners</p>
                     <p className="mt-1 text-sm leading-7 text-subtle">
-                      Vehicle and shift details now, backend onboarding hookup later.
+                      Vehicle, shift, and zone details help set expectations before the first trip.
                     </p>
                   </div>
                 </div>

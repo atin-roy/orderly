@@ -90,10 +90,10 @@ export default function CartPage() {
                 Cart
               </p>
               <h1 className="mt-4 font-serif text-4xl font-bold leading-tight md:text-5xl">
-                Review the live cart before checkout
+                Review your order before you place it
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-7 text-subtle">
-                This cart is API-backed, so quantities, totals, and coupons now reflect the seeded backend instead of frontend mock data.
+                Double-check quantities, totals, and available offers before heading to checkout.
               </p>
             </div>
           </section>

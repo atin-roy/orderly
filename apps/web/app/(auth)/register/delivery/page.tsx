@@ -89,9 +89,9 @@ export default function DeliveryRegisterPage() {
           </h2>
           <div className="mt-8 space-y-4">
             {[
-              "Vehicle type and shift preference are captured up front for future dispatch logic.",
+              "Vehicle type and shift preference are captured up front so the work feels predictable.",
               "Service zones keep the flow grounded in dense, local delivery coverage.",
-              "This staged adapter can swap to a real onboarding API later without changing the UI contract.",
+              "The form focuses on the details riders care about before taking regular routes.",
             ].map((item) => (
               <div
                 key={item}

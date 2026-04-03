@@ -59,7 +59,7 @@ const businessBenefits = [
 const courierBenefits = [
   "Pick lunch, dinner, late-night, or weekend-heavy windows.",
   "Stay around dense order clusters instead of chasing low-signal routes.",
-  "Join an intake flow that can map directly to future delivery onboarding APIs.",
+  "Share your preferred zones and shift rhythm before you start taking deliveries.",
 ];
 
 export default function Home() {
@@ -106,9 +106,8 @@ export default function Home() {
                 </h1>
 
                 <p className="mt-6 max-w-2xl text-base leading-8 text-subtle md:text-lg">
-                  Orderly should feel like a sharp food-ordering marketplace: quick
-                  discovery, reliable ETAs, and restaurants that look curated instead
-                  of buried in a random listing wall.
+                  Find dependable neighbourhood favourites fast, compare clear ETAs,
+                  and order from restaurants that feel chosen, not dumped into a crowded list.
                 </p>
 
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -321,8 +320,8 @@ export default function Home() {
                   </h2>
                   <p className="mt-4 max-w-2xl text-base leading-8 text-subtle">
                     Restaurant owners should see a practical path immediately: share your
-                    service area, define what you sell, and get ready for a cleaner partner
-                    onboarding API later.
+                    service area, define what you sell, and set up a storefront built for
+                    repeat neighbourhood orders.
                   </p>
 
                   <div className="mt-6 grid gap-3">
@@ -352,9 +351,9 @@ export default function Home() {
                     <div className="flex items-center gap-3 rounded-2xl bg-white/8 px-4 py-4">
                       <ClockIcon className="h-5 w-5 text-marigold" />
                       <div>
-                        <p className="text-sm font-semibold">Frontend staged, backend ready later</p>
+                        <p className="text-sm font-semibold">Built for day-one operator detail</p>
                         <p className="text-xs text-white/65">
-                          The page flow is ready before the partner API exists.
+                          Ownership, coverage, and menu focus are all captured up front.
                         </p>
                       </div>
                     </div>
@@ -380,8 +379,8 @@ export default function Home() {
                   </p>
                   <p className="mt-4 font-serif text-4xl font-bold">Flexible shifts. Dense routes.</p>
                   <p className="mt-4 text-sm leading-7 text-white/75">
-                    Delivery signup now captures city, shift preference, vehicle type, and
-                    preferred zones so the future API can plug in without a UI rewrite.
+                    Delivery signup captures city, shift preference, vehicle type, and
+                    preferred zones so partners know exactly what kind of work they are joining.
                   </p>
                   <Link
                     href="/register/delivery"
