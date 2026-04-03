@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GiftIcon, StoreIcon, TruckIcon } from "@/components/icons";
+import { GiftIcon, ProfileIcon, StoreIcon, TruckIcon } from "@/components/icons";
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: GiftIcon },
   { href: "/admin/restaurants", label: "Restaurants", icon: StoreIcon },
   { href: "/admin/delivery-partners", label: "Delivery Partners", icon: TruckIcon },
+  { href: "/profile", label: "Account", icon: ProfileIcon },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -55,8 +56,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               Admin surface
             </p>
             <p className="mt-3 text-sm leading-6 text-stone-300">
-              Only Dashboard, Restaurants, and Delivery Partners are exposed as primary admin
-              sections.
+              Dashboard, Restaurants, Delivery Partners, and Account stay grouped in the same
+              admin workspace.
             </p>
           </div>
         </aside>

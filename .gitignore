@@ -54,6 +54,7 @@ pids/
 .Trashes
 ehthumbs.db
 Thumbs.db
+*:Zone.Identifier
 .claude/
 desktop.ini
 CLAUDE.md
@@ -74,3 +75,5 @@ coverage/
 
 # Misc
 *.tsbuildinfo
+plans/
+infra/
