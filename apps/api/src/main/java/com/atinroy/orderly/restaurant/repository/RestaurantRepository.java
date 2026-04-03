@@ -48,6 +48,25 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
     @EntityGraph(attributePaths = "owner")
     Optional<Restaurant> findByIdAndIsApprovedTrue(Long id);
 
+    @EntityGraph(attributePaths = "owner")
+    @Query("""
+            select r
+            from Restaurant r
+            left join r.owner owner
+            where (:query is null
+                or lower(r.name) like lower(concat('%', :query, '%'))
+                or lower(r.locality) like lower(concat('%', :query, '%'))
+                or lower(r.city) like lower(concat('%', :query, '%'))
+                or lower(r.cuisineType) like lower(concat('%', :query, '%'))
+                or lower(owner.name) like lower(concat('%', :query, '%')))
+              and (:isActive is null or r.isActive = :isActive)
+            """)
+    Page<Restaurant> searchAdminRestaurants(
+            @Param("query") String query,
+            @Param("isActive") Boolean isActive,
+            Pageable pageable
+    );
+
     boolean existsBySlug(String slug);
 
     Optional<Restaurant> findBySlug(String slug);

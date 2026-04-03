@@ -39,6 +39,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @EntityGraph(attributePaths = {"restaurant", "assignedDeliveryPartner", "user"})
     List<Order> findByStatusInOrderByCreatedDateDesc(Collection<OrderStatus> statuses);
 
+    @EntityGraph(attributePaths = {"restaurant", "assignedDeliveryPartner", "user"})
+    List<Order> findByAssignedDeliveryPartnerIdInAndStatusIn(Collection<Long> deliveryPartnerIds, Collection<OrderStatus> statuses);
+
     int countByStatusIn(Collection<OrderStatus> statuses);
     long countByRestaurantId(Long restaurantId);
     long countByRestaurantIdAndStatusIn(Long restaurantId, Collection<OrderStatus> statuses);

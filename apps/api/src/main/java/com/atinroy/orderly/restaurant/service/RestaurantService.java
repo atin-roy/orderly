@@ -233,32 +233,21 @@ public class RestaurantService {
     }
 
     @Transactional(readOnly = true)
-    public List<AdminRestaurantSummaryDto> getAdminRestaurantOverview(String email) {
+    public PaginatedResponse<AdminRestaurantSummaryDto> getAdminRestaurantOverview(
+            String email,
+            int page,
+            int size,
+            String query,
+            String status
+    ) {
         getAdminUser(email);
-
-        return restaurantRepository.findAll().stream()
-                .map(restaurant -> new AdminRestaurantSummaryDto(
-                        restaurant.getId(),
-                        restaurant.getName(),
-                        restaurant.getOwner() == null ? null : restaurant.getOwner().getName(),
-                        restaurant.getLocality(),
-                        restaurant.getCity(),
-                        restaurant.getCuisineType(),
-                        restaurant.getIsActive(),
-                        orderRepository.countByRestaurantIdAndStatusIn(
-                                restaurant.getId(),
-                                List.of(
-                                        com.atinroy.orderly.order.model.OrderStatus.PLACED,
-                                        com.atinroy.orderly.order.model.OrderStatus.ACCEPTED,
-                                        com.atinroy.orderly.order.model.OrderStatus.PREPARING,
-                                        com.atinroy.orderly.order.model.OrderStatus.READY,
-                                        com.atinroy.orderly.order.model.OrderStatus.PICKED_UP
-                                )
-                        ),
-                        orderRepository.countByRestaurantId(restaurant.getId())
-                ))
-                .sorted((left, right) -> Long.compare(right.totalOrders(), left.totalOrders()))
-                .toList();
+        var restaurants = restaurantRepository.searchAdminRestaurants(
+                        normalize(query),
+                        toRestaurantStatus(status),
+                        PageRequest.of(Math.max(page, 0), Math.max(size, 1), Sort.by(Sort.Order.desc("id")))
+                )
+                .map(this::toAdminSummary);
+        return PaginatedResponse.from(restaurants);
     }
 
     private User getAdminUser(String email) {
@@ -316,6 +305,29 @@ public class RestaurantService {
                 .toList();
     }
 
+    private AdminRestaurantSummaryDto toAdminSummary(Restaurant restaurant) {
+        return new AdminRestaurantSummaryDto(
+                restaurant.getId(),
+                restaurant.getName(),
+                restaurant.getOwner() == null ? null : restaurant.getOwner().getName(),
+                restaurant.getLocality(),
+                restaurant.getCity(),
+                restaurant.getCuisineType(),
+                restaurant.getIsActive(),
+                orderRepository.countByRestaurantIdAndStatusIn(
+                        restaurant.getId(),
+                        List.of(
+                                com.atinroy.orderly.order.model.OrderStatus.PLACED,
+                                com.atinroy.orderly.order.model.OrderStatus.ACCEPTED,
+                                com.atinroy.orderly.order.model.OrderStatus.PREPARING,
+                                com.atinroy.orderly.order.model.OrderStatus.READY,
+                                com.atinroy.orderly.order.model.OrderStatus.PICKED_UP
+                        )
+                ),
+                orderRepository.countByRestaurantId(restaurant.getId())
+        );
+    }
+
     private Sort buildSort(String sort) {
         String normalizedSort = normalize(sort);
         if (normalizedSort == null) {
@@ -326,6 +338,19 @@ public class RestaurantService {
             case "rating" -> Sort.by(Sort.Order.desc("rating"), Sort.Order.asc("name"));
             case "delivery-time" -> Sort.by(Sort.Order.asc("deliveryTimeMinutes"), Sort.Order.asc("name"));
             default -> Sort.by("name").ascending();
+        };
+    }
+
+    private Boolean toRestaurantStatus(String status) {
+        String normalizedStatus = normalize(status);
+        if (normalizedStatus == null || normalizedStatus.equals("all")) {
+            return null;
+        }
+
+        return switch (normalizedStatus) {
+            case "live" -> true;
+            case "paused" -> false;
+            default -> null;
         };
     }
 

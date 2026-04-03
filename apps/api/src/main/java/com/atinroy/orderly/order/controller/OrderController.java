@@ -80,11 +80,13 @@ public class OrderController {
 
     @GetMapping("/admin/dashboard")
     public ResponseEntity<ApiResponse<AdminDashboardDto>> getAdminDashboard(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 "Admin dashboard fetched successfully",
-                orderService.getAdminDashboard(userDetails.getUsername())
+                orderService.getAdminDashboard(userDetails.getUsername(), page, size)
         ));
     }
 

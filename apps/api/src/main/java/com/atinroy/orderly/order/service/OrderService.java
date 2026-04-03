@@ -23,6 +23,7 @@ import com.atinroy.orderly.user.repository.UserAddressRepository;
 import com.atinroy.orderly.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
@@ -224,7 +225,7 @@ public class OrderService {
     }
 
     @Transactional
-    public AdminDashboardDto getAdminDashboard(String email) {
+    public AdminDashboardDto getAdminDashboard(String email, int page, int size) {
         getUserByRole(email, Role.ADMIN);
         List<Order> liveOrders = orderRepository.findByStatusInOrderByCreatedDateDesc(orderSimulationService.activeStatuses());
         orderSimulationService.progressOrders(liveOrders);
@@ -242,6 +243,18 @@ public class OrderService {
                 .filter(order -> order.getCreatedDate().toLocalDate().isEqual(orderSimulationService.today()))
                 .count();
 
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.max(size, 1);
+        int start = Math.min(safePage * safeSize, liveOrders.size());
+        int end = Math.min(start + safeSize, liveOrders.size());
+        PaginatedResponse<AdminLiveOrderDto> paginatedLiveOrders = PaginatedResponse.from(
+                new PageImpl<>(
+                        liveOrders.subList(start, end).stream().map(this::toAdminLiveOrderDto).toList(),
+                        PageRequest.of(safePage, safeSize),
+                        liveOrders.size()
+                )
+        );
+
         return new AdminDashboardDto(
                 liveOrders.size(),
                 activeRiders,
@@ -249,7 +262,7 @@ public class OrderService {
                 cancelledToday,
                 (int) restaurantRepository.count(),
                 (int) deliveryPartnerProfileRepository.count(),
-                liveOrders.stream().limit(12).map(this::toAdminLiveOrderDto).toList()
+                paginatedLiveOrders
         );
     }
 

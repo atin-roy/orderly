@@ -1,5 +1,7 @@
 package com.atinroy.orderly.restaurant.service;
 
+import com.atinroy.orderly.coupon.model.Coupon;
+import com.atinroy.orderly.coupon.repository.CouponRepository;
 import com.atinroy.orderly.order.mapper.OrderMapper;
 import com.atinroy.orderly.order.model.Order;
 import com.atinroy.orderly.order.model.OrderItem;
@@ -37,6 +39,7 @@ public class DataSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
     private final DeliveryPartnerProfileRepository deliveryPartnerProfileRepository;
+    private final CouponRepository couponRepository;
     private final OrderRepository orderRepository;
     private final PasswordEncoder passwordEncoder;
     private final OrderSimulationService orderSimulationService;
@@ -47,6 +50,7 @@ public class DataSeeder implements CommandLineRunner {
         User demoOwner = ensureUser("demo.owner@orderly.local", "Ritwik Ghosh", "+919830100101", Role.BUSINESS);
         ensureUser("demo.admin@orderly.local", "Professor Demo", "+919830100103", Role.ADMIN);
         ensureDeliveryPartners();
+        ensureCoupons();
 
         if (restaurantRepository.count() == 0) {
             seedRestaurants(demoOwner);
@@ -318,6 +322,30 @@ public class DataSeeder implements CommandLineRunner {
             profile.setDeliveryExperience(seed.deliveryExperience());
             profile.setAvatarUrl(seed.avatarUrl());
             deliveryPartnerProfileRepository.save(profile);
+        }
+    }
+
+    private void ensureCoupons() {
+        List<CouponSeed> coupons = List.of(
+                new CouponSeed("CRAVINGS150", "Flat 150 off", "Valid on orders above 499 from select restaurants.", 150, 499, true),
+                new CouponSeed("FEAST120", "Save 120 tonight", "Works on comfort meals and family combinations above 699.", 120, 699, true),
+                new CouponSeed("DESSERT200", "Dessert run reward", "Spend 999 to unlock 200 off on larger evening orders.", 200, 999, false),
+                new CouponSeed("LATENIGHT90", "Late night 90 off", "Available after 11 PM on orders above 399.", 90, 399, false)
+        );
+
+        for (CouponSeed seed : coupons) {
+            if (couponRepository.existsByCodeIgnoreCase(seed.code())) {
+                continue;
+            }
+
+            Coupon coupon = new Coupon();
+            coupon.setCode(seed.code());
+            coupon.setTitle(seed.title());
+            coupon.setDescription(seed.description());
+            coupon.setDiscountAmount(seed.discountAmount());
+            coupon.setMinOrderAmount(seed.minOrderAmount());
+            coupon.setEnabled(seed.enabled());
+            couponRepository.save(coupon);
         }
     }
 
@@ -634,6 +662,16 @@ public class DataSeeder implements CommandLineRunner {
             String serviceZones,
             String deliveryExperience,
             String avatarUrl
+    ) {
+    }
+
+    private record CouponSeed(
+            String code,
+            String title,
+            String description,
+            int discountAmount,
+            int minOrderAmount,
+            boolean enabled
     ) {
     }
 

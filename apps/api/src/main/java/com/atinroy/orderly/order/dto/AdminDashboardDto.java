@@ -1,6 +1,6 @@
 package com.atinroy.orderly.order.dto;
 
-import java.util.List;
+import com.atinroy.orderly.common.dto.PaginatedResponse;
 
 public record AdminDashboardDto(
         int activeOrders,
@@ -9,6 +9,6 @@ public record AdminDashboardDto(
         int cancelledToday,
         int totalRestaurants,
         int totalDeliveryPartners,
-        List<AdminLiveOrderDto> liveOrders
+        PaginatedResponse<AdminLiveOrderDto> liveOrders
 ) {
 }

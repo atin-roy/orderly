@@ -1,5 +1,7 @@
 import type {
+  AdminCoupon,
   AdminDashboardData,
+  AdminDeliveryPartner,
   AdminRestaurantSummary,
   ApiResponse,
   Cart,
@@ -173,6 +175,15 @@ export interface AdminCreateRestaurantPayload extends CreateRestaurantPayload {
 
 export interface ImageUploadResponse {
   url: string;
+}
+
+export interface CouponPayload {
+  code: string;
+  title: string;
+  description: string;
+  discountAmount: number;
+  minOrderAmount: number;
+  enabled?: boolean;
 }
 
 export interface MenuItemPayload {
@@ -354,8 +365,24 @@ export async function getMyRestaurants(): Promise<ApiResponse<Restaurant[]>> {
   return apiClient<Restaurant[]>("/restaurants/mine");
 }
 
-export async function getAdminRestaurantOverview(): Promise<ApiResponse<AdminRestaurantSummary[]>> {
-  return apiClient<AdminRestaurantSummary[]>("/restaurants/admin/overview");
+export async function getAdminRestaurantOverview(options: {
+  page?: number;
+  size?: number;
+  query?: string;
+  status?: string;
+} = {}): Promise<ApiResponse<PaginatedResponse<AdminRestaurantSummary>>> {
+  const params = new URLSearchParams();
+  params.set("page", String(options.page ?? 0));
+  params.set("size", String(options.size ?? 10));
+  if (options.query) {
+    params.set("query", options.query);
+  }
+  if (options.status) {
+    params.set("status", options.status);
+  }
+  return apiClient<PaginatedResponse<AdminRestaurantSummary>>(
+    `/restaurants/admin/overview?${params.toString()}`
+  );
 }
 
 export async function getAdminRestaurant(restaurantId: number): Promise<ApiResponse<Restaurant>> {
@@ -473,6 +500,57 @@ export async function getCoupons(): Promise<ApiResponse<Coupon[]>> {
   return apiClient<Coupon[]>("/coupons");
 }
 
+export async function getAdminCoupons(options: {
+  page?: number;
+  size?: number;
+  query?: string;
+  status?: string;
+} = {}): Promise<ApiResponse<PaginatedResponse<AdminCoupon>>> {
+  const params = new URLSearchParams();
+  params.set("page", String(options.page ?? 0));
+  params.set("size", String(options.size ?? 10));
+  if (options.query) {
+    params.set("query", options.query);
+  }
+  if (options.status) {
+    params.set("status", options.status);
+  }
+  return apiClient<PaginatedResponse<AdminCoupon>>(`/coupons/admin?${params.toString()}`);
+}
+
+export async function createCoupon(payload: CouponPayload): Promise<ApiResponse<AdminCoupon>> {
+  return apiClient<AdminCoupon>("/coupons/admin", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateCoupon(
+  couponId: number,
+  payload: Required<CouponPayload>
+): Promise<ApiResponse<AdminCoupon>> {
+  return apiClient<AdminCoupon>(`/coupons/admin/${couponId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateCouponStatus(
+  couponId: number,
+  enabled: boolean
+): Promise<ApiResponse<AdminCoupon>> {
+  return apiClient<AdminCoupon>(`/coupons/admin/${couponId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ enabled }),
+  });
+}
+
+export async function deleteCoupon(couponId: number): Promise<ApiResponse<void>> {
+  return apiClient<void>(`/coupons/admin/${couponId}`, {
+    method: "DELETE",
+  });
+}
+
 export async function validateCoupon(code: string): Promise<ApiResponse<CouponValidation>> {
   return apiClient<CouponValidation>("/coupons/validate", {
     method: "POST",
@@ -505,6 +583,29 @@ export async function getOwnerDashboard(): Promise<ApiResponse<OwnerDashboardDat
   return apiClient<OwnerDashboardData>("/orders/owner/dashboard");
 }
 
-export async function getAdminDashboard(): Promise<ApiResponse<AdminDashboardData>> {
-  return apiClient<AdminDashboardData>("/orders/admin/dashboard");
+export async function getAdminDashboard(
+  page = 0,
+  size = 6
+): Promise<ApiResponse<AdminDashboardData>> {
+  return apiClient<AdminDashboardData>(`/orders/admin/dashboard?page=${page}&size=${size}`);
+}
+
+export async function getAdminDeliveryPartners(options: {
+  page?: number;
+  size?: number;
+  query?: string;
+  shift?: string;
+} = {}): Promise<ApiResponse<PaginatedResponse<AdminDeliveryPartner>>> {
+  const params = new URLSearchParams();
+  params.set("page", String(options.page ?? 0));
+  params.set("size", String(options.size ?? 10));
+  if (options.query) {
+    params.set("query", options.query);
+  }
+  if (options.shift) {
+    params.set("shift", options.shift);
+  }
+  return apiClient<PaginatedResponse<AdminDeliveryPartner>>(
+    `/admin/delivery-partners?${params.toString()}`
+  );
 }

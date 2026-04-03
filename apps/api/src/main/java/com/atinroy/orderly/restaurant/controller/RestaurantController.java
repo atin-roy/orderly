@@ -165,12 +165,16 @@ public class RestaurantController {
     }
 
     @GetMapping("/admin/overview")
-    public ResponseEntity<ApiResponse<List<AdminRestaurantSummaryDto>>> getAdminRestaurantOverview(
+    public ResponseEntity<ApiResponse<PaginatedResponse<AdminRestaurantSummaryDto>>> getAdminRestaurantOverview(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) String status,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 "Admin restaurant overview fetched successfully",
-                restaurantService.getAdminRestaurantOverview(userDetails.getUsername())
+                restaurantService.getAdminRestaurantOverview(userDetails.getUsername(), page, size, query, status)
         ));
     }
 }

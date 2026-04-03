@@ -1,3 +1,5 @@
+import type { PaginatedResponse } from "./common";
+
 export enum OrderStatus {
   PLACED = "PLACED",
   ACCEPTED = "ACCEPTED",
@@ -148,5 +150,19 @@ export interface AdminDashboardData {
   cancelledToday: number;
   totalRestaurants: number;
   totalDeliveryPartners: number;
-  liveOrders: AdminLiveOrder[];
+  liveOrders: PaginatedResponse<AdminLiveOrder>;
+}
+
+export interface AdminDeliveryPartner {
+  id: number;
+  name: string | null;
+  email: string;
+  phone: string;
+  city: string;
+  vehicleType: string;
+  preferredShift: string;
+  serviceZones: string;
+  avatarUrl: string;
+  activeOrders: number;
+  activeNow: boolean;
 }

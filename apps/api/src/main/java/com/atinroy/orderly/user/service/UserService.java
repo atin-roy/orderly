@@ -1,27 +1,43 @@
 package com.atinroy.orderly.user.service;
 
+import com.atinroy.orderly.common.dto.PaginatedResponse;
+import com.atinroy.orderly.order.model.Order;
+import com.atinroy.orderly.order.model.OrderStatus;
+import com.atinroy.orderly.order.repository.OrderRepository;
+import com.atinroy.orderly.user.dto.AdminDeliveryPartnerDto;
 import com.atinroy.orderly.user.dto.CreateUserAddressRequest;
 import com.atinroy.orderly.user.dto.UpdateUserProfileRequest;
 import com.atinroy.orderly.user.dto.UserDto;
 import com.atinroy.orderly.user.dto.UserAddressDto;
 import com.atinroy.orderly.user.mapper.UserMapper;
+import com.atinroy.orderly.user.model.DeliveryPartnerProfile;
+import com.atinroy.orderly.user.model.Role;
 import com.atinroy.orderly.user.model.User;
 import com.atinroy.orderly.user.model.UserAddress;
+import com.atinroy.orderly.user.repository.DeliveryPartnerProfileRepository;
 import com.atinroy.orderly.user.repository.UserAddressRepository;
 import com.atinroy.orderly.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
+    private final DeliveryPartnerProfileRepository deliveryPartnerProfileRepository;
+    private final OrderRepository orderRepository;
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
@@ -119,6 +135,47 @@ public class UserService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public PaginatedResponse<AdminDeliveryPartnerDto> getAdminDeliveryPartners(
+            String email,
+            int page,
+            int size,
+            String query,
+            String shift
+    ) {
+        requireAdmin(email);
+
+        var profiles = deliveryPartnerProfileRepository.searchAdminProfiles(
+                        normalizeOptional(query),
+                        normalizeOptional(shift),
+                        PageRequest.of(Math.max(page, 0), Math.max(size, 1), Sort.by("id").ascending())
+                );
+
+        List<Long> userIds = profiles.getContent().stream()
+                .map(profile -> profile.getUser().getId())
+                .toList();
+        Map<Long, Long> activeOrderCounts = userIds.isEmpty()
+                ? Map.of()
+                : orderRepository.findByAssignedDeliveryPartnerIdInAndStatusIn(
+                                userIds,
+                                List.of(
+                                        OrderStatus.PLACED,
+                                        OrderStatus.ACCEPTED,
+                                        OrderStatus.PREPARING,
+                                        OrderStatus.READY,
+                                        OrderStatus.PICKED_UP
+                                )
+                        ).stream()
+                        .map(Order::getAssignedDeliveryPartner)
+                        .filter(java.util.Objects::nonNull)
+                        .collect(Collectors.groupingBy(User::getId, Collectors.counting()));
+
+        return PaginatedResponse.from(profiles.map(profile -> toAdminDeliveryPartnerDto(
+                profile,
+                activeOrderCounts.getOrDefault(profile.getUser().getId(), 0L)
+        )));
+    }
+
     private String normalizeOptional(String value) {
         if (value == null) {
             return null;
@@ -126,5 +183,30 @@ public class UserService {
 
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private User requireAdmin(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        if (user.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("Only admins can perform this action");
+        }
+        return user;
+    }
+
+    private AdminDeliveryPartnerDto toAdminDeliveryPartnerDto(DeliveryPartnerProfile profile, long activeOrders) {
+        return new AdminDeliveryPartnerDto(
+                profile.getId(),
+                profile.getUser().getName(),
+                profile.getUser().getEmail(),
+                profile.getUser().getPhone(),
+                profile.getCity(),
+                profile.getVehicleType(),
+                profile.getPreferredShift(),
+                profile.getServiceZones(),
+                profile.getAvatarUrl(),
+                activeOrders,
+                activeOrders > 0
+        );
     }
 }

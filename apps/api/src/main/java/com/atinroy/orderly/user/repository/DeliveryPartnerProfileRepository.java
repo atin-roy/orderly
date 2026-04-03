@@ -1,7 +1,12 @@
 package com.atinroy.orderly.user.repository;
 
 import com.atinroy.orderly.user.model.DeliveryPartnerProfile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -12,4 +17,23 @@ public interface DeliveryPartnerProfileRepository extends JpaRepository<Delivery
     List<DeliveryPartnerProfile> findAllByOrderByIdAsc();
     List<DeliveryPartnerProfile> findByUserIdIn(Collection<Long> userIds);
     DeliveryPartnerProfile findByUserId(Long userId);
+
+    @EntityGraph(attributePaths = "user")
+    @Query("""
+            select profile
+            from DeliveryPartnerProfile profile
+            join profile.user user
+            where (:query is null
+                or lower(user.name) like lower(concat('%', :query, '%'))
+                or lower(user.email) like lower(concat('%', :query, '%'))
+                or lower(user.phone) like lower(concat('%', :query, '%'))
+                or lower(profile.vehicleType) like lower(concat('%', :query, '%'))
+                or lower(profile.serviceZones) like lower(concat('%', :query, '%')))
+              and (:shift is null or lower(profile.preferredShift) = lower(:shift))
+            """)
+    Page<DeliveryPartnerProfile> searchAdminProfiles(
+            @Param("query") String query,
+            @Param("shift") String shift,
+            Pageable pageable
+    );
 }

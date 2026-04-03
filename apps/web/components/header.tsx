@@ -27,8 +27,9 @@ export function Header() {
         ? [{ href: "/delivery/deliveries", label: "DELIVERIES" }]
         : role === "ADMIN"
           ? [
-              { href: "/admin/dashboard", label: "OPERATIONS" },
+              { href: "/admin/dashboard", label: "DASHBOARD" },
               { href: "/admin/restaurants", label: "RESTAURANTS" },
+              { href: "/admin/delivery-partners", label: "DELIVERY PARTNERS" },
             ]
           : showCustomerLinks
             ? [...navLinks, { href: "/orders", label: "ORDERS" }, { href: "/cart", label: "CART" }]
@@ -76,7 +77,7 @@ export function Header() {
                   <CartIcon className="w-5 h-5 text-gray-700" />
                 </Link>
               ) : null}
-              {isAuthenticated ? (
+              {isAuthenticated && role !== "ADMIN" ? (
                 <Link
                   href="/profile"
                   className="p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -84,14 +85,14 @@ export function Header() {
                 >
                   <ProfileIcon className="w-5 h-5 text-gray-700" />
                 </Link>
-              ) : (
+              ) : !isAuthenticated ? (
                 <Link
                   href="/login"
                   className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand/90"
                 >
                   Sign In
                 </Link>
-              )}
+              ) : null}
 
               {/* Mobile menu toggle */}
               <button

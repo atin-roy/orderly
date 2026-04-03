@@ -3,9 +3,7 @@
 import type { AdminRestaurantSummary } from "@orderly/types";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AuthGuard } from "@/components/auth-guard";
-import { Footer } from "@/components/footer";
-import { Header } from "@/components/header";
+import { AdminPagination } from "@/components/admin-pagination";
 import { ImageUploadField } from "@/components/image-upload-field";
 import {
   adminCreateRestaurant,
@@ -13,6 +11,8 @@ import {
   getAdminRestaurantOverview,
   updateRestaurant,
 } from "@/lib/api";
+
+const PAGE_SIZE = 10;
 
 const emptyOwnerForm = {
   ownerName: "",
@@ -46,17 +46,23 @@ export default function AdminRestaurantsPage() {
   const [ownerForm, setOwnerForm] = useState(emptyOwnerForm);
   const [message, setMessage] = useState("");
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("all");
 
-  async function refreshRestaurants(nextSelectedId?: number | null) {
-    const response = await getAdminRestaurantOverview();
-    setRestaurants(response.data);
+  async function refreshRestaurants(nextPage = page) {
+    const response = await getAdminRestaurantOverview({
+      page: nextPage,
+      size: PAGE_SIZE,
+      query: query.trim() || undefined,
+      status: status !== "all" ? status : undefined,
+    });
 
-    const selected = nextSelectedId ?? selectedId ?? response.data[0]?.id ?? null;
-    if (selected) {
-      await loadRestaurant(selected);
-    } else {
-      setSelectedId(null);
-    }
+    setRestaurants(response.data.content);
+    setTotalPages(response.data.totalPages);
+    setTotalElements(response.data.totalElements);
   }
 
   async function loadRestaurant(restaurantId: number) {
@@ -86,27 +92,33 @@ export default function AdminRestaurantsPage() {
   useEffect(() => {
     let ignore = false;
 
-    void getAdminRestaurantOverview()
-      .then(async (response) => {
+    void getAdminRestaurantOverview({
+      page,
+      size: PAGE_SIZE,
+      query: query.trim() || undefined,
+      status: status !== "all" ? status : undefined,
+    })
+      .then((response) => {
         if (ignore) {
           return;
         }
 
-        setRestaurants(response.data);
-        if (response.data[0]) {
-          await loadRestaurant(response.data[0].id);
-        }
+        setRestaurants(response.data.content);
+        setTotalPages(response.data.totalPages);
+        setTotalElements(response.data.totalElements);
       })
       .catch(() => {
         if (!ignore) {
           setRestaurants([]);
+          setTotalPages(1);
+          setTotalElements(0);
         }
       });
 
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [page, query, status]);
 
   async function handleSubmit() {
     if (selectedId) {
@@ -115,7 +127,7 @@ export default function AdminRestaurantsPage() {
         imageUrl: restaurantForm.imageUrl || undefined,
       });
       setMessage("Restaurant updated.");
-      await refreshRestaurants(selectedId);
+      await refreshRestaurants(page);
       return;
     }
 
@@ -140,249 +152,284 @@ export default function AdminRestaurantsPage() {
       restaurantCity: restaurantForm.city,
     });
     setMessage("Owner and restaurant created.");
-    await refreshRestaurants(response.data.id);
+    await refreshRestaurants(0);
+    setPage(0);
+    await loadRestaurant(response.data.id);
   }
 
   return (
-    <AuthGuard allowedRoles={["ADMIN"]}>
-      <div className="min-h-screen bg-cream">
-        <Header />
-        <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
-            <aside className="rounded-[2rem] border border-orange-100 bg-white p-5 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
-              <div className="flex items-center justify-between gap-3">
+    <main className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+      <aside className="rounded-[2rem] border border-orange-200 bg-white/90 p-5 shadow-[0_20px_70px_rgba(211,91,31,0.08)]">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand">
+              Restaurants
+            </p>
+            <h1 className="mt-2 font-serif text-3xl font-bold">Catalog management</h1>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedId(null);
+              setOwnerForm(emptyOwnerForm);
+              setRestaurantForm(emptyRestaurantForm);
+              setMessage("");
+            }}
+            className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand"
+          >
+            New
+          </button>
+        </div>
+
+        <div className="mt-6 grid gap-3">
+          <input
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setPage(0);
+            }}
+            placeholder="Search restaurants or owners"
+            className="h-12 rounded-[1.1rem] border border-orange-200 bg-white px-4 text-sm"
+          />
+          <select
+            value={status}
+            onChange={(event) => {
+              setStatus(event.target.value);
+              setPage(0);
+            }}
+            className="h-12 rounded-[1.1rem] border border-orange-200 bg-white px-4 text-sm"
+          >
+            <option value="all">All statuses</option>
+            <option value="live">Live</option>
+            <option value="paused">Paused</option>
+          </select>
+        </div>
+
+        <div className="mt-6 space-y-3">
+          {restaurants.map((restaurant) => (
+            <button
+              key={restaurant.id}
+              type="button"
+              onClick={() => {
+                void loadRestaurant(restaurant.id);
+                setMessage("");
+              }}
+              className={`w-full rounded-[1.5rem] border px-4 py-4 text-left transition ${
+                selectedId === restaurant.id
+                  ? "border-brand bg-orange-50 shadow-[0_16px_36px_rgba(211,91,31,0.10)]"
+                  : "border-orange-100 bg-white hover:border-orange-200 hover:bg-orange-50/50"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">
-                    Catalog oversight
+                  <p className="font-semibold text-foreground">{restaurant.name}</p>
+                  <p className="mt-1 text-sm text-subtle">
+                    {restaurant.cuisineType} · {restaurant.locality}
                   </p>
-                  <h1 className="mt-2 font-serif text-3xl font-bold">Restaurants</h1>
+                  <p className="mt-1 text-sm text-subtle">Owner: {restaurant.ownerName ?? "N/A"}</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedId(null);
-                    setOwnerForm(emptyOwnerForm);
-                    setRestaurantForm(emptyRestaurantForm);
-                    setMessage("");
-                  }}
-                  className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand"
+                <span
+                  className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+                    restaurant.isActive
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-stone-200 text-stone-700"
+                  }`}
                 >
-                  New
-                </button>
+                  {restaurant.isActive ? "Live" : "Paused"}
+                </span>
               </div>
-
-              <div className="mt-6 space-y-3">
-                {restaurants.map((restaurant) => (
-                  <button
-                    key={restaurant.id}
-                    type="button"
-                    onClick={() => {
-                      void loadRestaurant(restaurant.id);
-                      setMessage("");
-                    }}
-                    className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
-                      selectedId === restaurant.id
-                        ? "border-brand bg-orange-50"
-                        : "border-orange-100 bg-white"
-                    }`}
-                  >
-                    <p className="font-semibold text-foreground">{restaurant.name}</p>
-                    <p className="mt-1 text-sm text-subtle">
-                      {restaurant.cuisineType} · {restaurant.locality}
-                    </p>
-                    <p className="mt-1 text-sm text-subtle">Owner: {restaurant.ownerName ?? "N/A"}</p>
-                    <p className="mt-2 text-xs uppercase tracking-[0.18em] text-brand">
-                      {restaurant.isActive ? "Live" : "Paused"} · {restaurant.totalOrders} orders
-                    </p>
-                  </button>
-                ))}
+              <div className="mt-4 flex flex-wrap gap-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand">
+                <span>{restaurant.activeOrders} active orders</span>
+                <span>{restaurant.totalOrders} total orders</span>
               </div>
-            </aside>
+            </button>
+          ))}
+          {restaurants.length === 0 ? (
+            <div className="rounded-[1.5rem] border border-dashed border-orange-200 bg-orange-50/70 p-5 text-sm text-subtle">
+              No restaurants match the current filters.
+            </div>
+          ) : null}
+        </div>
 
-            <section className="rounded-[2rem] border border-orange-100 bg-white p-6 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">
-                    {selectedId ? "Edit restaurant" : "Create restaurant"}
-                  </p>
-                  <h2 className="mt-2 font-serif text-3xl font-bold">
-                    {selectedId ? "Admin restaurant controls" : "Create owner and restaurant"}
-                  </h2>
-                </div>
-                {selectedId ? (
-                  <Link
-                    href={`/admin/restaurants/${selectedId}/menu`}
-                    className="rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white"
-                  >
-                    Manage menu
-                  </Link>
-                ) : null}
-              </div>
+        <div className="mt-6">
+          <AdminPagination
+            page={page}
+            totalPages={totalPages}
+            totalElements={totalElements}
+            label="Restaurant pages"
+            onPageChange={setPage}
+          />
+        </div>
+      </aside>
 
-              {loadingDetails ? (
-                <div className="mt-5 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-subtle">
-                  Loading restaurant details...
-                </div>
-              ) : null}
+      <section className="rounded-[2rem] border border-orange-200 bg-white/90 p-6 shadow-[0_20px_70px_rgba(211,91,31,0.08)]">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand">
+              {selectedId ? "Edit restaurant" : "Create restaurant"}
+            </p>
+            <h2 className="mt-2 font-serif text-3xl font-bold">
+              {selectedId ? "Restaurant controls" : "New owner and restaurant"}
+            </h2>
+          </div>
+          {selectedId ? (
+            <Link
+              href={`/admin/restaurants/${selectedId}/menu`}
+              className="rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white"
+            >
+              Manage menu
+            </Link>
+          ) : null}
+        </div>
 
-              {message ? (
-                <div className="mt-5 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-brand">
-                  {message}
-                </div>
-              ) : null}
+        {loadingDetails ? (
+          <div className="mt-5 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-subtle">
+            Loading restaurant details...
+          </div>
+        ) : null}
 
-              {!selectedId ? (
-                <div className="mt-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
-                    Owner account
-                  </p>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    {[
-                      ["Owner name", "ownerName"],
-                      ["Business name", "businessName"],
-                      ["Email", "email"],
-                      ["Password", "password"],
-                      ["Phone", "phone"],
-                      ["City", "city"],
-                      ["Service area", "serviceArea"],
-                      ["Business type", "businessType"],
-                    ].map(([label, key]) => (
-                      <label key={key} className="block text-sm">
-                        <span className="mb-2 block font-semibold text-foreground">{label}</span>
-                        <input
-                          type={key === "password" ? "password" : "text"}
-                          value={ownerForm[key as keyof typeof ownerForm]}
-                          onChange={(event) =>
-                            setOwnerForm((current) => ({ ...current, [key]: event.target.value }))
-                          }
-                          className="w-full rounded-2xl border border-orange-200 px-4 py-3"
-                        />
-                      </label>
-                    ))}
-                  </div>
-                  <label className="mt-4 block text-sm">
-                    <span className="mb-2 block font-semibold text-foreground">Cuisine focus</span>
-                    <textarea
-                      value={ownerForm.cuisineFocus}
-                      onChange={(event) =>
-                        setOwnerForm((current) => ({ ...current, cuisineFocus: event.target.value }))
-                      }
-                      className="min-h-28 w-full rounded-2xl border border-orange-200 px-4 py-3"
-                    />
-                  </label>
-                </div>
-              ) : null}
+        {message ? (
+          <div className="mt-5 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-brand">
+            {message}
+          </div>
+        ) : null}
 
-              <div className="mt-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
-                  Restaurant details
-                </p>
-                <div className="mt-4 grid gap-4 md:grid-cols-2">
-                  {[
-                    ["Name", "name"],
-                    ["Cuisine type", "cuisineType"],
-                    ["City", "city"],
-                    ["Locality", "locality"],
-                  ].map(([label, key]) => (
-                    <label key={key} className="block text-sm">
-                      <span className="mb-2 block font-semibold text-foreground">{label}</span>
-                      <input
-                        value={restaurantForm[key as keyof typeof restaurantForm] as string}
-                        onChange={(event) =>
-                          setRestaurantForm((current) => ({ ...current, [key]: event.target.value }))
-                        }
-                        className="w-full rounded-2xl border border-orange-200 px-4 py-3"
-                      />
-                    </label>
-                  ))}
-                </div>
-
-                <label className="mt-4 block text-sm">
-                  <span className="mb-2 block font-semibold text-foreground">Description</span>
-                  <textarea
-                    value={restaurantForm.description}
+        {!selectedId ? (
+          <div className="mt-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand">
+              Owner account
+            </p>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              {[
+                ["Owner name", "ownerName"],
+                ["Business name", "businessName"],
+                ["Email", "email"],
+                ["Password", "password"],
+                ["Phone", "phone"],
+                ["City", "city"],
+                ["Service area", "serviceArea"],
+                ["Business type", "businessType"],
+              ].map(([label, key]) => (
+                <label key={key} className="block text-sm">
+                  <span className="mb-2 block font-semibold text-foreground">{label}</span>
+                  <input
+                    type={key === "password" ? "password" : "text"}
+                    value={ownerForm[key as keyof typeof ownerForm]}
                     onChange={(event) =>
-                      setRestaurantForm((current) => ({ ...current, description: event.target.value }))
+                      setOwnerForm((current) => ({ ...current, [key]: event.target.value }))
                     }
-                    className="min-h-28 w-full rounded-2xl border border-orange-200 px-4 py-3"
+                    className="w-full rounded-2xl border border-orange-200 px-4 py-3"
                   />
                 </label>
-
-                <div className="mt-4">
-                  <ImageUploadField
-                    label="Restaurant image"
-                    value={restaurantForm.imageUrl}
-                    helperText="Upload JPG, PNG, or WebP. This image is used on cards and restaurant details."
-                    onChange={(imageUrl) =>
-                      setRestaurantForm((current) => ({ ...current, imageUrl }))
-                    }
-                  />
-                </div>
-
-                <div className="mt-4 grid gap-4 md:grid-cols-4">
-                  <label className="block text-sm">
-                    <span className="mb-2 block font-semibold text-foreground">Delivery time</span>
-                    <input
-                      type="number"
-                      value={restaurantForm.deliveryTimeMinutes}
-                      onChange={(event) =>
-                        setRestaurantForm((current) => ({
-                          ...current,
-                          deliveryTimeMinutes: Number(event.target.value),
-                        }))
-                      }
-                      className="w-full rounded-2xl border border-orange-200 px-4 py-3"
-                    />
-                  </label>
-                  <label className="block text-sm">
-                    <span className="mb-2 block font-semibold text-foreground">Delivery fee</span>
-                    <input
-                      type="number"
-                      value={restaurantForm.deliveryFee}
-                      onChange={(event) =>
-                        setRestaurantForm((current) => ({
-                          ...current,
-                          deliveryFee: Number(event.target.value),
-                        }))
-                      }
-                      className="w-full rounded-2xl border border-orange-200 px-4 py-3"
-                    />
-                  </label>
-                  <label className="block text-sm">
-                    <span className="mb-2 block font-semibold text-foreground">Fallback image color</span>
-                    <input
-                      value={restaurantForm.imageColor}
-                      onChange={(event) =>
-                        setRestaurantForm((current) => ({ ...current, imageColor: event.target.value }))
-                      }
-                      className="w-full rounded-2xl border border-orange-200 px-4 py-3"
-                    />
-                  </label>
-                  <label className="flex items-center gap-3 rounded-2xl border border-orange-100 px-4 py-3 text-sm font-semibold text-foreground">
-                    <input
-                      type="checkbox"
-                      checked={restaurantForm.isActive}
-                      onChange={(event) =>
-                        setRestaurantForm((current) => ({ ...current, isActive: event.target.checked }))
-                      }
-                    />
-                    Active
-                  </label>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => void handleSubmit()}
-                className="mt-6 rounded-2xl bg-brand px-6 py-4 text-sm font-semibold text-white"
-              >
-                {selectedId ? "Save restaurant" : "Create owner and restaurant"}
-              </button>
-            </section>
+              ))}
+            </div>
+            <label className="mt-4 block text-sm">
+              <span className="mb-2 block font-semibold text-foreground">Cuisine focus</span>
+              <textarea
+                value={ownerForm.cuisineFocus}
+                onChange={(event) =>
+                  setOwnerForm((current) => ({ ...current, cuisineFocus: event.target.value }))
+                }
+                className="min-h-28 w-full rounded-2xl border border-orange-200 px-4 py-3"
+              />
+            </label>
           </div>
-        </main>
-        <Footer />
-      </div>
-    </AuthGuard>
+        ) : null}
+
+        <div className="mt-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand">
+            Restaurant details
+          </p>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            {[
+              ["Name", "name"],
+              ["Cuisine type", "cuisineType"],
+              ["City", "city"],
+              ["Locality", "locality"],
+            ].map(([label, key]) => (
+              <label key={key} className="block text-sm">
+                <span className="mb-2 block font-semibold text-foreground">{label}</span>
+                <input
+                  value={restaurantForm[key as keyof typeof restaurantForm] as string}
+                  onChange={(event) =>
+                    setRestaurantForm((current) => ({ ...current, [key]: event.target.value }))
+                  }
+                  className="w-full rounded-2xl border border-orange-200 px-4 py-3"
+                />
+              </label>
+            ))}
+          </div>
+
+          <label className="mt-4 block text-sm">
+            <span className="mb-2 block font-semibold text-foreground">Description</span>
+            <textarea
+              value={restaurantForm.description}
+              onChange={(event) =>
+                setRestaurantForm((current) => ({ ...current, description: event.target.value }))
+              }
+              className="min-h-28 w-full rounded-2xl border border-orange-200 px-4 py-3"
+            />
+          </label>
+
+          <div className="mt-4">
+            <ImageUploadField
+              label="Restaurant image"
+              value={restaurantForm.imageUrl}
+              helperText="Upload JPG, PNG, or WebP. Used on cards and restaurant details."
+              onChange={(imageUrl) => setRestaurantForm((current) => ({ ...current, imageUrl }))}
+            />
+          </div>
+
+          <div className="mt-4 grid gap-4 md:grid-cols-3">
+            <label className="block text-sm">
+              <span className="mb-2 block font-semibold text-foreground">Delivery time</span>
+              <input
+                type="number"
+                value={restaurantForm.deliveryTimeMinutes}
+                onChange={(event) =>
+                  setRestaurantForm((current) => ({
+                    ...current,
+                    deliveryTimeMinutes: Number(event.target.value),
+                  }))
+                }
+                className="w-full rounded-2xl border border-orange-200 px-4 py-3"
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-2 block font-semibold text-foreground">Delivery fee</span>
+              <input
+                type="number"
+                value={restaurantForm.deliveryFee}
+                onChange={(event) =>
+                  setRestaurantForm((current) => ({
+                    ...current,
+                    deliveryFee: Number(event.target.value),
+                  }))
+                }
+                className="w-full rounded-2xl border border-orange-200 px-4 py-3"
+              />
+            </label>
+            <label className="flex items-center gap-3 rounded-2xl border border-orange-100 px-4 py-3 text-sm font-semibold text-foreground">
+              <input
+                type="checkbox"
+                checked={restaurantForm.isActive}
+                onChange={(event) =>
+                  setRestaurantForm((current) => ({ ...current, isActive: event.target.checked }))
+                }
+              />
+              Accept orders
+            </label>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => void handleSubmit()}
+            className="mt-6 rounded-2xl bg-brand px-6 py-4 text-sm font-semibold text-white"
+          >
+            {selectedId ? "Save restaurant" : "Create restaurant"}
+          </button>
+        </div>
+      </section>
+    </main>
   );
 }
