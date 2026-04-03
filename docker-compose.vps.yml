@@ -3,6 +3,10 @@ services:
     networks:
       - default
       - shared
+  orderly-api:
+    networks:
+      - default
+      - shared
 
 networks:
   shared:
