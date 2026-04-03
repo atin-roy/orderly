@@ -113,7 +113,7 @@ export default function ProfilePage() {
               </div>
             </section>
 
-            <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_380px]">
+            <section>
               <div className="rounded-[2rem] border border-orange-200 bg-white/90 p-6 shadow-[0_20px_70px_rgba(211,91,31,0.08)]">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
@@ -168,17 +168,6 @@ export default function ProfilePage() {
                   </div>
                 </dl>
               </div>
-
-              <section className="rounded-[2rem] border border-orange-200 bg-white/90 p-6 shadow-[0_20px_70px_rgba(211,91,31,0.08)]">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand">
-                  Workspace status
-                </p>
-                <h2 className="mt-2 font-serif text-3xl font-bold">Admin surface</h2>
-                <div className="mt-6 rounded-[1.6rem] border border-dashed border-orange-200 bg-orange-50/70 p-5 text-sm leading-7 text-subtle">
-                  This account remains scoped to admin tools. Catalog management, delivery partner
-                  oversight, and profile access now live inside the same sidebar workspace.
-                </div>
-              </section>
             </section>
           </main>
         </AdminShell>

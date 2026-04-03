@@ -84,6 +84,9 @@ export default function AdminRestaurantsPage() {
         isActive: restaurant.isActive,
       });
       setOwnerForm(emptyOwnerForm);
+    } catch (error) {
+      console.error("Failed to load admin restaurant details", error);
+      throw error;
     } finally {
       setLoadingDetails(false);
     }
@@ -107,7 +110,8 @@ export default function AdminRestaurantsPage() {
         setTotalPages(response.data.totalPages);
         setTotalElements(response.data.totalElements);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Failed to fetch admin restaurants", error);
         if (!ignore) {
           setRestaurants([]);
           setTotalPages(1);

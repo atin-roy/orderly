@@ -32,7 +32,8 @@ export default function AdminDeliveryPartnersPage() {
         setTotalPages(response.data.totalPages);
         setTotalElements(response.data.totalElements);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Failed to fetch admin delivery partners", error);
         if (!ignore) {
           setPartners([]);
           setTotalPages(1);

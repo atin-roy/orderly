@@ -62,7 +62,7 @@ public class CouponService {
                         PageRequest.of(
                                 Math.max(page, 0),
                                 Math.max(size, 1),
-                                Sort.by(Sort.Order.desc("enabled"), Sort.Order.asc("code"))
+                                Sort.by(Sort.Order.desc("enabled"), Sort.Order.desc("id"))
                         )
                 )
                 .map(this::toAdminCouponDto);

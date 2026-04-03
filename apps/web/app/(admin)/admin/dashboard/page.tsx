@@ -96,12 +96,17 @@ export default function AdminDashboardPage() {
     };
   }, [couponPage, couponQuery, couponStatus]);
 
-  async function refreshCoupons(nextPage = couponPage) {
+  async function refreshCoupons(
+    nextPage = couponPage,
+    overrides?: { query?: string; status?: string },
+  ) {
+    const nextQuery = overrides?.query ?? couponQuery;
+    const nextStatus = overrides?.status ?? couponStatus;
     const response = await getAdminCoupons({
       page: nextPage,
       size: COUPON_PAGE_SIZE,
-      query: couponQuery.trim() || undefined,
-      status: couponStatus !== "all" ? couponStatus : undefined,
+      query: nextQuery.trim() || undefined,
+      status: nextStatus !== "all" ? nextStatus : undefined,
     });
     setCoupons(response.data.content);
     setCouponTotalPages(response.data.totalPages);
@@ -121,15 +126,18 @@ export default function AdminDashboardPage() {
     if (editingCouponId) {
       await updateCoupon(editingCouponId, payload);
       setMessage("Coupon updated.");
+      await refreshCoupons(couponPage);
     } else {
       await createCoupon(payload);
       setMessage("Coupon created.");
+      setCouponQuery("");
+      setCouponStatus("all");
+      setCouponPage(0);
+      await refreshCoupons(0, { query: "", status: "all" });
     }
 
     setEditingCouponId(null);
     setCouponForm(emptyCouponForm);
-    await refreshCoupons(0);
-    setCouponPage(0);
   }
 
   async function handleDeleteCoupon(couponId: number) {

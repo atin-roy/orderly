@@ -50,16 +50,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
-
-          <div className="mt-10 rounded-[1.5rem] border border-white/10 bg-white/5 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-orange-200">
-              Admin surface
-            </p>
-            <p className="mt-3 text-sm leading-6 text-stone-300">
-              Dashboard, Restaurants, Delivery Partners, and Account stay grouped in the same
-              admin workspace.
-            </p>
-          </div>
         </aside>
 
         <div className="min-w-0 py-1">{children}</div>

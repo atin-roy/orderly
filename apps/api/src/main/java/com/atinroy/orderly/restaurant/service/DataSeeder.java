@@ -52,9 +52,7 @@ public class DataSeeder implements CommandLineRunner {
         ensureDeliveryPartners();
         ensureCoupons();
 
-        if (restaurantRepository.count() == 0) {
-            seedRestaurants(demoOwner);
-        }
+        seedRestaurants(demoOwner);
 
         if (!userAddressRepository.existsByUserId(demoCustomer.getId())) {
             seedCustomerAddresses(demoCustomer);
@@ -109,6 +107,10 @@ public class DataSeeder implements CommandLineRunner {
         );
 
         for (RestaurantSeed seed : seeds) {
+            if (restaurantRepository.findBySlug(slugify(seed.name())).isPresent()) {
+                continue;
+            }
+
             Restaurant restaurant = new Restaurant();
             restaurant.setOwner(owner);
             restaurant.setName(seed.name());
