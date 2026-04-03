@@ -17,7 +17,7 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
     @Query("""
             select c
             from Coupon c
-            where (:query is null
+            where (:query = ''
                 or lower(c.code) like lower(concat('%', :query, '%'))
                 or lower(c.title) like lower(concat('%', :query, '%'))
                 or lower(c.description) like lower(concat('%', :query, '%')))

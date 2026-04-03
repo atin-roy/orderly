@@ -1,0 +1,16 @@
+{
+  "name": "Orderly",
+  "short_name": "Orderly",
+  "description": "Premium food delivery with admin, partner, and customer workflows.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffaf3",
+  "theme_color": "#fffaf3",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

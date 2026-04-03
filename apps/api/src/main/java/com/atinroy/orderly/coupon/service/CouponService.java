@@ -56,8 +56,9 @@ public class CouponService {
             String status
     ) {
         requireAdmin(email);
+        String normalizedQuery = normalize(query);
         var coupons = couponRepository.searchAdminCoupons(
-                        normalize(query),
+                        normalizedQuery == null ? "" : normalizedQuery,
                         toEnabledStatus(status),
                         PageRequest.of(
                                 Math.max(page, 0),
