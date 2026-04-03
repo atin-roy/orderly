@@ -683,14 +683,14 @@ export async function getAdminDeliveryPartners(options: {
     params.set("shift", options.shift);
   }
   return apiClient<PaginatedResponse<AdminDeliveryPartner>>(
-    `/admin/delivery-partners?${params.toString()}`
+    `/users/admin/delivery-partners?${params.toString()}`
   );
 }
 
 export async function createAdminDeliveryPartner(
   payload: AdminCreateDeliveryPartnerPayload
 ): Promise<ApiResponse<AdminDeliveryPartner>> {
-  return apiClient<AdminDeliveryPartner>("/admin/delivery-partners", {
+  return apiClient<AdminDeliveryPartner>("/users/admin/delivery-partners", {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -700,7 +700,7 @@ export async function updateAdminDeliveryPartner(
   partnerId: number,
   payload: AdminUpdateDeliveryPartnerPayload
 ): Promise<ApiResponse<AdminDeliveryPartner>> {
-  return apiClient<AdminDeliveryPartner>(`/admin/delivery-partners/${partnerId}`, {
+  return apiClient<AdminDeliveryPartner>(`/users/admin/delivery-partners/${partnerId}`, {
     method: "PUT",
     body: JSON.stringify(payload),
   });
@@ -709,7 +709,7 @@ export async function updateAdminDeliveryPartner(
 export async function deleteAdminDeliveryPartner(
   partnerId: number
 ): Promise<ApiResponse<void>> {
-  return apiClient<void>(`/admin/delivery-partners/${partnerId}`, {
+  return apiClient<void>(`/users/admin/delivery-partners/${partnerId}`, {
     method: "DELETE",
   });
 }

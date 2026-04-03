@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping({"/admin", "/users/admin"})
 @RequiredArgsConstructor
 public class AdminUserController {
     private final UserService userService;
