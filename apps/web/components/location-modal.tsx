@@ -153,10 +153,11 @@ export function LocationModal({ open, onClose }: LocationModalProps) {
   const savedAddresses = profile?.addresses ?? [];
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-start justify-center pt-24">
+    <div className="fixed inset-0 z-[60] overflow-y-auto">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-      <div className="relative mx-4 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
+      <div className="relative flex min-h-full items-start justify-center px-4 py-6 sm:py-10">
+        <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl sm:max-h-[calc(100vh-5rem)] sm:overflow-y-auto">
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold">Select your location</h2>
@@ -347,6 +348,7 @@ export function LocationModal({ open, onClose }: LocationModalProps) {
           >
             {loading ? "Saving..." : "Save address"}
           </button>
+        </div>
         </div>
       </div>
     </div>

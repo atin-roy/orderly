@@ -30,6 +30,18 @@ function getApiBaseUrl() {
   return process.env.NEXT_PUBLIC_API_URL || "/api";
 }
 
+const CART_UPDATED_EVENT = "orderly:cart-updated";
+
+function notifyCartUpdated() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(CART_UPDATED_EVENT));
+  }
+}
+
+export function getCartUpdatedEventName() {
+  return CART_UPDATED_EVENT;
+}
+
 function isNetworkError(error: unknown) {
   return error instanceof TypeError;
 }
@@ -468,32 +480,40 @@ export async function getCart(): Promise<ApiResponse<Cart>> {
 }
 
 export async function addToCart(payload: AddToCartPayload): Promise<ApiResponse<Cart>> {
-  return apiClient<Cart>("/cart/items", {
+  const response = await apiClient<Cart>("/cart/items", {
     method: "POST",
     body: JSON.stringify(payload),
   });
+  notifyCartUpdated();
+  return response;
 }
 
 export async function updateCartItem(
   itemId: number,
   payload: UpdateCartItemPayload
 ): Promise<ApiResponse<Cart>> {
-  return apiClient<Cart>(`/cart/items/${itemId}`, {
+  const response = await apiClient<Cart>(`/cart/items/${itemId}`, {
     method: "PATCH",
     body: JSON.stringify(payload),
   });
+  notifyCartUpdated();
+  return response;
 }
 
 export async function removeCartItem(itemId: number): Promise<ApiResponse<Cart>> {
-  return apiClient<Cart>(`/cart/items/${itemId}`, {
+  const response = await apiClient<Cart>(`/cart/items/${itemId}`, {
     method: "DELETE",
   });
+  notifyCartUpdated();
+  return response;
 }
 
 export async function clearCart(): Promise<ApiResponse<void>> {
-  return apiClient<void>("/cart", {
+  const response = await apiClient<void>("/cart", {
     method: "DELETE",
   });
+  notifyCartUpdated();
+  return response;
 }
 
 export async function getCoupons(): Promise<ApiResponse<Coupon[]>> {

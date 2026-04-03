@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    private static final String DEFAULT_BIKE_AVATAR_URL = "/demo/partners/rider-bike-a.svg";
+    private static final String DEFAULT_SCOOTER_AVATAR_URL = "/demo/partners/rider-scooter-a.svg";
 
     private final UserRepository userRepository;
     private final BusinessProfileRepository businessProfileRepository;
@@ -86,10 +88,24 @@ public class AuthService {
         profile.setPreferredShift(request.preferredShift());
         profile.setServiceZones(request.serviceZones());
         profile.setDeliveryExperience(request.deliveryExperience());
+        profile.setAvatarUrl(defaultDeliveryAvatarUrl(request.vehicleType()));
         deliveryPartnerProfileRepository.save(profile);
 
         String token = jwtService.generateToken(user);
         return new AuthResponse(token, user.getEmail(), user.getRole().name());
+    }
+
+    private String defaultDeliveryAvatarUrl(String vehicleType) {
+        if (vehicleType == null) {
+            return DEFAULT_BIKE_AVATAR_URL;
+        }
+
+        String normalized = vehicleType.trim().toLowerCase();
+        if (normalized.contains("scooter")) {
+            return DEFAULT_SCOOTER_AVATAR_URL;
+        }
+
+        return DEFAULT_BIKE_AVATAR_URL;
     }
 
     public AuthResponse login(LoginRequest request) {

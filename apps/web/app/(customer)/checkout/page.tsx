@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AuthGuard } from "@/components/auth-guard";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { LocationModal } from "@/components/location-modal";
 import { useSession } from "@/components/session-provider";
 import {
   ArrowLeftIcon,
@@ -136,6 +137,7 @@ export default function CheckoutPage() {
   const [paymentSheetOpen, setPaymentSheetOpen] = useState(false);
   const [paymentResult, setPaymentResult] = useState<PaymentResult>("idle");
   const [paymentError, setPaymentError] = useState("");
+  const [locationOpen, setLocationOpen] = useState(false);
 
   useEffect(() => {
     void getCart()
@@ -251,42 +253,67 @@ export default function CheckoutPage() {
             <div className="grid gap-8 lg:grid-cols-[minmax(0,1.3fr)_360px]">
               <div className="space-y-8">
                 <div className="rounded-[2rem] border border-orange-100 bg-white p-6 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
-                  <div className="flex items-end justify-between gap-4">
+                  <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
                         Addresses
                       </p>
                       <h2 className="mt-3 font-serif text-3xl font-bold">Select delivery address</h2>
                     </div>
-                    <p className="text-sm text-subtle">Choose where this order should be delivered</p>
+                    <div className="flex items-center gap-3">
+                      <p className="text-sm text-subtle">Choose where this order should be delivered</p>
+                      <button
+                        type="button"
+                        onClick={() => setLocationOpen(true)}
+                        className="inline-flex items-center justify-center rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-semibold text-brand transition hover:border-brand"
+                      >
+                        Add address
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="mt-6 grid gap-4">
-                    {addresses.map((address) => (
-                      <button
-                        key={address.id}
-                        type="button"
-                        onClick={() => setSelectedAddressId(address.id)}
-                        className={`rounded-[1.5rem] border p-4 text-left transition ${
-                          (selectedAddressId ?? defaultAddress?.id) === address.id
-                            ? "border-brand bg-orange-50"
-                            : "border-orange-100"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-4">
-                          <div>
-                            <p className="font-semibold text-foreground">{address.label}</p>
-                            <p className="mt-2 text-sm leading-6 text-subtle">
-                              {address.address}
-                              {address.buildingInfo ? `, ${address.buildingInfo}` : ""}
-                              {address.city ? `, ${address.city}` : ""}
-                            </p>
+                  {addresses.length ? (
+                    <div className="mt-6 grid gap-4">
+                      {addresses.map((address) => (
+                        <button
+                          key={address.id}
+                          type="button"
+                          onClick={() => setSelectedAddressId(address.id)}
+                          className={`rounded-[1.5rem] border p-4 text-left transition ${
+                            (selectedAddressId ?? defaultAddress?.id) === address.id
+                              ? "border-brand bg-orange-50"
+                              : "border-orange-100"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-4">
+                            <div>
+                              <p className="font-semibold text-foreground">{address.label}</p>
+                              <p className="mt-2 text-sm leading-6 text-subtle">
+                                {address.address}
+                                {address.buildingInfo ? `, ${address.buildingInfo}` : ""}
+                                {address.city ? `, ${address.city}` : ""}
+                              </p>
+                            </div>
+                            <LocationPinIcon className="h-5 w-5 text-brand" />
                           </div>
-                          <LocationPinIcon className="h-5 w-5 text-brand" />
-                        </div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="mt-6 rounded-[1.5rem] border border-dashed border-orange-200 bg-orange-50/60 p-6">
+                      <p className="text-sm leading-7 text-subtle">
+                        You do not have a saved delivery address yet. Add one here to continue with
+                        checkout.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setLocationOpen(true)}
+                        className="mt-4 inline-flex items-center justify-center rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand/90"
+                      >
+                        Add delivery address
                       </button>
-                    ))}
-                  </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="rounded-[2rem] border border-orange-100 bg-white p-6 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
@@ -445,6 +472,8 @@ export default function CheckoutPage() {
             onConfirm={() => void handleConfirmPayment()}
           />
         ) : null}
+
+        <LocationModal open={locationOpen} onClose={() => setLocationOpen(false)} />
       </div>
     </AuthGuard>
   );

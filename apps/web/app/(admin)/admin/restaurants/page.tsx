@@ -39,12 +39,37 @@ const emptyRestaurantForm = {
   isActive: true,
 };
 
+function validateRestaurantForm(form: typeof emptyRestaurantForm) {
+  if (!form.name.trim()) {
+    return "Name is required.";
+  }
+  if (!form.cuisineType.trim()) {
+    return "Cuisine type is required.";
+  }
+  if (!form.city.trim()) {
+    return "City is required.";
+  }
+  if (!form.locality.trim()) {
+    return "Locality is required.";
+  }
+  if (!Number.isFinite(form.deliveryTimeMinutes) || form.deliveryTimeMinutes < 1) {
+    return "Delivery time must be at least 1 minute.";
+  }
+  if (!Number.isFinite(form.deliveryFee) || form.deliveryFee < 0) {
+    return "Delivery fee cannot be negative.";
+  }
+
+  return null;
+}
+
 export default function AdminRestaurantsPage() {
   const [restaurants, setRestaurants] = useState<AdminRestaurantSummary[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [restaurantForm, setRestaurantForm] = useState(emptyRestaurantForm);
   const [ownerForm, setOwnerForm] = useState(emptyOwnerForm);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -125,40 +150,58 @@ export default function AdminRestaurantsPage() {
   }, [page, query, status]);
 
   async function handleSubmit() {
-    if (selectedId) {
-      await updateRestaurant(selectedId, {
-        ...restaurantForm,
-        imageUrl: restaurantForm.imageUrl || undefined,
-      });
-      setMessage("Restaurant updated.");
-      await refreshRestaurants(page);
+    const validationError = validateRestaurantForm(restaurantForm);
+    if (validationError) {
+      setMessage(validationError);
+      setMessageType("error");
       return;
     }
 
-    const response = await adminCreateRestaurant({
-      ownerName: ownerForm.ownerName,
-      businessName: ownerForm.businessName,
-      email: ownerForm.email,
-      password: ownerForm.password,
-      phone: ownerForm.phone,
-      city: ownerForm.city,
-      serviceArea: ownerForm.serviceArea,
-      businessType: ownerForm.businessType,
-      cuisineFocus: ownerForm.cuisineFocus,
-      name: restaurantForm.name,
-      description: restaurantForm.description,
-      cuisineType: restaurantForm.cuisineType,
-      locality: restaurantForm.locality,
-      imageUrl: restaurantForm.imageUrl || undefined,
-      deliveryTimeMinutes: restaurantForm.deliveryTimeMinutes,
-      deliveryFee: restaurantForm.deliveryFee,
-      imageColor: restaurantForm.imageColor,
-      restaurantCity: restaurantForm.city,
-    });
-    setMessage("Owner and restaurant created.");
-    await refreshRestaurants(0);
-    setPage(0);
-    await loadRestaurant(response.data.id);
+    setIsSubmitting(true);
+
+    try {
+      if (selectedId) {
+        await updateRestaurant(selectedId, {
+          ...restaurantForm,
+          imageUrl: restaurantForm.imageUrl || undefined,
+        });
+        setMessage("Restaurant updated.");
+        setMessageType("success");
+        await refreshRestaurants(page);
+        return;
+      }
+
+      const response = await adminCreateRestaurant({
+        ownerName: ownerForm.ownerName,
+        businessName: ownerForm.businessName,
+        email: ownerForm.email,
+        password: ownerForm.password,
+        phone: ownerForm.phone,
+        city: ownerForm.city,
+        serviceArea: ownerForm.serviceArea,
+        businessType: ownerForm.businessType,
+        cuisineFocus: ownerForm.cuisineFocus,
+        name: restaurantForm.name,
+        description: restaurantForm.description,
+        cuisineType: restaurantForm.cuisineType,
+        locality: restaurantForm.locality,
+        imageUrl: restaurantForm.imageUrl || undefined,
+        deliveryTimeMinutes: restaurantForm.deliveryTimeMinutes,
+        deliveryFee: restaurantForm.deliveryFee,
+        imageColor: restaurantForm.imageColor,
+        restaurantCity: restaurantForm.city,
+      });
+      setMessage("Owner and restaurant created.");
+      setMessageType("success");
+      await refreshRestaurants(0);
+      setPage(0);
+      await loadRestaurant(response.data.id);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to save restaurant.");
+      setMessageType("error");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -178,6 +221,7 @@ export default function AdminRestaurantsPage() {
               setOwnerForm(emptyOwnerForm);
               setRestaurantForm(emptyRestaurantForm);
               setMessage("");
+              setMessageType("success");
             }}
             className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand"
           >
@@ -217,6 +261,7 @@ export default function AdminRestaurantsPage() {
               onClick={() => {
                 void loadRestaurant(restaurant.id);
                 setMessage("");
+                setMessageType("success");
               }}
               className={`w-full rounded-[1.5rem] border px-4 py-4 text-left transition ${
                 selectedId === restaurant.id
@@ -293,7 +338,13 @@ export default function AdminRestaurantsPage() {
         ) : null}
 
         {message ? (
-          <div className="mt-5 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-brand">
+          <div
+            className={`mt-5 rounded-2xl px-4 py-3 text-sm ${
+              messageType === "error"
+                ? "border border-red-200 bg-red-50 text-red-700"
+                : "border border-orange-200 bg-orange-50 text-brand"
+            }`}
+          >
             {message}
           </div>
         ) : null}
@@ -428,9 +479,16 @@ export default function AdminRestaurantsPage() {
           <button
             type="button"
             onClick={() => void handleSubmit()}
-            className="mt-6 rounded-2xl bg-brand px-6 py-4 text-sm font-semibold text-white"
+            disabled={isSubmitting}
+            className="mt-6 rounded-2xl bg-brand px-6 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {selectedId ? "Save restaurant" : "Create restaurant"}
+            {isSubmitting
+              ? selectedId
+                ? "Saving..."
+                : "Creating..."
+              : selectedId
+                ? "Save restaurant"
+                : "Create restaurant"}
           </button>
         </div>
       </section>

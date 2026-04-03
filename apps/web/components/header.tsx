@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { roleIsCustomer } from "@/components/auth-guard";
 import { useSession } from "@/components/session-provider";
+import { getCart, getCartUpdatedEventName } from "@/lib/api";
 import { CartIcon, LocationPinIcon, MenuIcon, CloseIcon, ProfileIcon } from "./icons";
 import { LocationModal } from "./location-modal";
 
@@ -13,10 +15,51 @@ const navLinks = [
 ];
 
 export function Header() {
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
+  const [cartItemCount, setCartItemCount] = useState(0);
   const { isAuthenticated, role } = useSession();
   const showCustomerLinks = isAuthenticated && roleIsCustomer(role);
+  useEffect(() => {
+    if (!showCustomerLinks) {
+      setCartItemCount(0);
+      return;
+    }
+
+    let ignore = false;
+
+    const refreshCartCount = () => {
+      void getCart()
+        .then((response) => {
+          if (ignore) {
+            return;
+          }
+
+          const nextCount = response.data.items.reduce((sum, item) => sum + item.quantity, 0);
+          setCartItemCount(nextCount);
+        })
+        .catch(() => {
+          if (!ignore) {
+            setCartItemCount(0);
+          }
+        });
+    };
+
+    refreshCartCount();
+
+    const handleCartUpdated = () => {
+      refreshCartCount();
+    };
+
+    window.addEventListener(getCartUpdatedEventName(), handleCartUpdated);
+
+    return () => {
+      ignore = true;
+      window.removeEventListener(getCartUpdatedEventName(), handleCartUpdated);
+    };
+  }, [pathname, showCustomerLinks]);
+
   const links =
     role === "BUSINESS"
       ? [
@@ -71,10 +114,15 @@ export function Header() {
               {showCustomerLinks ? (
                 <Link
                   href="/cart"
-                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
                   aria-label="Cart"
                 >
                   <CartIcon className="w-5 h-5 text-gray-700" />
+                  {cartItemCount > 0 ? (
+                    <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-brand px-1.5 py-0.5 text-[10px] font-bold leading-none text-white shadow-sm">
+                      {cartItemCount > 99 ? "99+" : cartItemCount}
+                    </span>
+                  ) : null}
                 </Link>
               ) : null}
               {isAuthenticated && role !== "ADMIN" ? (

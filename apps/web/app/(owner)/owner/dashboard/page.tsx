@@ -22,11 +22,36 @@ const emptyForm = {
   imageColor: "bg-gradient-to-br from-orange-500 via-amber-500 to-red-700",
 };
 
+function validateRestaurantForm(form: typeof emptyForm) {
+  if (!form.name.trim()) {
+    return "Name is required.";
+  }
+  if (!form.cuisineType.trim()) {
+    return "Cuisine type is required.";
+  }
+  if (!form.city.trim()) {
+    return "City is required.";
+  }
+  if (!form.locality.trim()) {
+    return "Locality is required.";
+  }
+  if (!Number.isFinite(form.deliveryTimeMinutes) || form.deliveryTimeMinutes < 1) {
+    return "Delivery time must be at least 1 minute.";
+  }
+  if (!Number.isFinite(form.deliveryFee) || form.deliveryFee < 0) {
+    return "Delivery fee cannot be negative.";
+  }
+
+  return null;
+}
+
 export default function OwnerDashboardPage() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [dashboard, setDashboard] = useState<OwnerDashboardData | null>(null);
 
   function syncForm(restaurant: Restaurant) {
@@ -118,21 +143,37 @@ export default function OwnerDashboardPage() {
   }, []);
 
   async function handleSubmit() {
+    const validationError = validateRestaurantForm(form);
+    if (validationError) {
+      setMessage(validationError);
+      setMessageType("error");
+      return;
+    }
+
+    setIsSubmitting(true);
     const payload = {
       ...form,
       imageUrl: form.imageUrl || undefined,
     };
 
-    if (selectedId) {
-      await updateRestaurant(selectedId, payload);
-      setMessage("Restaurant updated.");
-    } else {
-      const response = await createRestaurant(payload);
-      setSelectedId(response.data.id);
-      setMessage("Restaurant created.");
-    }
+    try {
+      if (selectedId) {
+        await updateRestaurant(selectedId, payload);
+        setMessage("Restaurant updated.");
+      } else {
+        const response = await createRestaurant(payload);
+        setSelectedId(response.data.id);
+        setMessage("Restaurant created.");
+      }
 
-    await refreshRestaurants();
+      setMessageType("success");
+      await refreshRestaurants();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to save restaurant.");
+      setMessageType("error");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -202,6 +243,7 @@ export default function OwnerDashboardPage() {
                     setSelectedId(null);
                     setForm(emptyForm);
                     setMessage("");
+                    setMessageType("success");
                   }}
                   className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand"
                 >
@@ -218,6 +260,7 @@ export default function OwnerDashboardPage() {
                       setSelectedId(restaurant.id);
                       syncForm(restaurant);
                       setMessage("");
+                      setMessageType("success");
                     }}
                     className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
                       selectedId === restaurant.id
@@ -259,7 +302,13 @@ export default function OwnerDashboardPage() {
               </div>
 
               {message ? (
-                <div className="mt-5 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-brand">
+                <div
+                  className={`mt-5 rounded-2xl px-4 py-3 text-sm ${
+                    messageType === "error"
+                      ? "border border-red-200 bg-red-50 text-red-700"
+                      : "border border-orange-200 bg-orange-50 text-brand"
+                  }`}
+                >
                   {message}
                 </div>
               ) : null}
@@ -348,9 +397,16 @@ export default function OwnerDashboardPage() {
               <button
                 type="button"
                 onClick={() => void handleSubmit()}
-                className="mt-6 rounded-2xl bg-brand px-6 py-4 text-sm font-semibold text-white"
+                disabled={isSubmitting}
+                className="mt-6 rounded-2xl bg-brand px-6 py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {selectedId ? "Save restaurant" : "Create restaurant"}
+                {isSubmitting
+                  ? selectedId
+                    ? "Saving..."
+                    : "Creating..."
+                  : selectedId
+                    ? "Save restaurant"
+                    : "Create restaurant"}
               </button>
             </section>
           </div>
