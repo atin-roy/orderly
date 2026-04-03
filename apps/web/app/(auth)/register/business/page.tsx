@@ -78,7 +78,7 @@ export default function BusinessRegisterPage() {
     <AuthShell
       eyebrow="Business signup"
       title="List your restaurant with the details operators actually care about."
-      description="This onboarding page is designed to feel operational from day one: ownership, city coverage, service area, and menu focus are all captured in a backend-ready shape."
+      description="Share the ownership, city coverage, service area, and menu focus that help your restaurant look ready to order from."
       sideContent={
         <>
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
@@ -89,9 +89,9 @@ export default function BusinessRegisterPage() {
           </h2>
           <div className="mt-8 space-y-4">
             {[
-              "Service-area detail keeps the future partner API closer to reality.",
-              "Business type and cuisine focus help merchandising and onboarding review.",
-              "This form stages data now so backend hookup later is an adapter change, not a redesign.",
+              "Service-area detail makes it easier to show your restaurant in the right neighbourhoods.",
+              "Business type and cuisine focus help customers understand what you do best.",
+              "The form captures the essentials operators expect to set up before launch.",
             ].map((item) => (
               <div
                 key={item}

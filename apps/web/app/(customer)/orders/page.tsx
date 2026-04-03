@@ -70,10 +70,10 @@ export default function OrdersPage() {
                 Orders
               </p>
               <h1 className="mt-4 font-serif text-4xl font-bold leading-tight md:text-5xl">
-                Active and historical orders, now backed by the real API
+                Track what is on the way and revisit your usual orders
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-7 text-subtle">
-                The seeded customer sees an in-flight order immediately, plus history that survives alongside live orders placed from checkout.
+                Keep an eye on active deliveries, then scroll through past meals when you want to reorder a favourite.
               </p>
             </div>
           </section>
@@ -261,7 +261,7 @@ export default function OrdersPage() {
                   Order history
                 </p>
                 <p className="mt-2 text-sm text-subtle">
-                  The seeded profile starts populated, and new checkout orders will join this history.
+                  Every completed order stays in one place for quick re-checks and repeat cravings.
                 </p>
               </div>
 
