@@ -1,0 +1,10 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="420" rx="36" fill="#EEF8FF"/>
+  <rect x="248" y="112" width="144" height="206" rx="48" fill="#BCE5FF"/>
+  <rect x="264" y="144" width="112" height="160" rx="36" fill="#FFBE4D"/>
+  <path d="M354 90L401 150" stroke="#2C6E91" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="294" cy="182" r="12" fill="#FFFFFF"/>
+  <circle cx="346" cy="214" r="12" fill="#FFFFFF"/>
+  <circle cx="320" cy="248" r="12" fill="#FFFFFF"/>
+  <text x="320" y="370" fill="#2C6E91" font-family="Georgia, serif" font-size="28" text-anchor="middle">House Cooler</text>
+</svg>

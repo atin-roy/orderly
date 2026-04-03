@@ -4,6 +4,6 @@ import com.atinroy.orderly.common.dto.PaginatedResponse;
 
 public record OrdersPageDto(
         PaginatedResponse<OrderSummaryDto> orders,
-        OrderDto activeOrder
+        java.util.List<OrderDto> activeOrders
 ) {
 }

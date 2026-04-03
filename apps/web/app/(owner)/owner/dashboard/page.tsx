@@ -1,13 +1,13 @@
 "use client";
 
-import type { Restaurant } from "@orderly/types";
+import type { OwnerDashboardData, Restaurant } from "@orderly/types";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AuthGuard } from "@/components/auth-guard";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { formatRupees } from "@/data/mock-data";
-import { createRestaurant, getMyRestaurants, updateRestaurant } from "@/lib/api";
+import { createRestaurant, getMyRestaurants, getOwnerDashboard, updateRestaurant } from "@/lib/api";
 
 const emptyForm = {
   name: "",
@@ -27,6 +27,7 @@ export default function OwnerDashboardPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [message, setMessage] = useState("");
+  const [dashboard, setDashboard] = useState<OwnerDashboardData | null>(null);
 
   async function refreshRestaurants() {
     const response = await getMyRestaurants();
@@ -72,6 +73,33 @@ export default function OwnerDashboardPage() {
     };
   }, []);
 
+  useEffect(() => {
+    let ignore = false;
+
+    const loadDashboard = async () => {
+      try {
+        const response = await getOwnerDashboard();
+        if (!ignore) {
+          setDashboard(response.data);
+        }
+      } catch {
+        if (!ignore) {
+          setDashboard(null);
+        }
+      }
+    };
+
+    void loadDashboard();
+    const intervalId = window.setInterval(() => {
+      void loadDashboard();
+    }, 20000);
+
+    return () => {
+      ignore = true;
+      window.clearInterval(intervalId);
+    };
+  }, []);
+
   async function handleSubmit() {
     const payload = {
       ...form,
@@ -90,10 +118,57 @@ export default function OwnerDashboardPage() {
   }
 
   return (
-    <AuthGuard>
+    <AuthGuard allowedRoles={["BUSINESS"]}>
       <div className="min-h-screen bg-cream">
         <Header />
         <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <section className="mb-8 rounded-[2rem] border border-orange-100 bg-white p-6 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">
+                  Live operations
+                </p>
+                <h2 className="mt-2 font-serif text-3xl font-bold">Orders in motion</h2>
+              </div>
+              <div className="rounded-2xl bg-orange-50 px-5 py-4 text-right">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
+                  Active orders
+                </p>
+                <p className="mt-1 font-serif text-3xl font-bold">
+                  {dashboard?.activeOrders ?? 0}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {(dashboard?.liveOrders ?? []).slice(0, 4).map((order) => (
+                <div
+                  key={order.id}
+                  className="rounded-[1.5rem] border border-orange-100 bg-orange-50/60 p-5"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold text-foreground">{order.restaurantName}</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
+                      {order.status.replaceAll("_", " ")}
+                    </p>
+                  </div>
+                  <p className="mt-2 text-sm text-subtle">
+                    Customer: {order.customerName} · {order.customerPhone}
+                  </p>
+                  <p className="mt-2 text-sm text-subtle">
+                    Rider: {order.deliveryPartner?.name ?? "Dispatching"} ·{" "}
+                    {order.estimatedArrival ?? order.timeLabel}
+                  </p>
+                </div>
+              ))}
+              {!dashboard?.liveOrders.length ? (
+                <div className="rounded-[1.5rem] border border-dashed border-orange-200 bg-orange-50/60 p-5 text-sm text-subtle">
+                  New demo orders will appear here automatically when the professor checks out.
+                </div>
+              ) : null}
+            </div>
+          </section>
+
           <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[320px_minmax(0,1fr)]">
             <aside className="rounded-[2rem] border border-orange-100 bg-white p-5 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
               <div className="flex items-center justify-between gap-3">

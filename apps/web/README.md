@@ -2,20 +2,22 @@
 
 ## Quick Start
 
-Run the API and web app in separate terminals:
+Run the full stack through Docker Compose from the repo root:
 
 ```bash
-cd apps/api
-./mvnw spring-boot:run
-```
-
-```bash
-cd apps/web
-npm install
-npm run dev
+cp .env.example .env
+docker compose up --build
 ```
 
 Open `http://localhost:3000`.
+
+The frontend serves `/api` and proxies requests to the backend container internally, so Caddy only needs to reverse proxy the frontend on your VPS.
+
+For VPS deployments, use the shared-network override:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.vps.yml up -d
+```
 
 ## Demo Behavior
 

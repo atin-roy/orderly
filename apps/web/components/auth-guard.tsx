@@ -13,9 +13,11 @@ function buildLoginHref(pathname: string) {
 export function AuthGuard({
   children,
   requireCustomerRole = false,
+  allowedRoles,
 }: {
   children: React.ReactNode;
   requireCustomerRole?: boolean;
+  allowedRoles?: string[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -33,8 +35,13 @@ export function AuthGuard({
 
     if (requireCustomerRole && role !== "USER") {
       router.replace("/profile");
+      return;
     }
-  }, [isAuthenticated, pathname, requireCustomerRole, role, router, status]);
+
+    if (allowedRoles && (!role || !allowedRoles.includes(role))) {
+      router.replace("/profile");
+    }
+  }, [allowedRoles, isAuthenticated, pathname, requireCustomerRole, role, router, status]);
 
   if (status === "loading") {
     return (
@@ -49,6 +56,10 @@ export function AuthGuard({
   }
 
   if (requireCustomerRole && role !== "USER") {
+    return null;
+  }
+
+  if (allowedRoles && (!role || !allowedRoles.includes(role))) {
     return null;
   }
 

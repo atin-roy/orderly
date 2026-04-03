@@ -35,4 +35,8 @@ public class DeliveryPartnerProfile extends BaseEntity {
     @Column(nullable = false)
     @NotBlank
     private String deliveryExperience;
+
+    @Column(nullable = false)
+    @NotBlank
+    private String avatarUrl;
 }

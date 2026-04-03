@@ -34,6 +34,7 @@ public record OrderDto(
         String timeLabel,
         String estimatedArrival,
         String deliveredAt,
+        DeliveryPartnerSummaryDto deliveryPartner,
         LocalDateTime createdDate,
         List<OrderItemDto> items,
         List<OrderTimelineDto> timeline

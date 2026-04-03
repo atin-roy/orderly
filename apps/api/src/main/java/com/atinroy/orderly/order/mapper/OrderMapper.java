@@ -4,6 +4,7 @@ import com.atinroy.orderly.order.dto.OrderDto;
 import com.atinroy.orderly.order.dto.OrderItemDto;
 import com.atinroy.orderly.order.dto.OrderSummaryDto;
 import com.atinroy.orderly.order.dto.OrderTimelineDto;
+import com.atinroy.orderly.order.dto.DeliveryPartnerSummaryDto;
 import com.atinroy.orderly.order.model.Order;
 import com.atinroy.orderly.order.model.OrderItem;
 import com.atinroy.orderly.order.model.OrderStatus;
@@ -22,7 +23,7 @@ public final class OrderMapper {
     private OrderMapper() {
     }
 
-    public static OrderDto toDto(Order order) {
+    public static OrderDto toDto(Order order, DeliveryPartnerSummaryDto deliveryPartner, LocalDateTime now) {
         List<OrderItemDto> items = order.getItems().stream()
                 .map(OrderMapper::toItemDto)
                 .toList();
@@ -56,16 +57,21 @@ public final class OrderMapper {
                 order.getTotalAmount(),
                 order.getEstimatedDeliveryMinutes(),
                 items.stream().mapToInt(OrderItemDto::quantity).sum(),
-                buildTimeLabel(order),
-                buildEstimatedArrival(order),
+                buildTimeLabel(order, now),
+                buildEstimatedArrival(order, now),
                 buildDeliveredAt(order),
+                deliveryPartner,
                 order.getCreatedDate(),
                 items,
                 timeline
         );
     }
 
-    public static OrderSummaryDto toSummaryDto(Order order) {
+    public static OrderSummaryDto toSummaryDto(
+            Order order,
+            DeliveryPartnerSummaryDto deliveryPartner,
+            LocalDateTime now
+    ) {
         int itemCount = order.getItems().stream().mapToInt(OrderItem::getQuantity).sum();
         return new OrderSummaryDto(
                 order.getId(),
@@ -74,11 +80,12 @@ public final class OrderMapper {
                 order.getStatus(),
                 order.getTotalAmount(),
                 itemCount,
-                buildTimeLabel(order),
+                buildTimeLabel(order, now),
                 order.getPaymentMethod(),
                 order.getRestaurant().getImageColor(),
-                buildEstimatedArrival(order),
-                buildDeliveredAt(order)
+                buildEstimatedArrival(order, now),
+                buildDeliveredAt(order),
+                deliveryPartner
         );
     }
 
@@ -112,7 +119,7 @@ public final class OrderMapper {
         };
     }
 
-    private static String buildTimeLabel(Order order) {
+    private static String buildTimeLabel(Order order, LocalDateTime now) {
         LocalDateTime createdDate = order.getCreatedDate();
         if (order.getStatus() == OrderStatus.DELIVERED) {
             return "Delivered on " + createdDate.format(DATE_FORMATTER);
@@ -120,13 +127,13 @@ public final class OrderMapper {
         if (order.getStatus() == OrderStatus.CANCELLED) {
             return "Cancelled on " + createdDate.format(DATE_FORMATTER);
         }
-        if (createdDate.toLocalDate().isEqual(LocalDate.now())) {
+        if (createdDate.toLocalDate().isEqual(now.toLocalDate())) {
             return "Placed today at " + createdDate.format(TIME_FORMATTER);
         }
         return "Placed on " + createdDate.format(DATE_FORMATTER);
     }
 
-    private static String buildEstimatedArrival(Order order) {
+    private static String buildEstimatedArrival(Order order, LocalDateTime now) {
         if (!(order.getStatus() == OrderStatus.PLACED
                 || order.getStatus() == OrderStatus.ACCEPTED
                 || order.getStatus() == OrderStatus.PREPARING
@@ -136,7 +143,7 @@ public final class OrderMapper {
         }
 
         LocalDateTime eta = order.getCreatedDate().plusMinutes(order.getEstimatedDeliveryMinutes());
-        long remaining = Duration.between(LocalDateTime.now(), eta).toMinutes();
+        long remaining = Duration.between(now, eta).toMinutes();
         if (remaining <= 0) {
             return "Arriving shortly";
         }

@@ -1,0 +1,7 @@
+<svg width="320" height="320" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="320" rx="36" fill="#FDF3EA"/>
+  <circle cx="160" cy="108" r="48" fill="#E9AE85"/>
+  <path d="M96 264C96 214 124 182 160 182C196 182 224 214 224 264" fill="#FF8F3C"/>
+  <rect x="121" y="193" width="78" height="43" rx="18" fill="#124F8C"/>
+  <text x="160" y="292" fill="#8A3A18" font-family="Georgia, serif" font-size="24" text-anchor="middle">Scooter Partner</text>
+</svg>

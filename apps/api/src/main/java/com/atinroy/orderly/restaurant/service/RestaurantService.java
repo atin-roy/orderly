@@ -1,6 +1,7 @@
 package com.atinroy.orderly.restaurant.service;
 
 import com.atinroy.orderly.common.dto.PaginatedResponse;
+import com.atinroy.orderly.order.repository.OrderRepository;
 import com.atinroy.orderly.restaurant.dto.*;
 import com.atinroy.orderly.restaurant.mapper.RestaurantMapper;
 import com.atinroy.orderly.restaurant.model.MenuItem;
@@ -29,6 +30,7 @@ public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
     private final MenuItemRepository menuItemRepository;
     private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
 
     @Transactional(readOnly = true)
     public PaginatedResponse<RestaurantDto> getApprovedRestaurants(
@@ -168,6 +170,39 @@ public class RestaurantService {
         User owner = getBusinessUser(email);
         return restaurantRepository.findByOwnerId(owner.getId()).stream()
                 .map(RestaurantMapper::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdminRestaurantSummaryDto> getAdminRestaurantOverview(String email) {
+        User admin = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        if (admin.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("Only admins can perform this action");
+        }
+
+        return restaurantRepository.findAll().stream()
+                .map(restaurant -> new AdminRestaurantSummaryDto(
+                        restaurant.getId(),
+                        restaurant.getName(),
+                        restaurant.getOwner() == null ? null : restaurant.getOwner().getName(),
+                        restaurant.getLocality(),
+                        restaurant.getCity(),
+                        restaurant.getCuisineType(),
+                        restaurant.getIsActive(),
+                        orderRepository.countByRestaurantIdAndStatusIn(
+                                restaurant.getId(),
+                                List.of(
+                                        com.atinroy.orderly.order.model.OrderStatus.PLACED,
+                                        com.atinroy.orderly.order.model.OrderStatus.ACCEPTED,
+                                        com.atinroy.orderly.order.model.OrderStatus.PREPARING,
+                                        com.atinroy.orderly.order.model.OrderStatus.READY,
+                                        com.atinroy.orderly.order.model.OrderStatus.PICKED_UP
+                                )
+                        ),
+                        orderRepository.countByRestaurantId(restaurant.getId())
+                ))
+                .sorted((left, right) -> Long.compare(right.totalOrders(), left.totalOrders()))
                 .toList();
     }
 

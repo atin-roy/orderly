@@ -1,35 +1,73 @@
+name: orderly
+
 services:
-  postgres:
+  orderly-web:
+    image: ghcr.io/${IMAGE_OWNER:-atin-roy}/orderly-web:latest
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: orderly-web
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
+      INTERNAL_API_URL: ${INTERNAL_API_URL:-http://orderly-api:8080/api}
+    depends_on:
+      orderly-api:
+        condition: service_started
+
+  orderly-api:
+    image: ghcr.io/${IMAGE_OWNER:-atin-roy}/orderly-api:latest
+    restart: unless-stopped
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: orderly-api
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://orderly-postgres:5432/orderly}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-${POSTGRES_USER:-orderly}}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-${POSTGRES_PASSWORD:-orderly}}
+      JWT_SECRET: ${JWT_SECRET:-dGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIGRldmVsb3BtZW50IG9ubHk=}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+    depends_on:
+      orderly-postgres:
+        condition: service_healthy
+
+  orderly-postgres:
+    restart: unless-stopped
     image: postgres:17
     container_name: orderly-postgres
     ports:
-      - "5432:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-orderly}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-orderly}
       POSTGRES_DB: ${POSTGRES_DB:-orderly}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - orderly-pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U orderly"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-orderly} -d ${POSTGRES_DB:-orderly}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  pgadmin:
+  orderly-pgadmin:
+    profiles: ["debug"]
+    restart: unless-stopped
     image: dpage/pgadmin4
     container_name: orderly-pgadmin
     ports:
-      - "5050:80"
+      - "127.0.0.1:${PGADMIN_PORT:-5050}:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@orderly.dev
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@orderly.dev}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: "False"
     volumes:
       - ./infra/pgadmin-servers.json:/pgadmin4/servers.json:ro
     depends_on:
-      postgres:
+      orderly-postgres:
         condition: service_healthy
 
 volumes:
-  pgdata:
+  orderly-pgdata:

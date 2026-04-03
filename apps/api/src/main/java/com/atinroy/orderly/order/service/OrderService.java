@@ -14,9 +14,11 @@ import com.atinroy.orderly.order.model.OrderStatus;
 import com.atinroy.orderly.order.model.OrderTimeline;
 import com.atinroy.orderly.order.repository.OrderRepository;
 import com.atinroy.orderly.order.repository.OrderTimelineRepository;
+import com.atinroy.orderly.restaurant.repository.RestaurantRepository;
 import com.atinroy.orderly.user.model.Role;
 import com.atinroy.orderly.user.model.User;
 import com.atinroy.orderly.user.model.UserAddress;
+import com.atinroy.orderly.user.repository.DeliveryPartnerProfileRepository;
 import com.atinroy.orderly.user.repository.UserAddressRepository;
 import com.atinroy.orderly.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -29,28 +31,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
-    private static final List<OrderStatus> ACTIVE_STATUSES = List.of(
-            OrderStatus.PLACED,
-            OrderStatus.ACCEPTED,
-            OrderStatus.PREPARING,
-            OrderStatus.READY,
-            OrderStatus.PICKED_UP
-    );
-    private static final List<OrderStatus> HISTORY_STATUSES = List.of(
-            OrderStatus.DELIVERED,
-            OrderStatus.CANCELLED
-    );
-
     private final OrderRepository orderRepository;
     private final OrderTimelineRepository orderTimelineRepository;
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
+    private final DeliveryPartnerProfileRepository deliveryPartnerProfileRepository;
+    private final RestaurantRepository restaurantRepository;
     private final CartService cartService;
     private final CouponService couponService;
+    private final OrderSimulationService orderSimulationService;
 
     @Transactional
     public OrderDto placeOrder(PlaceOrderRequest request, String email) {
@@ -113,30 +110,52 @@ public class OrderService {
         timeline.setTimestamp(LocalDateTime.now());
         order.getTimeline().add(timeline);
 
+        orderSimulationService.assignDeliveryPartner(order);
+
         Order savedOrder = orderRepository.save(order);
         cartService.clearCart(cart);
-        return OrderMapper.toDto(savedOrder);
+        return toOrderDto(savedOrder);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public OrdersPageDto getOrders(String email, int page, int size) {
         User user = getUser(email);
         var pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1), Sort.by("createdDate").descending());
-        var history = orderRepository.findByUserIdAndStatusInOrderByCreatedDateDesc(user.getId(), HISTORY_STATUSES, pageable)
-                .map(OrderMapper::toSummaryDto);
-        OrderDto activeOrder = orderRepository.findFirstByUserIdAndStatusInOrderByCreatedDateDesc(user.getId(), ACTIVE_STATUSES)
-                .map(OrderMapper::toDto)
-                .orElse(null);
+        List<Order> activeOrders = orderRepository.findByUserIdAndStatusInOrderByCreatedDateDesc(
+                user.getId(),
+                orderSimulationService.activeStatuses()
+        );
+        orderSimulationService.progressOrders(activeOrders);
 
-        return new OrdersPageDto(PaginatedResponse.from(history), activeOrder);
+        var history = orderRepository.findByUserIdAndStatusInOrderByCreatedDateDesc(
+                        user.getId(),
+                        orderSimulationService.historyStatuses(),
+                        pageable
+                )
+                .map(order -> {
+                    Long partnerId = order.getAssignedDeliveryPartner() == null
+                            ? null
+                            : order.getAssignedDeliveryPartner().getId();
+                    return OrderMapper.toSummaryDto(
+                            order,
+                            partnerId == null ? null : deliveryPartnerMap(List.of(order)).get(partnerId),
+                            orderSimulationService.now()
+                    );
+                });
+
+        return new OrdersPageDto(
+                PaginatedResponse.from(history),
+                activeOrders.stream().map(this::toOrderDto).toList()
+        );
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public OrderDto getOrder(Long orderId, String email) {
         User user = getUser(email);
         Order order = orderRepository.findByIdAndUserId(orderId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
-        return OrderMapper.toDto(order);
+        orderSimulationService.progressOrders(List.of(order));
+        return toOrderDto(order);
     }
 
     @Transactional
@@ -163,7 +182,75 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
         orderTimelineRepository.save(timeline);
-        return OrderMapper.toDto(savedOrder);
+        return toOrderDto(savedOrder);
+    }
+
+    @Transactional
+    public DeliveryDashboardDto getDeliveryDashboard(String email) {
+        User partner = getUserByRole(email, Role.DELIVERY_PARTNER);
+        List<Order> activeOrders = orderRepository.findByAssignedDeliveryPartnerIdAndStatusInOrderByCreatedDateDesc(
+                partner.getId(),
+                orderSimulationService.activeStatuses()
+        );
+        orderSimulationService.progressOrders(activeOrders);
+        List<Order> recentOrders = orderRepository.findTop12ByAssignedDeliveryPartnerIdAndStatusInOrderByCreatedDateDesc(
+                partner.getId(),
+                orderSimulationService.historyStatuses()
+        );
+        DeliveryPartnerSummaryDto partnerSummary = toDeliveryPartnerSummary(
+                deliveryPartnerProfileRepository.findByUserId(partner.getId())
+        );
+
+        return new DeliveryDashboardDto(
+                partnerSummary,
+                activeOrders.stream().map(this::toDeliveryTaskDto).toList(),
+                recentOrders.stream().map(this::toDeliveryTaskDto).toList()
+        );
+    }
+
+    @Transactional
+    public OwnerDashboardDto getOwnerDashboard(String email) {
+        User owner = getUserByRole(email, Role.BUSINESS);
+        List<Order> activeOrders = orderRepository.findByRestaurantOwnerIdAndStatusIn(
+                owner.getId(),
+                orderSimulationService.activeStatuses()
+        );
+        orderSimulationService.progressOrders(activeOrders);
+
+        return new OwnerDashboardDto(
+                activeOrders.size(),
+                activeOrders.stream().map(this::toOwnerLiveOrderDto).toList()
+        );
+    }
+
+    @Transactional
+    public AdminDashboardDto getAdminDashboard(String email) {
+        getUserByRole(email, Role.ADMIN);
+        List<Order> liveOrders = orderRepository.findByStatusInOrderByCreatedDateDesc(orderSimulationService.activeStatuses());
+        orderSimulationService.progressOrders(liveOrders);
+
+        int activeRiders = (int) liveOrders.stream()
+                .map(Order::getAssignedDeliveryPartner)
+                .filter(java.util.Objects::nonNull)
+                .map(User::getId)
+                .distinct()
+                .count();
+        int deliveredToday = (int) orderRepository.findByStatusInOrderByCreatedDateDesc(List.of(OrderStatus.DELIVERED)).stream()
+                .filter(order -> order.getCreatedDate().toLocalDate().isEqual(orderSimulationService.today()))
+                .count();
+        int cancelledToday = (int) orderRepository.findByStatusInOrderByCreatedDateDesc(List.of(OrderStatus.CANCELLED)).stream()
+                .filter(order -> order.getCreatedDate().toLocalDate().isEqual(orderSimulationService.today()))
+                .count();
+
+        return new AdminDashboardDto(
+                liveOrders.size(),
+                activeRiders,
+                deliveredToday,
+                cancelledToday,
+                (int) restaurantRepository.count(),
+                (int) deliveryPartnerProfileRepository.count(),
+                liveOrders.stream().limit(12).map(this::toAdminLiveOrderDto).toList()
+        );
     }
 
     private User getUser(String email) {
@@ -171,6 +258,15 @@ public class OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (user.getRole() != Role.USER) {
             throw new AccessDeniedException("Only customers can perform this action");
+        }
+        return user;
+    }
+
+    private User getUserByRole(String email, Role role) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        if (user.getRole() != role) {
+            throw new AccessDeniedException("You are not allowed to perform this action");
         }
         return user;
     }
@@ -193,5 +289,96 @@ public class OrderService {
     private String blankToDefault(String value, String fallback) {
         String normalized = blankToNull(value);
         return normalized == null ? fallback : normalized;
+    }
+
+    private OrderDto toOrderDto(Order order) {
+        LocalDateTime now = orderSimulationService.now();
+        Long partnerId = order.getAssignedDeliveryPartner() == null
+                ? null
+                : order.getAssignedDeliveryPartner().getId();
+        DeliveryPartnerSummaryDto deliveryPartner = partnerId == null
+                ? null
+                : deliveryPartnerMap(List.of(order)).get(partnerId);
+        return OrderMapper.toDto(order, deliveryPartner, now);
+    }
+
+    private DeliveryTaskDto toDeliveryTaskDto(Order order) {
+        return new DeliveryTaskDto(
+                order.getId(),
+                order.getRestaurant().getName(),
+                order.getRestaurant().getCuisineType(),
+                order.getUser().getName() == null ? "Demo customer" : order.getUser().getName(),
+                order.getDeliveryPhone(),
+                order.getDeliveryAddress(),
+                order.getDeliveryCity(),
+                order.getTotalAmount(),
+                order.getStatus(),
+                OrderMapper.toDto(order, null, orderSimulationService.now()).estimatedArrival(),
+                OrderMapper.toDto(order, null, orderSimulationService.now()).timeLabel(),
+                order.getRestaurant().getImageColor()
+        );
+    }
+
+    private OwnerLiveOrderDto toOwnerLiveOrderDto(Order order) {
+        OrderDto dto = toOrderDto(order);
+        return new OwnerLiveOrderDto(
+                order.getId(),
+                order.getRestaurant().getName(),
+                order.getUser().getName() == null ? "Demo customer" : order.getUser().getName(),
+                order.getDeliveryPhone(),
+                order.getTotalAmount(),
+                order.getStatus(),
+                dto.estimatedArrival(),
+                dto.timeLabel(),
+                dto.deliveryPartner()
+        );
+    }
+
+    private AdminLiveOrderDto toAdminLiveOrderDto(Order order) {
+        OrderDto dto = toOrderDto(order);
+        return new AdminLiveOrderDto(
+                order.getId(),
+                order.getRestaurant().getName(),
+                order.getUser().getName() == null ? "Demo customer" : order.getUser().getName(),
+                order.getTotalAmount(),
+                order.getStatus(),
+                dto.estimatedArrival(),
+                dto.deliveryPartner()
+        );
+    }
+
+    private Map<Long, DeliveryPartnerSummaryDto> deliveryPartnerMap(List<Order> orders) {
+        Set<Long> userIds = orders.stream()
+                .map(Order::getAssignedDeliveryPartner)
+                .filter(java.util.Objects::nonNull)
+                .map(User::getId)
+                .collect(Collectors.toSet());
+        if (userIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return deliveryPartnerProfileRepository.findByUserIdIn(userIds).stream()
+                .collect(Collectors.toMap(
+                        profile -> profile.getUser().getId(),
+                        this::toDeliveryPartnerSummary
+                ));
+    }
+
+    private DeliveryPartnerSummaryDto toDeliveryPartnerSummary(
+            com.atinroy.orderly.user.model.DeliveryPartnerProfile profile
+    ) {
+        if (profile == null) {
+            return null;
+        }
+
+        return new DeliveryPartnerSummaryDto(
+                profile.getUser().getId(),
+                profile.getUser().getName(),
+                profile.getUser().getPhone(),
+                profile.getVehicleType(),
+                profile.getPreferredShift(),
+                profile.getServiceZones(),
+                profile.getAvatarUrl()
+        );
     }
 }

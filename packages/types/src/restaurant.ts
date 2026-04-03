@@ -35,3 +35,15 @@ export interface MenuCategory {
   category: string;
   items: MenuItem[];
 }
+
+export interface AdminRestaurantSummary {
+  id: number;
+  name: string;
+  ownerName: string | null;
+  locality: string;
+  city: string;
+  cuisineType: string;
+  isActive: boolean;
+  activeOrders: number;
+  totalOrders: number;
+}

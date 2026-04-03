@@ -1,10 +1,14 @@
 import type {
+  AdminDashboardData,
+  AdminRestaurantSummary,
   ApiResponse,
   Cart,
   Coupon,
   CouponValidation,
+  DeliveryDashboard,
   MenuCategory,
   Order,
+  OwnerDashboardData,
   OrdersPage,
   PaginatedResponse,
   Restaurant,
@@ -18,10 +22,10 @@ import {
 } from "@/lib/auth-session";
 
 const API_UNAVAILABLE_MESSAGE =
-  "Orderly API is unavailable. Start the backend on http://localhost:8080 and try again.";
+  "Orderly API is unavailable. Start the Docker Compose stack or the backend server and try again.";
 
 function getApiBaseUrl() {
-  return process.env.NEXT_PUBLIC_API_URL;
+  return process.env.NEXT_PUBLIC_API_URL || "/api";
 }
 
 function isNetworkError(error: unknown) {
@@ -47,10 +51,6 @@ async function requestJson<T>(
   fallbackMessage = "Request failed"
 ): Promise<T> {
   const baseUrl = getApiBaseUrl();
-
-  if (!baseUrl) {
-    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
-  }
 
   const token = getStoredToken();
   const headers = new Headers(options.headers);
@@ -444,4 +444,20 @@ export async function getOrders(page = 0, size = 4): Promise<ApiResponse<OrdersP
 
 export async function getOrder(orderId: number): Promise<ApiResponse<Order>> {
   return apiClient<Order>(`/orders/${orderId}`);
+}
+
+export async function getDeliveryDashboard(): Promise<ApiResponse<DeliveryDashboard>> {
+  return apiClient<DeliveryDashboard>("/orders/delivery/dashboard");
+}
+
+export async function getOwnerDashboard(): Promise<ApiResponse<OwnerDashboardData>> {
+  return apiClient<OwnerDashboardData>("/orders/owner/dashboard");
+}
+
+export async function getAdminDashboard(): Promise<ApiResponse<AdminDashboardData>> {
+  return apiClient<AdminDashboardData>("/orders/admin/dashboard");
+}
+
+export async function getAdminRestaurants(): Promise<ApiResponse<AdminRestaurantSummary[]>> {
+  return apiClient<AdminRestaurantSummary[]>("/restaurants/admin/overview");
 }

@@ -26,25 +26,31 @@ export default function OrderDetailsPage() {
     let ignore = false;
     const orderId = Number(params.id);
 
-    void getOrder(orderId)
-      .then((response) => {
+    const loadOrder = async () => {
+      try {
+        const response = await getOrder(orderId);
         if (!ignore) {
           setOrder(response.data);
         }
-      })
-      .catch(() => {
+      } catch {
         if (!ignore) {
           setOrder(null);
         }
-      })
-      .finally(() => {
+      } finally {
         if (!ignore) {
           setLoading(false);
         }
-      });
+      }
+    };
+
+    void loadOrder();
+    const intervalId = window.setInterval(() => {
+      void loadOrder();
+    }, 20000);
 
     return () => {
       ignore = true;
+      window.clearInterval(intervalId);
     };
   }, [params.id]);
 
@@ -162,6 +168,20 @@ export default function OrderDetailsPage() {
                           <div>
                             <p className="font-semibold text-foreground">Address</p>
                             <p className="text-sm leading-6 text-subtle">{order.deliveryAddress}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <TruckIcon className="h-5 w-5 text-brand" />
+                          <div>
+                            <p className="font-semibold text-foreground">Rider</p>
+                            <p className="text-sm leading-6 text-subtle">
+                              {order.deliveryPartner?.name ?? "Dispatching now"}
+                            </p>
+                            <p className="text-xs leading-5 text-subtle">
+                              {order.deliveryPartner
+                                ? `${order.deliveryPartner.vehicleType} · ${order.deliveryPartner.phone}`
+                                : "Assignment will appear here automatically."}
+                            </p>
                           </div>
                         </div>
                         <div className="flex gap-3">

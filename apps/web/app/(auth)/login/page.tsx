@@ -6,6 +6,7 @@ import { useState } from "react";
 import { AuthShell } from "@/components/auth-shell";
 import { EyeIcon, EyeOffIcon } from "@/components/icons";
 import { authLogin } from "@/lib/api";
+import type { AuthResponseData } from "@/lib/api";
 
 const inputClassName =
   "w-full rounded-2xl border border-orange-100 bg-white px-4 py-3.5 text-sm text-foreground shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20";
@@ -18,18 +19,31 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  function redirectForRole(session: AuthResponseData) {
+    switch (session.role) {
+      case "BUSINESS":
+        return "/owner/dashboard";
+      case "DELIVERY_PARTNER":
+        return "/delivery/deliveries";
+      case "ADMIN":
+        return "/admin/dashboard";
+      default:
+        return "/";
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      await authLogin(email, password);
+      const session = await authLogin(email, password);
       const nextPath =
         typeof window !== "undefined"
           ? new URLSearchParams(window.location.search).get("next")
           : null;
-      router.push(nextPath || "/");
+      router.push(nextPath || redirectForRole(session));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Invalid email or password.");
     } finally {

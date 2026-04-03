@@ -13,6 +13,7 @@ public record OrderSummaryDto(
         String paymentMethod,
         String imageColor,
         String estimatedArrival,
-        String deliveredAt
+        String deliveredAt,
+        DeliveryPartnerSummaryDto deliveryPartner
 ) {
 }

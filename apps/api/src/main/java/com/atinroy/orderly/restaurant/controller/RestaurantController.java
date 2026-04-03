@@ -131,4 +131,14 @@ public class RestaurantController {
                 restaurantService.getOwnedRestaurants(userDetails.getUsername())
         ));
     }
+
+    @GetMapping("/admin/overview")
+    public ResponseEntity<ApiResponse<List<AdminRestaurantSummaryDto>>> getAdminRestaurantOverview(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Admin restaurant overview fetched successfully",
+                restaurantService.getAdminRestaurantOverview(userDetails.getUsername())
+        ));
+    }
 }

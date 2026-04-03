@@ -8,6 +8,16 @@ export enum OrderStatus {
   CANCELLED = "CANCELLED",
 }
 
+export interface DeliveryPartnerSummary {
+  id: number;
+  name: string;
+  phone: string;
+  vehicleType: string;
+  preferredShift: string;
+  serviceZones: string;
+  avatarUrl: string;
+}
+
 export interface OrderItem {
   name: string;
   quantity: number;
@@ -43,6 +53,7 @@ export interface Order {
   timeLabel: string;
   estimatedArrival: string | null;
   deliveredAt: string | null;
+  deliveryPartner: DeliveryPartnerSummary | null;
   createdDate: string;
   items: OrderItem[];
   status: OrderStatus;
@@ -68,6 +79,7 @@ export interface OrderSummary {
   imageColor: string;
   estimatedArrival: string | null;
   deliveredAt: string | null;
+  deliveryPartner: DeliveryPartnerSummary | null;
 }
 
 export interface OrdersPage {
@@ -78,5 +90,63 @@ export interface OrdersPage {
     totalElements: number;
     totalPages: number;
   };
-  activeOrder: Order | null;
+  activeOrders: Order[];
+}
+
+export interface DeliveryTask {
+  id: number;
+  restaurantName: string;
+  restaurantCuisine: string;
+  customerName: string;
+  customerPhone: string;
+  deliveryAddress: string;
+  deliveryCity: string;
+  total: number;
+  status: OrderStatus;
+  estimatedArrival: string | null;
+  timeLabel: string;
+  imageColor: string;
+}
+
+export interface DeliveryDashboard {
+  partner: DeliveryPartnerSummary | null;
+  activeOrders: DeliveryTask[];
+  recentOrders: DeliveryTask[];
+}
+
+export interface OwnerLiveOrder {
+  id: number;
+  restaurantName: string;
+  customerName: string;
+  customerPhone: string;
+  total: number;
+  status: OrderStatus;
+  estimatedArrival: string | null;
+  timeLabel: string;
+  deliveryPartner: DeliveryPartnerSummary | null;
+}
+
+export interface OwnerDashboardData {
+  activeOrders: number;
+  liveOrders: OwnerLiveOrder[];
+}
+
+export interface AdminLiveOrder {
+  id: number;
+  restaurantName: string;
+  customerName: string;
+  total: number;
+  status: OrderStatus;
+  estimatedArrival: string | null;
+  deliveryPartner: DeliveryPartnerSummary | null;
+}
+
+export interface AdminDashboardData {
+  activeOrders: number;
+  activeRiders: number;
+  deliveredToday: number;
+  cancelledToday: number;
+  totalRestaurants: number;
+  totalDeliveryPartners: number;
+  liveOrders: AdminLiveOrder[];
 }

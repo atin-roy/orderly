@@ -1,4 +1,4 @@
-.PHONY: up down reset-db api-dev web-dev dev dev-full logs
+.PHONY: up down build rebuild reset-db logs ps debug-up debug-down vps-config
 
 up:
 	docker compose up -d
@@ -6,22 +6,27 @@ up:
 down:
 	docker compose down
 
+build:
+	docker compose build
+
+rebuild:
+	docker compose up -d --build
+
 reset-db:
 	docker compose down -v
 	docker compose up -d
 
-api-dev:
-	cd apps/api && ./mvnw spring-boot:run
-
-web-dev:
-	npm run dev
-
-dev:
-	npm run dev
-
-dev-full:
-	docker compose up -d
-	( cd apps/api && ./mvnw spring-boot:run ) & npm run dev
-
 logs:
 	docker compose logs -f
+
+ps:
+	docker compose ps
+
+debug-up:
+	docker compose --profile debug up -d
+
+debug-down:
+	docker compose --profile debug down
+
+vps-config:
+	docker compose -f docker-compose.yml -f docker-compose.vps.yml config

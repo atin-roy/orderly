@@ -17,9 +17,22 @@ export function Header() {
   const [locationOpen, setLocationOpen] = useState(false);
   const { isAuthenticated, role } = useSession();
   const showCustomerLinks = isAuthenticated && roleIsCustomer(role);
-  const links = showCustomerLinks
-    ? [...navLinks, { href: "/orders", label: "ORDERS" }, { href: "/cart", label: "CART" }]
-    : navLinks;
+  const links =
+    role === "BUSINESS"
+      ? [
+          { href: "/owner/dashboard", label: "DASHBOARD" },
+          { href: "/owner/menu", label: "MENU" },
+        ]
+      : role === "DELIVERY_PARTNER"
+        ? [{ href: "/delivery/deliveries", label: "DELIVERIES" }]
+        : role === "ADMIN"
+          ? [
+              { href: "/admin/dashboard", label: "OPERATIONS" },
+              { href: "/admin/restaurants", label: "RESTAURANTS" },
+            ]
+          : showCustomerLinks
+            ? [...navLinks, { href: "/orders", label: "ORDERS" }, { href: "/cart", label: "CART" }]
+            : navLinks;
   return (
     <>
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100">

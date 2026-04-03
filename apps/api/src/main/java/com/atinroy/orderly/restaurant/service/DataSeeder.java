@@ -6,12 +6,15 @@ import com.atinroy.orderly.order.model.OrderItem;
 import com.atinroy.orderly.order.model.OrderStatus;
 import com.atinroy.orderly.order.model.OrderTimeline;
 import com.atinroy.orderly.order.repository.OrderRepository;
+import com.atinroy.orderly.order.service.OrderSimulationService;
 import com.atinroy.orderly.restaurant.model.MenuItem;
 import com.atinroy.orderly.restaurant.model.Restaurant;
 import com.atinroy.orderly.restaurant.repository.RestaurantRepository;
+import com.atinroy.orderly.user.model.DeliveryPartnerProfile;
 import com.atinroy.orderly.user.model.Role;
 import com.atinroy.orderly.user.model.User;
 import com.atinroy.orderly.user.model.UserAddress;
+import com.atinroy.orderly.user.repository.DeliveryPartnerProfileRepository;
 import com.atinroy.orderly.user.repository.UserAddressRepository;
 import com.atinroy.orderly.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,15 +36,17 @@ public class DataSeeder implements CommandLineRunner {
     private final RestaurantRepository restaurantRepository;
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
+    private final DeliveryPartnerProfileRepository deliveryPartnerProfileRepository;
     private final OrderRepository orderRepository;
     private final PasswordEncoder passwordEncoder;
+    private final OrderSimulationService orderSimulationService;
 
     @Override
     public void run(String... args) {
         User demoCustomer = ensureUser("demo.customer@orderly.local", "Aditi Sen", "+919830100100", Role.USER);
         User demoOwner = ensureUser("demo.owner@orderly.local", "Ritwik Ghosh", "+919830100101", Role.BUSINESS);
-        ensureUser("demo.delivery@orderly.local", "Sourav Pal", "+919830100102", Role.DELIVERY_PARTNER);
         ensureUser("demo.admin@orderly.local", "Professor Demo", "+919830100103", Role.ADMIN);
+        ensureDeliveryPartners();
 
         if (restaurantRepository.count() == 0) {
             seedRestaurants(demoOwner);
@@ -92,7 +97,11 @@ public class DataSeeder implements CommandLineRunner {
                 restaurant("Biswa Bangla Wok Street", "Rajarhat", "Chinese Comfort", "Saucy gravies, fried rice, and crispy starters for family sharing.", 4.5, 28, 29, "₹₹", "chinese", "bg-gradient-to-br from-red-700 via-orange-700 to-amber-500", chineseMenu()),
                 restaurant("Acropolis Roll Foundry", "Ballygunge", "Rolls & Fast Combos", "Loaded wraps, kebab rolls, and fast sides built for late-night hunger.", 4.6, 22, 19, "₹₹", "rolls", "bg-gradient-to-br from-violet-700 via-rose-600 to-orange-500", rollsMenu()),
                 restaurant("Park Circus Nizam Table", "Park Circus Area", "Mughlai & Rezala", "Soft rumali, buttery curries, and rezala plates with classic Kolkata richness.", 4.8, 34, 45, "₹₹₹", "mughlai", "bg-gradient-to-br from-orange-700 via-amber-600 to-stone-950", mughlaiMenu()),
-                restaurant("DLF Tiffin Hub", "New Town", "South Indian & Bowls", "Fast dosa bowls, idli combos, and coffee for workday breakfast and lunch runs.", 4.5, 24, 19, "₹₹", "south-indian", "bg-gradient-to-br from-emerald-700 via-green-600 to-lime-500", southIndianMenu())
+                restaurant("DLF Tiffin Hub", "New Town", "South Indian & Bowls", "Fast dosa bowls, idli combos, and coffee for workday breakfast and lunch runs.", 4.5, 24, 19, "₹₹", "south-indian", "bg-gradient-to-br from-emerald-700 via-green-600 to-lime-500", southIndianMenu()),
+                restaurant("Howrah Steam Box", "Howrah", "Bengali Bento", "Railway-side comfort plates, fish fries, and packed meals that still travel well.", 4.4, 32, 29, "₹₹", "bengali", "bg-gradient-to-br from-amber-700 via-orange-700 to-red-800", bengaliMenu()),
+                restaurant("Esplanade Kebab Press", "Esplanade", "Rolls & Kebabs", "Fast-grab kebab wraps and charcoal-finished late-evening plates.", 4.6, 25, 19, "₹₹", "rolls", "bg-gradient-to-br from-red-700 via-rose-600 to-orange-500", rollsMenu()),
+                restaurant("Southern Avenue Salad Club", "Southern Avenue", "Healthy Bowls", "Lake-side grain bowls, wraps, and lighter comfort meals built for repeat ordering.", 4.3, 20, 19, "₹₹", "healthy", "bg-gradient-to-br from-green-600 via-emerald-700 to-lime-500", healthyMenu()),
+                restaurant("Behala Biryani Works", "Behala", "Biryani Classics", "Comfort biryani handi, chaap sides, and celebratory combos for family dinners.", 4.5, 33, 39, "₹₹₹", "biryani", "bg-gradient-to-br from-yellow-700 via-orange-700 to-stone-900", biryaniMenu())
         );
 
         for (RestaurantSeed seed : seeds) {
@@ -119,7 +128,7 @@ public class DataSeeder implements CommandLineRunner {
                 item.setRestaurant(restaurant);
                 item.setName(menuSeed.name());
                 item.setDescription(menuSeed.description());
-                item.setImageUrl("/demo/dishes/" + menuSeed.imageKey() + ".svg");
+                item.setImageUrl("/demo/dishes/" + categoryImageKey(menuSeed.category()) + ".svg");
                 item.setPrice(menuSeed.price());
                 item.setCategory(menuSeed.category());
                 item.setIsAvailable(true);
@@ -246,6 +255,7 @@ public class DataSeeder implements CommandLineRunner {
         order.setEstimatedDeliveryMinutes(restaurant.getDeliveryTimeMinutes());
         order.setCreatedDate(createdAt);
         order.setLastModifiedDate(createdAt);
+        orderSimulationService.assignDeliveryPartner(order);
 
         for (OrderLineSeed line : items) {
             OrderItem orderItem = new OrderItem();
@@ -273,6 +283,43 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         orderRepository.save(order);
+    }
+
+    private void ensureDeliveryPartners() {
+        List<DeliveryPartnerSeed> partners = List.of(
+                deliveryPartner("demo.delivery@orderly.local", "Sourav Pal", "+919830100102", "Scooter", "Morning rush", "Salt Lake Sector 1, Salt Lake Sector 5, New Town, Rajarhat", "4 years of app-based delivery across Salt Lake and New Town.", "/demo/partners/rider-scooter-a.svg"),
+                deliveryPartner("demo.delivery2@orderly.local", "Imran Sheikh", "+919830100104", "Bike", "Lunch peak", "Park Street, Esplanade, Bhawanipur, Alipore", "3 years handling dense office and central-city routes.", "/demo/partners/rider-bike-a.svg"),
+                deliveryPartner("demo.delivery3@orderly.local", "Kunal Das", "+919830100105", "Scooter", "Evening", "Ballygunge, Gariahat, Golpark, Southern Avenue", "5 years specializing in evening food delivery.", "/demo/partners/rider-scooter-b.svg"),
+                deliveryPartner("demo.delivery4@orderly.local", "Priyanka Saha", "+919830100106", "E-bike", "Night shift", "New Town, Rajarhat, Salt Lake Sector 5", "Fast urban night-route specialist.", "/demo/partners/rider-bike-b.svg"),
+                deliveryPartner("demo.delivery5@orderly.local", "Rahul Mondal", "+919830100107", "Bike", "Morning rush", "Howrah, Esplanade, Park Street", "Experienced mixed-side city rider.", "/demo/partners/rider-bike-c.svg"),
+                deliveryPartner("demo.delivery6@orderly.local", "Ayesha Khan", "+919830100108", "Scooter", "Lunch peak", "Behala, Alipore, Bhawanipur", "Known for smooth lunch-hour apartment deliveries.", "/demo/partners/rider-scooter-c.svg"),
+                deliveryPartner("demo.delivery7@orderly.local", "Sagnik Roy", "+919830100109", "Bike", "Evening", "Park Circus Area, Park Street, Ballygunge", "Handles dense evening restaurant clusters.", "/demo/partners/rider-bike-a.svg"),
+                deliveryPartner("demo.delivery8@orderly.local", "Debosmita Kar", "+919830100110", "Scooter", "Night shift", "Gariahat, Ballygunge, Southern Avenue", "Late-night repeat-order specialist.", "/demo/partners/rider-scooter-a.svg"),
+                deliveryPartner("demo.delivery9@orderly.local", "Arijit Paul", "+919830100111", "Bike", "Lunch peak", "New Town, DLF IT Park, Eco Park, Rajarhat", "Corporate lunch delivery specialist.", "/demo/partners/rider-bike-b.svg"),
+                deliveryPartner("demo.delivery10@orderly.local", "Mousumi Dey", "+919830100112", "Scooter", "Morning rush", "Salt Lake Sector 1, Bidhannagar, New Town", "Breakfast and tiffin order specialist.", "/demo/partners/rider-scooter-b.svg"),
+                deliveryPartner("demo.delivery11@orderly.local", "Nawab Ali", "+919830100113", "Bike", "Evening", "Park Circus Area, Bhawanipur, Alipore", "High-volume dinner route rider.", "/demo/partners/rider-bike-c.svg"),
+                deliveryPartner("demo.delivery12@orderly.local", "Ria Ghosh", "+919830100114", "E-bike", "Lunch peak", "Esplanade, Park Street, Camac Street", "Office district dispatch specialist.", "/demo/partners/rider-bike-a.svg"),
+                deliveryPartner("demo.delivery13@orderly.local", "Tanmay Bose", "+919830100115", "Scooter", "Night shift", "Behala, Howrah, Alipore", "Longer-route finisher for late orders.", "/demo/partners/rider-scooter-c.svg"),
+                deliveryPartner("demo.delivery14@orderly.local", "Farhan Ahmed", "+919830100116", "Bike", "Evening", "Rajarhat, New Town, Salt Lake Sector 5", "Tech park evening delivery specialist.", "/demo/partners/rider-bike-b.svg"),
+                deliveryPartner("demo.delivery15@orderly.local", "Shreya Mitra", "+919830100117", "Scooter", "Morning rush", "Kolkata, Park Street, Ballygunge, New Town", "Flexible city-wide backup partner for repeat demos.", "/demo/partners/rider-scooter-a.svg")
+        );
+
+        for (DeliveryPartnerSeed seed : partners) {
+            User user = ensureUser(seed.email(), seed.name(), seed.phone(), Role.DELIVERY_PARTNER);
+            if (deliveryPartnerProfileRepository.findByUserId(user.getId()) != null) {
+                continue;
+            }
+
+            DeliveryPartnerProfile profile = new DeliveryPartnerProfile();
+            profile.setUser(user);
+            profile.setCity("Kolkata");
+            profile.setVehicleType(seed.vehicleType());
+            profile.setPreferredShift(seed.preferredShift());
+            profile.setServiceZones(seed.serviceZones());
+            profile.setDeliveryExperience(seed.deliveryExperience());
+            profile.setAvatarUrl(seed.avatarUrl());
+            deliveryPartnerProfileRepository.save(profile);
+        }
     }
 
     private User ensureUser(String email, String name, String phone, Role role) {
@@ -521,6 +568,26 @@ public class DataSeeder implements CommandLineRunner {
                 .replaceAll("(^-|-$)", "");
     }
 
+    private String categoryImageKey(String category) {
+        String normalized = category.toLowerCase(Locale.ROOT);
+        if (normalized.contains("dessert") || normalized.contains("mithai")) {
+            return "desserts";
+        }
+        if (normalized.contains("beverage") || normalized.contains("drink") || normalized.contains("coffee")) {
+            return "beverages";
+        }
+        if (normalized.contains("bread") || normalized.contains("roll") || normalized.contains("wrap")) {
+            return "handhelds";
+        }
+        if (normalized.contains("starter") || normalized.contains("small") || normalized.contains("chaat")) {
+            return "starters";
+        }
+        if (normalized.contains("rice") || normalized.contains("biryani") || normalized.contains("bowl")) {
+            return "rice-bowl";
+        }
+        return "signature";
+    }
+
     private record RestaurantSeed(
             String name,
             String locality,
@@ -559,5 +626,39 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private record OrderLineSeed(String name, int quantity, int price) {
+    }
+
+    private record DeliveryPartnerSeed(
+            String email,
+            String name,
+            String phone,
+            String vehicleType,
+            String preferredShift,
+            String serviceZones,
+            String deliveryExperience,
+            String avatarUrl
+    ) {
+    }
+
+    private DeliveryPartnerSeed deliveryPartner(
+            String email,
+            String name,
+            String phone,
+            String vehicleType,
+            String preferredShift,
+            String serviceZones,
+            String deliveryExperience,
+            String avatarUrl
+    ) {
+        return new DeliveryPartnerSeed(
+                email,
+                name,
+                phone,
+                vehicleType,
+                preferredShift,
+                serviceZones,
+                deliveryExperience,
+                avatarUrl
+        );
     }
 }

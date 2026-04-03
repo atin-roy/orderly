@@ -1,0 +1,9 @@
+services:
+  orderly-web:
+    networks:
+      - default
+      - shared
+
+networks:
+  shared:
+    external: true

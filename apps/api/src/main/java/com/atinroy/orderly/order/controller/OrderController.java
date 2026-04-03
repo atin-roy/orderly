@@ -5,6 +5,9 @@ import com.atinroy.orderly.order.dto.OrderDto;
 import com.atinroy.orderly.order.dto.OrdersPageDto;
 import com.atinroy.orderly.order.dto.PlaceOrderRequest;
 import com.atinroy.orderly.order.dto.UpdateOrderStatusRequest;
+import com.atinroy.orderly.order.dto.DeliveryDashboardDto;
+import com.atinroy.orderly.order.dto.OwnerDashboardDto;
+import com.atinroy.orderly.order.dto.AdminDashboardDto;
 import com.atinroy.orderly.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +55,36 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.success(
                 "Order fetched successfully",
                 orderService.getOrder(id, userDetails.getUsername())
+        ));
+    }
+
+    @GetMapping("/delivery/dashboard")
+    public ResponseEntity<ApiResponse<DeliveryDashboardDto>> getDeliveryDashboard(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Delivery dashboard fetched successfully",
+                orderService.getDeliveryDashboard(userDetails.getUsername())
+        ));
+    }
+
+    @GetMapping("/owner/dashboard")
+    public ResponseEntity<ApiResponse<OwnerDashboardDto>> getOwnerDashboard(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Owner dashboard fetched successfully",
+                orderService.getOwnerDashboard(userDetails.getUsername())
+        ));
+    }
+
+    @GetMapping("/admin/dashboard")
+    public ResponseEntity<ApiResponse<AdminDashboardDto>> getAdminDashboard(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Admin dashboard fetched successfully",
+                orderService.getAdminDashboard(userDetails.getUsername())
         ));
     }
 
