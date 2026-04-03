@@ -22,3 +22,6 @@ app:
   jwt:
     secret: ${JWT_SECRET:dGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIGRldmVsb3BtZW50IG9ubHk=}
     expiration-ms: 86400000
+  media:
+    upload-dir: ${APP_MEDIA_UPLOAD_DIR:uploads}
+    max-file-size-bytes: ${APP_MEDIA_MAX_FILE_SIZE_BYTES:5242880}

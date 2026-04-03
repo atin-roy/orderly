@@ -66,12 +66,33 @@ public class RestaurantController {
         ));
     }
 
+    @GetMapping("/{id}/menu/manage")
+    public ResponseEntity<ApiResponse<List<MenuCategoryDto>>> getManagementMenu(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Management menu fetched successfully",
+                restaurantService.getManagementMenu(id, userDetails.getUsername())
+        ));
+    }
+
     @PostMapping
     public ResponseEntity<ApiResponse<RestaurantDto>> createRestaurant(
             @Valid @RequestBody CreateRestaurantRequest request,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         RestaurantDto restaurant = restaurantService.createRestaurant(request, userDetails.getUsername());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Restaurant created successfully", restaurant));
+    }
+
+    @PostMapping("/admin")
+    public ResponseEntity<ApiResponse<RestaurantDto>> adminCreateRestaurant(
+            @Valid @RequestBody AdminCreateRestaurantRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        RestaurantDto restaurant = restaurantService.adminCreateRestaurant(request, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Restaurant created successfully", restaurant));
     }
@@ -85,6 +106,17 @@ public class RestaurantController {
         return ResponseEntity.ok(ApiResponse.success(
                 "Restaurant updated successfully",
                 restaurantService.updateRestaurant(id, request, userDetails.getUsername())
+        ));
+    }
+
+    @GetMapping("/admin/{id}")
+    public ResponseEntity<ApiResponse<RestaurantDto>> getAdminRestaurant(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Restaurant fetched successfully",
+                restaurantService.getManageableRestaurantDetails(id, userDetails.getUsername())
         ));
     }
 

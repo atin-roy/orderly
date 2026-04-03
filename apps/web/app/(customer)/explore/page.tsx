@@ -335,7 +335,6 @@ export default function ExplorePage() {
                     cuisine={restaurant.cuisineType}
                     locality={restaurant.locality}
                     rating={restaurant.rating}
-                    priceLevel={restaurant.priceLevel}
                     deliveryTime={`${restaurant.deliveryTimeMinutes} min`}
                     deliveryFee={
                       restaurant.deliveryFee === 0

@@ -7,7 +7,6 @@ interface RestaurantCardProps {
   cuisine: string;
   locality?: string;
   rating: number;
-  priceLevel: string;
   deliveryTime: string;
   deliveryFee: string;
   imageColor: string;
@@ -20,7 +19,6 @@ export function RestaurantCard({
   cuisine,
   locality,
   rating,
-  priceLevel,
   deliveryTime,
   deliveryFee,
   imageColor,
@@ -57,8 +55,7 @@ export function RestaurantCard({
           {locality ? <p className="text-subtle text-sm">{locality}</p> : null}
         </div>
         <div className="text-right">
-          <span className="font-semibold text-sm">{priceLevel}</span>
-          <p className="text-xs text-subtle">{deliveryFee}</p>
+          <p className="text-sm font-semibold text-foreground">{deliveryFee}</p>
         </div>
       </div>
     </div>

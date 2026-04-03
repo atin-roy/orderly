@@ -52,9 +52,6 @@ public class Restaurant extends BaseEntity {
     private Integer deliveryFee = 0;
 
     @Column(nullable = false)
-    private String priceLevel;
-
-    @Column(nullable = false)
     private Boolean isApproved = false;
 
     @Column(nullable = false)

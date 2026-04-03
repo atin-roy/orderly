@@ -24,7 +24,6 @@ public final class RestaurantMapper {
                 restaurant.getRating(),
                 restaurant.getDeliveryTimeMinutes(),
                 restaurant.getDeliveryFee(),
-                restaurant.getPriceLevel(),
                 restaurant.getIsApproved(),
                 restaurant.getIsActive(),
                 restaurant.getImageColor()

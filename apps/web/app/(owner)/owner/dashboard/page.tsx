@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { AuthGuard } from "@/components/auth-guard";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { ImageUploadField } from "@/components/image-upload-field";
 import { formatRupees } from "@/data/mock-data";
 import { createRestaurant, getMyRestaurants, getOwnerDashboard, updateRestaurant } from "@/lib/api";
 
@@ -18,7 +19,6 @@ const emptyForm = {
   imageUrl: "",
   deliveryTimeMinutes: 30,
   deliveryFee: 29,
-  priceLevel: "₹₹",
   imageColor: "bg-gradient-to-br from-orange-500 via-amber-500 to-red-700",
 };
 
@@ -29,11 +29,38 @@ export default function OwnerDashboardPage() {
   const [message, setMessage] = useState("");
   const [dashboard, setDashboard] = useState<OwnerDashboardData | null>(null);
 
+  function syncForm(restaurant: Restaurant) {
+    setForm({
+      name: restaurant.name,
+      description: restaurant.description,
+      cuisineType: restaurant.cuisineType,
+      city: restaurant.city,
+      locality: restaurant.locality,
+      imageUrl: restaurant.imageUrl ?? "",
+      deliveryTimeMinutes: restaurant.deliveryTimeMinutes,
+      deliveryFee: restaurant.deliveryFee,
+      imageColor: restaurant.imageColor,
+    });
+  }
+
   async function refreshRestaurants() {
     const response = await getMyRestaurants();
     setRestaurants(response.data);
-    if (!selectedId && response.data[0]) {
+
+    if (selectedId) {
+      const nextSelected = response.data.find((restaurant) => restaurant.id === selectedId);
+      if (nextSelected) {
+        syncForm(nextSelected);
+        return;
+      }
+    }
+
+    if (response.data[0]) {
       setSelectedId(response.data[0].id);
+      syncForm(response.data[0]);
+    } else {
+      setSelectedId(null);
+      setForm(emptyForm);
     }
   }
 
@@ -42,24 +69,14 @@ export default function OwnerDashboardPage() {
 
     void getMyRestaurants()
       .then((response) => {
-        if (!ignore) {
-          setRestaurants(response.data);
-          if (response.data[0]) {
-            const selected = response.data[0];
-            setSelectedId(selected.id);
-            setForm({
-              name: selected.name,
-              description: selected.description,
-              cuisineType: selected.cuisineType,
-              city: selected.city,
-              locality: selected.locality,
-              imageUrl: selected.imageUrl ?? "",
-              deliveryTimeMinutes: selected.deliveryTimeMinutes,
-              deliveryFee: selected.deliveryFee,
-              priceLevel: selected.priceLevel,
-              imageColor: selected.imageColor,
-            });
-          }
+        if (ignore) {
+          return;
+        }
+
+        setRestaurants(response.data);
+        if (response.data[0]) {
+          setSelectedId(response.data[0].id);
+          syncForm(response.data[0]);
         }
       })
       .catch(() => {
@@ -110,7 +127,8 @@ export default function OwnerDashboardPage() {
       await updateRestaurant(selectedId, payload);
       setMessage("Restaurant updated.");
     } else {
-      await createRestaurant(payload);
+      const response = await createRestaurant(payload);
+      setSelectedId(response.data.id);
       setMessage("Restaurant created.");
     }
 
@@ -183,6 +201,7 @@ export default function OwnerDashboardPage() {
                   onClick={() => {
                     setSelectedId(null);
                     setForm(emptyForm);
+                    setMessage("");
                   }}
                   className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand"
                 >
@@ -197,18 +216,8 @@ export default function OwnerDashboardPage() {
                     type="button"
                     onClick={() => {
                       setSelectedId(restaurant.id);
-                      setForm({
-                        name: restaurant.name,
-                        description: restaurant.description,
-                        cuisineType: restaurant.cuisineType,
-                        city: restaurant.city,
-                        locality: restaurant.locality,
-                        imageUrl: restaurant.imageUrl ?? "",
-                        deliveryTimeMinutes: restaurant.deliveryTimeMinutes,
-                        deliveryFee: restaurant.deliveryFee,
-                        priceLevel: restaurant.priceLevel,
-                        imageColor: restaurant.imageColor,
-                      });
+                      syncForm(restaurant);
+                      setMessage("");
                     }}
                     className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
                       selectedId === restaurant.id
@@ -221,7 +230,8 @@ export default function OwnerDashboardPage() {
                       {restaurant.locality} · {restaurant.cuisineType}
                     </p>
                     <p className="mt-2 text-xs uppercase tracking-[0.18em] text-brand">
-                      {restaurant.isActive ? "Live" : "Paused"} · {formatRupees(restaurant.deliveryFee)} delivery
+                      {restaurant.isActive ? "Live" : "Paused"} ·{" "}
+                      {formatRupees(restaurant.deliveryFee)} delivery
                     </p>
                   </button>
                 ))}
@@ -260,8 +270,6 @@ export default function OwnerDashboardPage() {
                   ["Cuisine type", "cuisineType"],
                   ["City", "city"],
                   ["Locality", "locality"],
-                  ["Image URL", "imageUrl"],
-                  ["Price level", "priceLevel"],
                 ].map(([label, key]) => (
                   <label key={key} className="block text-sm">
                     <span className="mb-2 block font-semibold text-foreground">{label}</span>
@@ -280,10 +288,21 @@ export default function OwnerDashboardPage() {
                 <span className="mb-2 block font-semibold text-foreground">Description</span>
                 <textarea
                   value={form.description}
-                  onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, description: event.target.value }))
+                  }
                   className="min-h-28 w-full rounded-2xl border border-orange-200 px-4 py-3"
                 />
               </label>
+
+              <div className="mt-4">
+                <ImageUploadField
+                  label="Restaurant image"
+                  value={form.imageUrl}
+                  helperText="Upload JPG, PNG, or WebP. This image is shown on restaurant cards and the detail page."
+                  onChange={(imageUrl) => setForm((current) => ({ ...current, imageUrl }))}
+                />
+              </div>
 
               <div className="mt-4 grid gap-4 md:grid-cols-3">
                 <label className="block text-sm">
@@ -315,7 +334,7 @@ export default function OwnerDashboardPage() {
                   />
                 </label>
                 <label className="block text-sm">
-                  <span className="mb-2 block font-semibold text-foreground">Image color</span>
+                  <span className="mb-2 block font-semibold text-foreground">Fallback image color</span>
                   <input
                     value={form.imageColor}
                     onChange={(event) =>

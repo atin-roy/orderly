@@ -14,7 +14,6 @@ public record RestaurantDto(
         Double rating,
         Integer deliveryTimeMinutes,
         Integer deliveryFee,
-        String priceLevel,
         Boolean isApproved,
         Boolean isActive,
         String imageColor

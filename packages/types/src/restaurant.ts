@@ -12,7 +12,6 @@ export interface Restaurant {
   rating: number;
   deliveryTimeMinutes: number;
   deliveryFee: number;
-  priceLevel: string;
   isApproved: boolean;
   isActive: boolean;
   imageColor: string;

@@ -2,6 +2,7 @@
 
 import type { MenuCategory, Restaurant } from "@orderly/types";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AuthGuard } from "@/components/auth-guard";
 import { Footer } from "@/components/footer";
@@ -11,8 +12,8 @@ import { formatRupees } from "@/data/mock-data";
 import {
   createMenuItem,
   deleteMenuItem,
+  getAdminRestaurant,
   getManagementMenu,
-  getMyRestaurants,
   updateMenuItem,
 } from "@/lib/api";
 
@@ -27,55 +28,34 @@ const emptyForm = {
   sortOrder: 1,
 };
 
-export default function MenuPage() {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [restaurantId, setRestaurantId] = useState<number | null>(null);
+export default function AdminRestaurantMenuPage() {
+  const params = useParams<{ id: string }>();
+  const restaurantId = Number(params.id);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [menu, setMenu] = useState<MenuCategory[]>([]);
   const [editingItemId, setEditingItemId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [message, setMessage] = useState("");
 
-  async function refreshMenu(nextRestaurantId: number) {
-    const response = await getManagementMenu(nextRestaurantId);
+  async function refreshMenu() {
+    const response = await getManagementMenu(restaurantId);
     setMenu(response.data);
   }
 
   useEffect(() => {
     let ignore = false;
 
-    void getMyRestaurants()
-      .then((response) => {
-        if (!ignore) {
-          setRestaurants(response.data);
-          const params = new URLSearchParams(window.location.search);
-          const initialId = Number(params.get("restaurantId")) || response.data[0]?.id || null;
-          setRestaurantId(initialId);
+    void Promise.all([getAdminRestaurant(restaurantId), getManagementMenu(restaurantId)])
+      .then(([restaurantResponse, menuResponse]) => {
+        if (ignore) {
+          return;
         }
+        setRestaurant(restaurantResponse.data);
+        setMenu(menuResponse.data);
       })
       .catch(() => {
         if (!ignore) {
-          setRestaurants([]);
-        }
-      });
-
-    return () => {
-      ignore = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!restaurantId) {
-      return;
-    }
-    let ignore = false;
-    void getManagementMenu(restaurantId)
-      .then((response) => {
-        if (!ignore) {
-          setMenu(response.data);
-        }
-      })
-      .catch(() => {
-        if (!ignore) {
+          setRestaurant(null);
           setMenu([]);
         }
       });
@@ -86,10 +66,6 @@ export default function MenuPage() {
   }, [restaurantId]);
 
   async function handleSave() {
-    if (!restaurantId) {
-      return;
-    }
-
     const payload = {
       ...form,
       imageUrl: form.imageUrl || undefined,
@@ -103,59 +79,38 @@ export default function MenuPage() {
       setMessage("Menu item created.");
     }
 
-    await refreshMenu(restaurantId);
+    await refreshMenu();
     setEditingItemId(null);
     setForm(emptyForm);
   }
 
   async function handleDelete(itemId: number) {
-    if (!restaurantId) {
-      return;
-    }
     await deleteMenuItem(restaurantId, itemId);
-    await refreshMenu(restaurantId);
+    await refreshMenu();
     setEditingItemId(null);
     setForm(emptyForm);
     setMessage("Menu item deleted.");
   }
 
   return (
-    <AuthGuard allowedRoles={["BUSINESS"]}>
+    <AuthGuard allowedRoles={["ADMIN"]}>
       <div className="min-h-screen bg-cream">
         <Header />
         <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
             <aside className="rounded-[2rem] border border-orange-100 bg-white p-5 shadow-[0_18px_60px_rgba(211,91,31,0.08)]">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">
-                Menu manager
+                Admin menu manager
               </p>
-              <h1 className="mt-2 font-serif text-3xl font-bold">Restaurants</h1>
-              <div className="mt-5 space-y-3">
-                {restaurants.map((restaurant) => (
-                  <button
-                    key={restaurant.id}
-                    type="button"
-                    onClick={() => {
-                      setRestaurantId(restaurant.id);
-                      setEditingItemId(null);
-                      setForm(emptyForm);
-                    }}
-                    className={`w-full rounded-2xl border px-4 py-4 text-left ${
-                      restaurantId === restaurant.id
-                        ? "border-brand bg-orange-50"
-                        : "border-orange-100"
-                    }`}
-                  >
-                    <p className="font-semibold text-foreground">{restaurant.name}</p>
-                    <p className="mt-1 text-sm text-subtle">{restaurant.locality}</p>
-                  </button>
-                ))}
-              </div>
+              <h1 className="mt-2 font-serif text-3xl font-bold">{restaurant?.name ?? "Restaurant"}</h1>
+              <p className="mt-3 text-sm text-subtle">
+                {restaurant ? `${restaurant.locality}, ${restaurant.city}` : "Loading restaurant..."}
+              </p>
               <Link
-                href="/owner/dashboard"
+                href="/admin/restaurants"
                 className="mt-5 inline-flex rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand"
               >
-                Back to dashboard
+                Back to restaurants
               </Link>
             </aside>
 
@@ -221,7 +176,7 @@ export default function MenuPage() {
                   <ImageUploadField
                     label="Menu image"
                     value={form.imageUrl}
-                    helperText="Upload JPG, PNG, or WebP for the dish tile shown in menus."
+                    helperText="Upload JPG, PNG, or WebP for the dish card."
                     onChange={(imageUrl) => setForm((current) => ({ ...current, imageUrl }))}
                   />
                 </div>

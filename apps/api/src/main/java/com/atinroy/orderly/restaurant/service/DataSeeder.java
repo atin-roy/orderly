@@ -74,34 +74,34 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedRestaurants(User owner) {
         List<RestaurantSeed> seeds = List.of(
-                restaurant("Oudh & Co.", "Park Street", "North Indian Signatures", "Slow-cooked biryanis, kebabs, and rich Mughlai plates tuned for dinner cravings.", 4.8, 34, 49, "₹₹₹", "north-indian", "bg-gradient-to-br from-orange-500 via-amber-500 to-red-700", northIndianMenu()),
-                restaurant("Ballygunge Biryani Club", "Ballygunge", "Awadhi Biryani", "Fragrant rice, tender meats, and celebratory handi portions with classic Kolkata add-ons.", 4.7, 31, 39, "₹₹₹", "biryani", "bg-gradient-to-br from-yellow-700 via-orange-700 to-stone-900", biryaniMenu()),
-                restaurant("Gariahat Roll Room", "Gariahat", "Rolls & Kebabs", "Kathi rolls, smoky kebabs, and fast evening combos built for street-food orders.", 4.6, 24, 19, "₹₹", "rolls", "bg-gradient-to-br from-fuchsia-700 via-rose-600 to-orange-500", rollsMenu()),
-                restaurant("Salt Lake Tiffin House", "Salt Lake Sector 1", "South Indian Comfort", "Crisp dosas, podi-heavy tiffins, and coffee-led breakfast-to-dinner comfort meals.", 4.8, 29, 25, "₹₹", "south-indian", "bg-gradient-to-br from-lime-600 via-green-700 to-emerald-900", southIndianMenu()),
-                restaurant("Sector V Bowl Company", "Salt Lake Sector 5", "Asian Bowls & Quick Meals", "Office-friendly rice bowls, chilli gravies, and snackable sides for tech-park rush hours.", 4.5, 22, 29, "₹₹", "asian", "bg-gradient-to-br from-cyan-700 via-sky-600 to-blue-900", asianMenu()),
-                restaurant("New Town Kosha Kitchen", "New Town", "Bengali Specials", "Kosha mangsho, fish curries, and rice plates rooted in Kolkata comfort food.", 4.7, 36, 35, "₹₹₹", "bengali", "bg-gradient-to-br from-rose-700 via-orange-700 to-amber-500", bengaliMenu()),
-                restaurant("Rajarhat Grill Garden", "Rajarhat", "Charcoal Grills", "Grilled platters, butter naan, and North Indian family-style dinner spreads.", 4.6, 33, 49, "₹₹₹", "grill", "bg-gradient-to-br from-stone-900 via-orange-700 to-yellow-600", grillMenu()),
-                restaurant("Bhawanipur Chaat Gallery", "Bhawanipur", "Chaat & Snacks", "Tangy chaats, papdi plates, and snacky add-ons built for late-afternoon ordering.", 4.4, 20, 15, "₹", "chaat", "bg-gradient-to-br from-pink-500 via-rose-500 to-red-700", chaatMenu()),
-                restaurant("Alipore Mithai Bureau", "Alipore", "Sweets & Desserts", "Rosogolla tins, mishti assortments, and dessert boxes for gifting and post-dinner cravings.", 4.7, 28, 25, "₹₹", "desserts", "bg-gradient-to-br from-pink-400 via-rose-500 to-orange-500", dessertMenu()),
-                restaurant("Park Circus Rezala House", "Park Circus Area", "Mughlai Classics", "Rezala, chaap, rumali roti, and rich Mughlai staples for substantial evening orders.", 4.8, 35, 45, "₹₹₹", "mughlai", "bg-gradient-to-br from-amber-600 via-orange-700 to-stone-900", mughlaiMenu()),
-                restaurant("Minto Park Salad & Grill", "Park Street", "Healthy Bowls", "Protein bowls, grilled sides, and fresh salads that still feel satisfying at delivery pace.", 4.3, 19, 25, "₹₹", "healthy", "bg-gradient-to-br from-emerald-600 via-teal-600 to-lime-500", healthyMenu()),
-                restaurant("Lake Market Wok Lab", "Ballygunge", "Chinese Comfort", "Hakka noodles, chilli chicken, and Indo-Chinese comfort plates for group ordering.", 4.5, 27, 29, "₹₹", "chinese", "bg-gradient-to-br from-red-700 via-orange-600 to-yellow-500", chineseMenu()),
-                restaurant("Quest Mall Dum Stories", "Park Street", "Biryani & Kebabs", "Dinner-friendly biryani handi, kebab platters, and festive rice boxes.", 4.7, 30, 39, "₹₹₹", "biryani", "bg-gradient-to-br from-orange-500 via-red-600 to-stone-900", biryaniMenu()),
-                restaurant("Golpark Dosa Circuit", "Gariahat", "Dosas & Tiffins", "Reliable crispy dosas, mini tiffins, and chutney-heavy combos for all-day comfort.", 4.6, 26, 19, "₹₹", "south-indian", "bg-gradient-to-br from-green-600 via-emerald-700 to-teal-900", southIndianMenu()),
-                restaurant("Eco Park Bento Stop", "New Town", "Asian Bowls & Sushi-ish", "Fast rice bowls, stir-fries, and bento-like combos for office dinner runs.", 4.4, 23, 29, "₹₹", "asian", "bg-gradient-to-br from-sky-600 via-cyan-600 to-indigo-900", asianMenu()),
-                restaurant("Nicco Park Kebab Yard", "Salt Lake Sector 1", "Kebabs & North Indian", "Skewers, roomali, and smoky mains designed for big shared orders.", 4.6, 30, 35, "₹₹₹", "grill", "bg-gradient-to-br from-orange-700 via-red-700 to-stone-950", grillMenu()),
-                restaurant("City Centre Chaat Counter", "Salt Lake Sector 1", "Chaat & Fast Bites", "Crowd-pleasing chaats, fries, and wraps designed for snack cravings.", 4.3, 18, 15, "₹", "chaat", "bg-gradient-to-br from-rose-500 via-fuchsia-500 to-orange-500", chaatMenu()),
-                restaurant("Prinsep Sweet Studio", "Alipore", "Dessert Boxes", "Curated sweets, rabri desserts, and chilled Bengali classics for easy gifting.", 4.8, 25, 25, "₹₹", "desserts", "bg-gradient-to-br from-fuchsia-500 via-pink-500 to-amber-400", dessertMenu()),
-                restaurant("Camac Street Kosha Room", "Park Street", "Bengali Classics", "Kosha gravies, fish fries, and heritage-style rice meals adapted for delivery.", 4.7, 32, 35, "₹₹₹", "bengali", "bg-gradient-to-br from-red-800 via-amber-700 to-yellow-500", bengaliMenu()),
-                restaurant("Quest Greens Kitchen", "Bhawanipur", "Healthy Bowls & Wraps", "Fresh bowls, grilled wraps, and lighter comfort food for weekday lunch orders.", 4.4, 21, 19, "₹₹", "healthy", "bg-gradient-to-br from-lime-500 via-emerald-600 to-teal-700", healthyMenu()),
-                restaurant("Biswa Bangla Wok Street", "Rajarhat", "Chinese Comfort", "Saucy gravies, fried rice, and crispy starters for family sharing.", 4.5, 28, 29, "₹₹", "chinese", "bg-gradient-to-br from-red-700 via-orange-700 to-amber-500", chineseMenu()),
-                restaurant("Acropolis Roll Foundry", "Ballygunge", "Rolls & Fast Combos", "Loaded wraps, kebab rolls, and fast sides built for late-night hunger.", 4.6, 22, 19, "₹₹", "rolls", "bg-gradient-to-br from-violet-700 via-rose-600 to-orange-500", rollsMenu()),
-                restaurant("Park Circus Nizam Table", "Park Circus Area", "Mughlai & Rezala", "Soft rumali, buttery curries, and rezala plates with classic Kolkata richness.", 4.8, 34, 45, "₹₹₹", "mughlai", "bg-gradient-to-br from-orange-700 via-amber-600 to-stone-950", mughlaiMenu()),
-                restaurant("DLF Tiffin Hub", "New Town", "South Indian & Bowls", "Fast dosa bowls, idli combos, and coffee for workday breakfast and lunch runs.", 4.5, 24, 19, "₹₹", "south-indian", "bg-gradient-to-br from-emerald-700 via-green-600 to-lime-500", southIndianMenu()),
-                restaurant("Howrah Steam Box", "Howrah", "Bengali Bento", "Railway-side comfort plates, fish fries, and packed meals that still travel well.", 4.4, 32, 29, "₹₹", "bengali", "bg-gradient-to-br from-amber-700 via-orange-700 to-red-800", bengaliMenu()),
-                restaurant("Esplanade Kebab Press", "Esplanade", "Rolls & Kebabs", "Fast-grab kebab wraps and charcoal-finished late-evening plates.", 4.6, 25, 19, "₹₹", "rolls", "bg-gradient-to-br from-red-700 via-rose-600 to-orange-500", rollsMenu()),
-                restaurant("Southern Avenue Salad Club", "Southern Avenue", "Healthy Bowls", "Lake-side grain bowls, wraps, and lighter comfort meals built for repeat ordering.", 4.3, 20, 19, "₹₹", "healthy", "bg-gradient-to-br from-green-600 via-emerald-700 to-lime-500", healthyMenu()),
-                restaurant("Behala Biryani Works", "Behala", "Biryani Classics", "Comfort biryani handi, chaap sides, and celebratory combos for family dinners.", 4.5, 33, 39, "₹₹₹", "biryani", "bg-gradient-to-br from-yellow-700 via-orange-700 to-stone-900", biryaniMenu())
+                restaurant("Oudh & Co.", "Park Street", "North Indian Signatures", "Slow-cooked biryanis, kebabs, and rich Mughlai plates tuned for dinner cravings.", 4.8, 34, 49, "north-indian", "bg-gradient-to-br from-orange-500 via-amber-500 to-red-700", northIndianMenu()),
+                restaurant("Ballygunge Biryani Club", "Ballygunge", "Awadhi Biryani", "Fragrant rice, tender meats, and celebratory handi portions with classic Kolkata add-ons.", 4.7, 31, 39, "biryani", "bg-gradient-to-br from-yellow-700 via-orange-700 to-stone-900", biryaniMenu()),
+                restaurant("Gariahat Roll Room", "Gariahat", "Rolls & Kebabs", "Kathi rolls, smoky kebabs, and fast evening combos built for street-food orders.", 4.6, 24, 19, "rolls", "bg-gradient-to-br from-fuchsia-700 via-rose-600 to-orange-500", rollsMenu()),
+                restaurant("Salt Lake Tiffin House", "Salt Lake Sector 1", "South Indian Comfort", "Crisp dosas, podi-heavy tiffins, and coffee-led breakfast-to-dinner comfort meals.", 4.8, 29, 25, "south-indian", "bg-gradient-to-br from-lime-600 via-green-700 to-emerald-900", southIndianMenu()),
+                restaurant("Sector V Bowl Company", "Salt Lake Sector 5", "Asian Bowls & Quick Meals", "Office-friendly rice bowls, chilli gravies, and snackable sides for tech-park rush hours.", 4.5, 22, 29, "asian", "bg-gradient-to-br from-cyan-700 via-sky-600 to-blue-900", asianMenu()),
+                restaurant("New Town Kosha Kitchen", "New Town", "Bengali Specials", "Kosha mangsho, fish curries, and rice plates rooted in Kolkata comfort food.", 4.7, 36, 35, "bengali", "bg-gradient-to-br from-rose-700 via-orange-700 to-amber-500", bengaliMenu()),
+                restaurant("Rajarhat Grill Garden", "Rajarhat", "Charcoal Grills", "Grilled platters, butter naan, and North Indian family-style dinner spreads.", 4.6, 33, 49, "grill", "bg-gradient-to-br from-stone-900 via-orange-700 to-yellow-600", grillMenu()),
+                restaurant("Bhawanipur Chaat Gallery", "Bhawanipur", "Chaat & Snacks", "Tangy chaats, papdi plates, and snacky add-ons built for late-afternoon ordering.", 4.4, 20, 15, "chaat", "bg-gradient-to-br from-pink-500 via-rose-500 to-red-700", chaatMenu()),
+                restaurant("Alipore Mithai Bureau", "Alipore", "Sweets & Desserts", "Rosogolla tins, mishti assortments, and dessert boxes for gifting and post-dinner cravings.", 4.7, 28, 25, "desserts", "bg-gradient-to-br from-pink-400 via-rose-500 to-orange-500", dessertMenu()),
+                restaurant("Park Circus Rezala House", "Park Circus Area", "Mughlai Classics", "Rezala, chaap, rumali roti, and rich Mughlai staples for substantial evening orders.", 4.8, 35, 45, "mughlai", "bg-gradient-to-br from-amber-600 via-orange-700 to-stone-900", mughlaiMenu()),
+                restaurant("Minto Park Salad & Grill", "Park Street", "Healthy Bowls", "Protein bowls, grilled sides, and fresh salads that still feel satisfying at delivery pace.", 4.3, 19, 25, "healthy", "bg-gradient-to-br from-emerald-600 via-teal-600 to-lime-500", healthyMenu()),
+                restaurant("Lake Market Wok Lab", "Ballygunge", "Chinese Comfort", "Hakka noodles, chilli chicken, and Indo-Chinese comfort plates for group ordering.", 4.5, 27, 29, "chinese", "bg-gradient-to-br from-red-700 via-orange-600 to-yellow-500", chineseMenu()),
+                restaurant("Quest Mall Dum Stories", "Park Street", "Biryani & Kebabs", "Dinner-friendly biryani handi, kebab platters, and festive rice boxes.", 4.7, 30, 39, "biryani", "bg-gradient-to-br from-orange-500 via-red-600 to-stone-900", biryaniMenu()),
+                restaurant("Golpark Dosa Circuit", "Gariahat", "Dosas & Tiffins", "Reliable crispy dosas, mini tiffins, and chutney-heavy combos for all-day comfort.", 4.6, 26, 19, "south-indian", "bg-gradient-to-br from-green-600 via-emerald-700 to-teal-900", southIndianMenu()),
+                restaurant("Eco Park Bento Stop", "New Town", "Asian Bowls & Sushi-ish", "Fast rice bowls, stir-fries, and bento-like combos for office dinner runs.", 4.4, 23, 29, "asian", "bg-gradient-to-br from-sky-600 via-cyan-600 to-indigo-900", asianMenu()),
+                restaurant("Nicco Park Kebab Yard", "Salt Lake Sector 1", "Kebabs & North Indian", "Skewers, roomali, and smoky mains designed for big shared orders.", 4.6, 30, 35, "grill", "bg-gradient-to-br from-orange-700 via-red-700 to-stone-950", grillMenu()),
+                restaurant("City Centre Chaat Counter", "Salt Lake Sector 1", "Chaat & Fast Bites", "Crowd-pleasing chaats, fries, and wraps designed for snack cravings.", 4.3, 18, 15, "chaat", "bg-gradient-to-br from-rose-500 via-fuchsia-500 to-orange-500", chaatMenu()),
+                restaurant("Prinsep Sweet Studio", "Alipore", "Dessert Boxes", "Curated sweets, rabri desserts, and chilled Bengali classics for easy gifting.", 4.8, 25, 25, "desserts", "bg-gradient-to-br from-fuchsia-500 via-pink-500 to-amber-400", dessertMenu()),
+                restaurant("Camac Street Kosha Room", "Park Street", "Bengali Classics", "Kosha gravies, fish fries, and heritage-style rice meals adapted for delivery.", 4.7, 32, 35, "bengali", "bg-gradient-to-br from-red-800 via-amber-700 to-yellow-500", bengaliMenu()),
+                restaurant("Quest Greens Kitchen", "Bhawanipur", "Healthy Bowls & Wraps", "Fresh bowls, grilled wraps, and lighter comfort food for weekday lunch orders.", 4.4, 21, 19, "healthy", "bg-gradient-to-br from-lime-500 via-emerald-600 to-teal-700", healthyMenu()),
+                restaurant("Biswa Bangla Wok Street", "Rajarhat", "Chinese Comfort", "Saucy gravies, fried rice, and crispy starters for family sharing.", 4.5, 28, 29, "chinese", "bg-gradient-to-br from-red-700 via-orange-700 to-amber-500", chineseMenu()),
+                restaurant("Acropolis Roll Foundry", "Ballygunge", "Rolls & Fast Combos", "Loaded wraps, kebab rolls, and fast sides built for late-night hunger.", 4.6, 22, 19, "rolls", "bg-gradient-to-br from-violet-700 via-rose-600 to-orange-500", rollsMenu()),
+                restaurant("Park Circus Nizam Table", "Park Circus Area", "Mughlai & Rezala", "Soft rumali, buttery curries, and rezala plates with classic Kolkata richness.", 4.8, 34, 45, "mughlai", "bg-gradient-to-br from-orange-700 via-amber-600 to-stone-950", mughlaiMenu()),
+                restaurant("DLF Tiffin Hub", "New Town", "South Indian & Bowls", "Fast dosa bowls, idli combos, and coffee for workday breakfast and lunch runs.", 4.5, 24, 19, "south-indian", "bg-gradient-to-br from-emerald-700 via-green-600 to-lime-500", southIndianMenu()),
+                restaurant("Howrah Steam Box", "Howrah", "Bengali Bento", "Railway-side comfort plates, fish fries, and packed meals that still travel well.", 4.4, 32, 29, "bengali", "bg-gradient-to-br from-amber-700 via-orange-700 to-red-800", bengaliMenu()),
+                restaurant("Esplanade Kebab Press", "Esplanade", "Rolls & Kebabs", "Fast-grab kebab wraps and charcoal-finished late-evening plates.", 4.6, 25, 19, "rolls", "bg-gradient-to-br from-red-700 via-rose-600 to-orange-500", rollsMenu()),
+                restaurant("Southern Avenue Salad Club", "Southern Avenue", "Healthy Bowls", "Lake-side grain bowls, wraps, and lighter comfort meals built for repeat ordering.", 4.3, 20, 19, "healthy", "bg-gradient-to-br from-green-600 via-emerald-700 to-lime-500", healthyMenu()),
+                restaurant("Behala Biryani Works", "Behala", "Biryani Classics", "Comfort biryani handi, chaap sides, and celebratory combos for family dinners.", 4.5, 33, 39, "biryani", "bg-gradient-to-br from-yellow-700 via-orange-700 to-stone-900", biryaniMenu())
         );
 
         for (RestaurantSeed seed : seeds) {
@@ -117,7 +117,6 @@ public class DataSeeder implements CommandLineRunner {
             restaurant.setRating(seed.rating());
             restaurant.setDeliveryTimeMinutes(seed.deliveryTimeMinutes());
             restaurant.setDeliveryFee(seed.deliveryFee());
-            restaurant.setPriceLevel(seed.priceLevel());
             restaurant.setIsApproved(true);
             restaurant.setIsActive(true);
             restaurant.setImageColor(seed.imageColor());
@@ -342,12 +341,11 @@ public class DataSeeder implements CommandLineRunner {
             double rating,
             int deliveryTimeMinutes,
             int deliveryFee,
-            String priceLevel,
             String imageKey,
             String imageColor,
             List<MenuSeed> menu
     ) {
-        return new RestaurantSeed(name, locality, cuisineType, description, rating, deliveryTimeMinutes, deliveryFee, priceLevel, imageKey, imageColor, menu);
+        return new RestaurantSeed(name, locality, cuisineType, description, rating, deliveryTimeMinutes, deliveryFee, imageKey, imageColor, menu);
     }
 
     private List<MenuSeed> northIndianMenu() {
@@ -596,7 +594,6 @@ public class DataSeeder implements CommandLineRunner {
             double rating,
             int deliveryTimeMinutes,
             int deliveryFee,
-            String priceLevel,
             String imageKey,
             String imageColor,
             List<MenuSeed> menu

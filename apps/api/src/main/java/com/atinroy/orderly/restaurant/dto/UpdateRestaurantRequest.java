@@ -29,9 +29,6 @@ public record UpdateRestaurantRequest(
         @Min(value = 0, message = "Delivery fee cannot be negative")
         Integer deliveryFee,
 
-        @NotBlank(message = "Price level is required")
-        String priceLevel,
-
         Boolean isActive,
 
         String imageColor

@@ -107,7 +107,13 @@ export default function RestaurantPage() {
                         {restaurant.deliveryTimeMinutes} min
                       </span>
                       <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 shadow-sm">
-                        {restaurant.priceLevel}
+                        {restaurant.deliveryFee === 0
+                          ? "Free delivery"
+                          : `Delivery ${new Intl.NumberFormat("en-IN", {
+                              style: "currency",
+                              currency: "INR",
+                              maximumFractionDigits: 0,
+                            }).format(restaurant.deliveryFee)}`}
                       </span>
                     </div>
                   </div>

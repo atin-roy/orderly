@@ -55,7 +55,10 @@ async function requestJson<T>(
   const token = getStoredToken();
   const headers = new Headers(options.headers);
 
-  if (!headers.has("Content-Type") && options.body) {
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
+
+  if (!headers.has("Content-Type") && options.body && !isFormData) {
     headers.set("Content-Type", "application/json");
   }
 
@@ -149,12 +152,27 @@ export interface CreateRestaurantPayload {
   imageUrl?: string;
   deliveryTimeMinutes: number;
   deliveryFee: number;
-  priceLevel: string;
   imageColor?: string;
 }
 
 export interface UpdateRestaurantPayload extends CreateRestaurantPayload {
   isActive?: boolean;
+}
+
+export interface AdminCreateRestaurantPayload extends CreateRestaurantPayload {
+  ownerName: string;
+  businessName: string;
+  email: string;
+  password: string;
+  phone: string;
+  serviceArea: string;
+  businessType: string;
+  cuisineFocus: string;
+  restaurantCity: string;
+}
+
+export interface ImageUploadResponse {
+  url: string;
 }
 
 export interface MenuItemPayload {
@@ -336,6 +354,14 @@ export async function getMyRestaurants(): Promise<ApiResponse<Restaurant[]>> {
   return apiClient<Restaurant[]>("/restaurants/mine");
 }
 
+export async function getAdminRestaurantOverview(): Promise<ApiResponse<AdminRestaurantSummary[]>> {
+  return apiClient<AdminRestaurantSummary[]>("/restaurants/admin/overview");
+}
+
+export async function getAdminRestaurant(restaurantId: number): Promise<ApiResponse<Restaurant>> {
+  return apiClient<Restaurant>(`/restaurants/admin/${restaurantId}`);
+}
+
 export async function createRestaurant(
   payload: CreateRestaurantPayload
 ): Promise<ApiResponse<Restaurant>> {
@@ -351,6 +377,15 @@ export async function updateRestaurant(
 ): Promise<ApiResponse<Restaurant>> {
   return apiClient<Restaurant>(`/restaurants/${restaurantId}`, {
     method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function adminCreateRestaurant(
+  payload: AdminCreateRestaurantPayload
+): Promise<ApiResponse<Restaurant>> {
+  return apiClient<Restaurant>("/restaurants/admin", {
+    method: "POST",
     body: JSON.stringify(payload),
   });
 }
@@ -382,6 +417,22 @@ export async function deleteMenuItem(
 ): Promise<ApiResponse<void>> {
   return apiClient<void>(`/restaurants/${restaurantId}/menu/${itemId}`, {
     method: "DELETE",
+  });
+}
+
+export async function getManagementMenu(
+  restaurantId: number
+): Promise<ApiResponse<MenuCategory[]>> {
+  return apiClient<MenuCategory[]>(`/restaurants/${restaurantId}/menu/manage`);
+}
+
+export async function uploadImage(file: File): Promise<ApiResponse<ImageUploadResponse>> {
+  const body = new FormData();
+  body.set("file", file);
+
+  return apiClient<ImageUploadResponse>("/uploads/images", {
+    method: "POST",
+    body,
   });
 }
 
@@ -456,8 +507,4 @@ export async function getOwnerDashboard(): Promise<ApiResponse<OwnerDashboardDat
 
 export async function getAdminDashboard(): Promise<ApiResponse<AdminDashboardData>> {
   return apiClient<AdminDashboardData>("/orders/admin/dashboard");
-}
-
-export async function getAdminRestaurants(): Promise<ApiResponse<AdminRestaurantSummary[]>> {
-  return apiClient<AdminRestaurantSummary[]>("/restaurants/admin/overview");
 }
