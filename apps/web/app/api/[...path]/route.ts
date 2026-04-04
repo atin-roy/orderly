@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 const BACKEND_URL =
   process.env.INTERNAL_API_URL || "http://localhost:8080/api";
 
@@ -12,14 +14,21 @@ const HOP_BY_HOP = new Set([
   "upgrade",
 ]);
 
-function forwardHeaders(incoming: Headers): Headers {
+function buildHeaders(req: NextRequest): Headers {
   const out = new Headers();
 
-  for (const [key, value] of incoming.entries()) {
+  for (const [key, value] of req.headers.entries()) {
     if (HOP_BY_HOP.has(key.toLowerCase()) || key.toLowerCase() === "host") {
       continue;
     }
     out.set(key, value);
+  }
+
+  if (!out.has("authorization")) {
+    const token = req.cookies.get("orderly_token")?.value;
+    if (token) {
+      out.set("Authorization", `Bearer ${token}`);
+    }
   }
 
   return out;
@@ -33,13 +42,12 @@ async function proxy(
   const target = `${BACKEND_URL}/${path.join("/")}${req.nextUrl.search}`;
 
   const hasBody = req.method !== "GET" && req.method !== "HEAD";
+  const body = hasBody ? await req.arrayBuffer() : undefined;
 
   const upstream = await fetch(target, {
     method: req.method,
-    headers: forwardHeaders(req.headers),
-    body: hasBody ? req.body : undefined,
-    // @ts-expect-error -- required for streaming request bodies in Node
-    duplex: hasBody ? "half" : undefined,
+    headers: buildHeaders(req),
+    body: body ? Buffer.from(body) : undefined,
     redirect: "manual",
   });
 
