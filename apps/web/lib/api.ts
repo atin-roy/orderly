@@ -129,15 +129,7 @@ async function requestJson<T>(
         clearStoredSession();
       }
 
-      const message = await parseErrorMessage(res, fallbackMessage);
-
-      // Spring Security can return a bare 403 for stale or invalid JWTs.
-      if (res.status === 403 && message === fallbackMessage) {
-        clearStoredSession();
-        throw new Error("Your session expired. Please log in again.");
-      }
-
-      throw new Error(message);
+      throw new Error(await parseErrorMessage(res, fallbackMessage));
     }
 
     if (res.status === 204) {

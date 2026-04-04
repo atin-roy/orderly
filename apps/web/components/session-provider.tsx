@@ -50,10 +50,19 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       const nextProfile = await getMyProfile();
       setProfile(nextProfile);
       setStatus("authenticated");
-    } catch {
-      clearStoredSession();
-      setProfile(null);
-      setStatus("unauthenticated");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      const isAuthError =
+        message.includes("session expired") ||
+        message.includes("Authentication required");
+
+      if (isAuthError || !getStoredToken()) {
+        clearStoredSession();
+        setProfile(null);
+        setStatus("unauthenticated");
+      } else {
+        setStatus("authenticated");
+      }
     }
   }, []);
 
@@ -83,12 +92,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [refreshProfile]);
-
-  useEffect(() => {
-    queueMicrotask(() => {
-      void refreshProfile();
-    });
-  }, [pathname, refreshProfile]);
 
   function logout(redirectTo = "/login") {
     clearStoredSession();

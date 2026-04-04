@@ -24,6 +24,8 @@ services:
       context: ./apps/api
       dockerfile: Dockerfile
     container_name: orderly-api
+    volumes:
+      - orderly-uploads:/app/uploads
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://orderly-postgres:5432/orderly}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-${POSTGRES_USER:-orderly}}
@@ -71,3 +73,4 @@ services:
 
 volumes:
   orderly-pgdata:
+  orderly-uploads:
