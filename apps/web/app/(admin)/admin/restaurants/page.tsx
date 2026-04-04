@@ -14,6 +14,13 @@ import {
 
 const PAGE_SIZE = 10;
 
+const adminActionButtonClass =
+  "inline-flex h-11 w-full items-center justify-center rounded-full border px-4 text-sm font-semibold transition duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30";
+
+const adminActionButtonBrandClass = `${adminActionButtonClass} border-orange-200 text-brand hover:border-brand/40 hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:border-orange-200 disabled:hover:bg-white`;
+
+const adminActionButtonDangerClass = `${adminActionButtonClass} border-red-200 text-red-600 hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:border-red-200 disabled:hover:bg-white`;
+
 export default function AdminRestaurantsPage() {
   const searchParams = useSearchParams();
   const [restaurants, setRestaurants] = useState<AdminRestaurantSummary[]>([]);
@@ -236,9 +243,10 @@ export default function AdminRestaurantsPage() {
           {restaurants.map((restaurant) => (
             <article
               key={restaurant.id}
-              className="rounded-[1.7rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.9),#fff)] p-5"
+              tabIndex={0}
+              className="group rounded-[1.7rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.9),#fff)] p-5 outline-none transition duration-150 focus-visible:border-orange-300 focus-visible:ring-2 focus-visible:ring-brand/20"
             >
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="flex flex-col gap-4">
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
                     <h3 className="text-2xl font-semibold text-foreground">{restaurant.name}</h3>
@@ -260,16 +268,16 @@ export default function AdminRestaurantsPage() {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 gap-3 opacity-0 pointer-events-none translate-y-2 transition duration-150 ease-out group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus:pointer-events-auto group-focus:translate-y-0 group-focus:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
                   <Link
                     href={`/admin/restaurants/${restaurant.id}/edit`}
-                    className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand"
+                    className={adminActionButtonBrandClass}
                   >
                     Edit
                   </Link>
                   <Link
                     href={`/admin/restaurants/${restaurant.id}/menu`}
-                    className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand"
+                    className={adminActionButtonBrandClass}
                   >
                     Menu
                   </Link>
@@ -277,7 +285,7 @@ export default function AdminRestaurantsPage() {
                     type="button"
                     onClick={() => void handleToggleRestaurant(restaurant.id)}
                     disabled={actionId === restaurant.id}
-                    className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand disabled:cursor-not-allowed disabled:opacity-70"
+                    className={adminActionButtonBrandClass}
                   >
                     {actionId === restaurant.id
                       ? "Saving..."
@@ -289,7 +297,7 @@ export default function AdminRestaurantsPage() {
                     type="button"
                     onClick={() => void handleDeleteRestaurant(restaurant)}
                     disabled={actionId === restaurant.id}
-                    className="rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 disabled:cursor-not-allowed disabled:opacity-70"
+                    className={adminActionButtonDangerClass}
                   >
                     Delete
                   </button>
