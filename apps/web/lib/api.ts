@@ -40,6 +40,11 @@ export function resolveAssetUrl(path?: string | null) {
   }
 
   const baseUrl = getApiBaseUrl();
+
+  if (path.startsWith("/uploads/")) {
+    return `${baseUrl}${path}`;
+  }
+
   if (/^https?:\/\//i.test(baseUrl)) {
     try {
       return new URL(path, baseUrl).toString();
