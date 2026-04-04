@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { resolveAssetUrl } from "@/lib/api";
 import { StarIcon } from "./icons";
 
 interface RestaurantCardProps {
@@ -29,7 +30,7 @@ export function RestaurantCard({
       <div className="relative rounded-xl overflow-hidden mb-3">
         {imageUrl ? (
           <img
-            src={imageUrl}
+            src={resolveAssetUrl(imageUrl)}
             alt={`${name} restaurant`}
             className="w-full aspect-[4/3] object-cover"
           />

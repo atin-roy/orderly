@@ -9,7 +9,7 @@ import { Footer } from "@/components/footer";
 import { useSession } from "@/components/session-provider";
 import { ArrowLeftIcon, ClockIcon, StarIcon } from "@/components/icons";
 import { formatRupees } from "@/data/mock-data";
-import { addToCart, getRestaurant, getRestaurantMenu } from "@/lib/api";
+import { addToCart, getRestaurant, getRestaurantMenu, resolveAssetUrl } from "@/lib/api";
 
 export default function RestaurantPage() {
   const params = useParams<{ id: string }>();
@@ -121,7 +121,7 @@ export default function RestaurantPage() {
                   <div className="overflow-hidden rounded-[2rem] border border-white/60 bg-white shadow-[0_24px_60px_rgba(35,24,21,0.1)]">
                     {restaurant.imageUrl ? (
                       <img
-                        src={restaurant.imageUrl}
+                        src={resolveAssetUrl(restaurant.imageUrl)}
                         alt={restaurant.name}
                         className="h-[300px] w-full object-cover"
                       />
