@@ -64,10 +64,31 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       });
     };
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        syncProfile();
+      }
+    };
+
     syncProfile();
 
-    return subscribeToAuthChanges(syncProfile);
+    window.addEventListener("focus", syncProfile);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    const unsubscribe = subscribeToAuthChanges(syncProfile);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener("focus", syncProfile);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [refreshProfile]);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void refreshProfile();
+    });
+  }, [pathname, refreshProfile]);
 
   function logout(redirectTo = "/login") {
     clearStoredSession();
