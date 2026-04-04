@@ -10,10 +10,6 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/:path*",
-        destination: `${internalApiUrl}/:path*`,
-      },
-      {
         source: "/uploads/:path*",
         destination: `${internalApiUrl}/uploads/:path*`,
       },
