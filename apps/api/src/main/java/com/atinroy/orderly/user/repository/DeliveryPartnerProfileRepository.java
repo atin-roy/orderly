@@ -26,12 +26,12 @@ public interface DeliveryPartnerProfileRepository extends JpaRepository<Delivery
             from DeliveryPartnerProfile profile
             join profile.user user
             where (:query = ''
-                or lower(user.name) like lower(concat('%', :query, '%'))
-                or lower(user.email) like lower(concat('%', :query, '%'))
-                or lower(user.phone) like lower(concat('%', :query, '%'))
-                or lower(profile.vehicleType) like lower(concat('%', :query, '%'))
-                or lower(profile.serviceZones) like lower(concat('%', :query, '%')))
-              and (:shift is null or lower(profile.preferredShift) = lower(:shift))
+                or lower(user.name) like concat('%', :query, '%')
+                or lower(user.email) like concat('%', :query, '%')
+                or lower(user.phone) like concat('%', :query, '%')
+                or lower(profile.vehicleType) like concat('%', :query, '%')
+                or lower(profile.serviceZones) like concat('%', :query, '%'))
+              and (:shift is null or lower(profile.preferredShift) = :shift)
             """)
     Page<DeliveryPartnerProfile> searchAdminProfiles(
             @Param("query") String query,

@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -148,11 +149,12 @@ public class UserService {
             String shift
     ) {
         requireAdmin(email);
-        String normalizedQuery = normalizeOptional(query);
+        String normalizedQuery = normalizeSearchTerm(query);
+        String normalizedShift = normalizeSearchTerm(shift);
 
         var profiles = deliveryPartnerProfileRepository.searchAdminProfiles(
                         normalizedQuery == null ? "" : normalizedQuery,
-                        normalizeOptional(shift),
+                        normalizedShift,
                         PageRequest.of(Math.max(page, 0), Math.max(size, 1), Sort.by("id").ascending())
                 );
 
@@ -278,6 +280,15 @@ public class UserService {
 
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private String normalizeSearchTerm(String value) {
+        String normalized = normalizeOptional(value);
+        if (normalized == null) {
+            return null;
+        }
+
+        return normalized.toLowerCase(Locale.ROOT);
     }
 
     private User requireAdmin(String email) {
