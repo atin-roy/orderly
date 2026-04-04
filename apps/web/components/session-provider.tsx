@@ -44,7 +44,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    setStatus("loading");
+    setStatus((prev) => (prev === "loading" ? "loading" : prev));
 
     try {
       const nextProfile = await getMyProfile();
