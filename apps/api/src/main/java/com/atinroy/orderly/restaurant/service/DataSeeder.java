@@ -352,15 +352,41 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private User ensureUser(String email, String name, String phone, Role role) {
-        return userRepository.findByEmail(email).orElseGet(() -> {
-            User user = new User();
-            user.setName(name);
-            user.setEmail(email);
-            user.setPassword(passwordEncoder.encode(DEMO_PASSWORD));
-            user.setPhone(phone);
-            user.setRole(role);
-            return userRepository.save(user);
-        });
+        return userRepository.findByEmail(email)
+                .map(existingUser -> {
+                    boolean changed = false;
+
+                    if (!name.equals(existingUser.getName())) {
+                        existingUser.setName(name);
+                        changed = true;
+                    }
+
+                    if (!phone.equals(existingUser.getPhone())) {
+                        existingUser.setPhone(phone);
+                        changed = true;
+                    }
+
+                    if (existingUser.getRole() != role) {
+                        existingUser.setRole(role);
+                        changed = true;
+                    }
+
+                    if (!passwordEncoder.matches(DEMO_PASSWORD, existingUser.getPassword())) {
+                        existingUser.setPassword(passwordEncoder.encode(DEMO_PASSWORD));
+                        changed = true;
+                    }
+
+                    return changed ? userRepository.save(existingUser) : existingUser;
+                })
+                .orElseGet(() -> {
+                    User user = new User();
+                    user.setName(name);
+                    user.setEmail(email);
+                    user.setPassword(passwordEncoder.encode(DEMO_PASSWORD));
+                    user.setPhone(phone);
+                    user.setRole(role);
+                    return userRepository.save(user);
+                });
     }
 
     private RestaurantSeed restaurant(
