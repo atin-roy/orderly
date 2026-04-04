@@ -168,7 +168,7 @@ export default function AdminRestaurantsPage() {
 
           <Link
             href="/admin/restaurants/new"
-            className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-6 text-sm font-semibold text-white"
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-6 text-center text-sm font-semibold leading-tight text-white"
           >
             Create restaurant
           </Link>
