@@ -16,6 +16,12 @@ import {
 
 const DASHBOARD_PAGE_SIZE = 6;
 const COUPON_PAGE_SIZE = 6;
+const adminActionButtonClass =
+  "rounded-full border px-4 py-2 text-sm font-semibold transition duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30";
+const adminActionButtonBrandClass =
+  `${adminActionButtonClass} border-orange-200 bg-white text-brand hover:border-orange-300 hover:bg-orange-50 active:border-orange-400 active:bg-orange-100`;
+const adminActionButtonDangerClass =
+  `${adminActionButtonClass} border-red-200 bg-white text-red-700 hover:border-red-300 hover:bg-red-50 active:border-red-400 active:bg-red-100`;
 
 const emptyCouponForm = {
   code: "",
@@ -484,7 +490,8 @@ export default function AdminDashboardPage() {
           {coupons.map((coupon) => (
             <div
               key={coupon.id}
-              className="rounded-[1.6rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.9),#fff)] p-5"
+              tabIndex={0}
+              className="group rounded-[1.6rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.9),#fff)] p-5 outline-none transition focus-visible:border-orange-300 focus-visible:ring-2 focus-visible:ring-brand/20"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -508,7 +515,7 @@ export default function AdminDashboardPage() {
                 <span>{formatRupees(coupon.discountAmount)} off</span>
                 <span>Min {formatRupees(coupon.minOrderAmount)}</span>
               </div>
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="mt-5 flex flex-wrap gap-3 opacity-0 transition duration-150 ease-out pointer-events-none translate-y-2 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus:pointer-events-auto group-focus:translate-y-0 group-focus:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
                 <button
                   type="button"
                   onClick={() => {
@@ -523,21 +530,21 @@ export default function AdminDashboardPage() {
                     });
                     setMessage("");
                   }}
-                  className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand"
+                  className={adminActionButtonBrandClass}
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   onClick={() => void handleToggleCoupon(coupon)}
-                  className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand"
+                  className={adminActionButtonBrandClass}
                 >
                   {coupon.enabled ? "Disable" : "Enable"}
                 </button>
                 <button
                   type="button"
                   onClick={() => void handleDeleteCoupon(coupon.id)}
-                  className="rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-700"
+                  className={adminActionButtonDangerClass}
                 >
                   Delete
                 </button>

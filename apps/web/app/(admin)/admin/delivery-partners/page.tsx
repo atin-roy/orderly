@@ -11,6 +11,12 @@ import {
 } from "@/lib/api";
 
 const PAGE_SIZE = 10;
+const adminActionButtonClass =
+  "rounded-full border px-4 py-2 text-sm font-semibold transition duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30";
+const adminActionButtonBrandClass =
+  `${adminActionButtonClass} border-orange-200 bg-white text-brand hover:border-orange-300 hover:bg-orange-50 active:border-orange-400 active:bg-orange-100`;
+const adminActionButtonDangerClass =
+  `${adminActionButtonClass} border-red-200 bg-white text-red-600 hover:border-red-300 hover:bg-red-50 active:border-red-400 active:bg-red-100 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:border-red-200 disabled:hover:bg-white`;
 
 const emptyPartnerForm = {
   fullName: "",
@@ -333,7 +339,8 @@ export default function AdminDeliveryPartnersPage() {
           {partners.map((partner) => (
             <article
               key={partner.id}
-              className="rounded-[1.7rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.9),#fff)] p-5"
+              tabIndex={0}
+              className="group rounded-[1.7rem] border border-orange-100 bg-[linear-gradient(135deg,rgba(255,247,237,0.9),#fff)] p-5 outline-none transition focus-visible:border-orange-300 focus-visible:ring-2 focus-visible:ring-brand/20"
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
@@ -356,11 +363,11 @@ export default function AdminDeliveryPartnersPage() {
                   <p className="mt-1 text-sm text-subtle">{partner.city}</p>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 opacity-0 transition duration-150 ease-out pointer-events-none translate-y-2 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus:pointer-events-auto group-focus:translate-y-0 group-focus:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
                   <button
                     type="button"
                     onClick={() => openEditModal(partner)}
-                    className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-brand"
+                    className={adminActionButtonBrandClass}
                   >
                     Edit
                   </button>
@@ -368,7 +375,7 @@ export default function AdminDeliveryPartnersPage() {
                     type="button"
                     onClick={() => void handleDeletePartner(partner)}
                     disabled={actionId === partner.id}
-                    className="rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 disabled:cursor-not-allowed disabled:opacity-70"
+                    className={adminActionButtonDangerClass}
                   >
                     Delete
                   </button>
