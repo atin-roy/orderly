@@ -23,7 +23,6 @@ export function Header() {
   const showCustomerLinks = isAuthenticated && roleIsCustomer(role);
   useEffect(() => {
     if (!showCustomerLinks) {
-      setCartItemCount(0);
       return;
     }
 
