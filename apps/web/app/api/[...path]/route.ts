@@ -53,6 +53,7 @@ async function proxy(
 
   const responseHeaders = new Headers(upstream.headers);
   HOP_BY_HOP.forEach((h) => responseHeaders.delete(h));
+  responseHeaders.set("X-Proxy", "orderly-web");
 
   return new NextResponse(upstream.body, {
     status: upstream.status,
