@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Restaurant } from "@orderly/types";
 import { Header } from "@/components/header";
@@ -62,7 +63,9 @@ const courierBenefits = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const { isAuthenticated } = useSession();
+  const [heroSearch, setHeroSearch] = useState("");
   const [featuredRestaurants, setFeaturedRestaurants] = useState<Restaurant[]>([]);
 
   useEffect(() => {
@@ -156,11 +159,20 @@ export default function Home() {
 
                   <div className="relative rounded-[2rem] border border-white/15 bg-white/10 p-5 backdrop-blur">
                     <div className="rounded-[1.75rem] bg-white p-5 text-foreground shadow-[0_16px_40px_rgba(0,0,0,0.14)]">
-                      <div className="rounded-2xl border border-orange-100 bg-orange-50/70 px-4 py-4">
-                        <div className="flex items-center gap-3 text-subtle">
-                          <SearchIcon className="h-5 w-5 text-brand" />
-                          <span className="text-sm">Search biryani, dosa, thali, rolls</span>
-                        </div>
+                      <div className="relative rounded-2xl border border-orange-100 bg-orange-50/70">
+                        <SearchIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-brand" />
+                        <input
+                          type="text"
+                          value={heroSearch}
+                          onChange={(e) => setHeroSearch(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && heroSearch.trim()) {
+                              router.push(`/explore?q=${encodeURIComponent(heroSearch.trim())}`);
+                            }
+                          }}
+                          placeholder="Search biryani, dosa, thali, rolls"
+                          className="h-12 w-full rounded-2xl bg-transparent pl-12 pr-4 text-sm outline-none placeholder:text-subtle"
+                        />
                       </div>
 
                       <div className="mt-4 flex flex-wrap gap-2">
