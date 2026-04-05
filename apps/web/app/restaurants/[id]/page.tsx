@@ -187,7 +187,14 @@ export default function RestaurantPage() {
                             <p className="mt-3 font-semibold text-foreground">{formatRupees(item.price)}</p>
                           </div>
 
-                          <div className="flex items-center">
+                          <div className="flex items-center gap-4">
+                            {item.imageUrl && (
+                              <img
+                                src={resolveAssetUrl(item.imageUrl)}
+                                alt={item.name}
+                                className="h-24 w-24 rounded-2xl object-cover"
+                              />
+                            )}
                             <button
                               type="button"
                               onClick={() => void handleAddToCart(item.id)}
