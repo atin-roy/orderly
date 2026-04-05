@@ -6,7 +6,6 @@ import type { Restaurant } from "@orderly/types";
 import { Header } from "@/components/header";
 import { useSession } from "@/components/session-provider";
 import { Footer } from "@/components/footer";
-import { HomeLocationCard } from "@/components/home-location-card";
 import { RestaurantCard } from "@/components/restaurant-card";
 import {
   ChevronRightIcon,
@@ -157,9 +156,7 @@ export default function Home() {
 
                   <div className="relative rounded-[2rem] border border-white/15 bg-white/10 p-5 backdrop-blur">
                     <div className="rounded-[1.75rem] bg-white p-5 text-foreground shadow-[0_16px_40px_rgba(0,0,0,0.14)]">
-                      <HomeLocationCard />
-
-                      <div className="mt-5 rounded-2xl border border-orange-100 bg-orange-50/70 px-4 py-4">
+                      <div className="rounded-2xl border border-orange-100 bg-orange-50/70 px-4 py-4">
                         <div className="flex items-center gap-3 text-subtle">
                           <SearchIcon className="h-5 w-5 text-brand" />
                           <span className="text-sm">Search biryani, dosa, thali, rolls</span>
