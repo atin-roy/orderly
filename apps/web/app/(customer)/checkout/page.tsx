@@ -11,7 +11,6 @@ import { LocationModal } from "@/components/location-modal";
 import { useSession } from "@/components/session-provider";
 import {
   ArrowLeftIcon,
-  ClockIcon,
   LocationPinIcon,
   ReceiptIcon,
   TagIcon,
@@ -35,12 +34,12 @@ const paymentMethodCards: Array<{
   {
     id: "upi-qr",
     title: "UPI QR",
-    subtitle: "Scan a generated code inside the fake Razorpay sheet.",
+    subtitle: "Scan a generated QR code to complete payment.",
   },
   {
     id: "card",
     title: "Card",
-    subtitle: "Use a fake card entry that still feels like a gateway step.",
+    subtitle: "Pay securely with your debit or credit card.",
   },
 ];
 
@@ -65,11 +64,11 @@ function FakeRazorpaySheet({
       <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] bg-white shadow-[0_30px_80px_rgba(35,24,21,0.22)]">
         <div className="bg-[linear-gradient(135deg,#072654,#1153a4_42%,#2eb6ff)] px-6 py-6 text-white">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/70">
-            Razorpay preview
+            Razorpay
           </p>
           <h2 className="mt-3 font-serif text-3xl font-bold">Secure checkout</h2>
           <p className="mt-2 text-sm text-white/85">
-            A guided payment preview with the same confirmation flow you would expect at checkout.
+            Complete your payment securely.
           </p>
         </div>
 
@@ -83,13 +82,6 @@ function FakeRazorpaySheet({
             </p>
             <p className="mt-2 text-sm text-slate-500">
               Method: {paymentMethodCards.find((item) => item.id === paymentMethod)?.title}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 px-4 py-4">
-            <p className="text-sm font-semibold text-slate-900">What this simulates</p>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Payment confirmation, order placement, and the handoff into your order timeline.
             </p>
           </div>
 
@@ -442,18 +434,6 @@ export default function CheckoutPage() {
                   </p>
                 </div>
 
-                <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                  <div className="flex items-center gap-3">
-                    <ClockIcon className="h-5 w-5 text-[#0b72ff]" />
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">Gateway metadata preview</p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        Provider: `RAZORPAY_FAKE` · status will be persisted as `CAPTURED`
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 <button
                   type="button"
                   onClick={() => {
@@ -465,7 +445,7 @@ export default function CheckoutPage() {
                   disabled={placingOrder}
                   className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-brand px-5 py-4 text-sm font-semibold text-white transition hover:bg-brand/90"
                 >
-                  Open fake Razorpay
+                  Pay now
                 </button>
               </div>
             </div>
