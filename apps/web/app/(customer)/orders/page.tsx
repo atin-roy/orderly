@@ -213,9 +213,7 @@ export default function OrdersPage() {
                   href={`/orders/${order.id}`}
                   className="group rounded-[2rem] border border-orange-100 bg-white p-5 shadow-[0_18px_60px_rgba(211,91,31,0.08)] transition-transform hover:-translate-y-0.5"
                 >
-                  <div className="grid gap-5 md:grid-cols-[180px_minmax(0,1fr)_auto] md:items-center">
-                    <div className={`h-32 rounded-[1.5rem] ${order.imageColor}`} />
-
+                  <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
                     <div>
                       <div className="flex flex-wrap items-center gap-3">
                         <OrderStatusBadge status={order.status} />
