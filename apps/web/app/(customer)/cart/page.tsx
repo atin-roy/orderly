@@ -8,13 +8,15 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { ArrowLeftIcon, ReceiptIcon, TagIcon } from "@/components/icons";
 import { formatRupees } from "@/data/mock-data";
-import { clearCart, getCart, getCoupons, removeCartItem, updateCartItem } from "@/lib/api";
+import { clearCart, getCart, getCoupons, removeCartItem, updateCartItem, validateCoupon } from "@/lib/api";
 
 export default function CartPage() {
   const [cart, setCart] = useState<Cart | null>(null);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
 
   async function refreshCart() {
     const [cartResponse, couponResponse] = await Promise.all([getCart(), getCoupons()]);
@@ -67,7 +69,31 @@ export default function CartPage() {
   async function handleClearCart() {
     await clearCart();
     await refreshCart();
+    setAppliedCoupon(null);
+    setDiscountAmount(0);
+    sessionStorage.removeItem("cartCoupon");
     setMessage("Cart cleared.");
+  }
+
+  async function handleToggleCoupon(coupon: Coupon) {
+    if (appliedCoupon === coupon.code) {
+      setAppliedCoupon(null);
+      setDiscountAmount(0);
+      sessionStorage.removeItem("cartCoupon");
+      return;
+    }
+    try {
+      const response = await validateCoupon(coupon.code);
+      if (response.data.valid) {
+        setAppliedCoupon(response.data.code);
+        setDiscountAmount(response.data.discountAmount);
+        sessionStorage.setItem("cartCoupon", response.data.code);
+      } else {
+        setMessage(response.data.message);
+      }
+    } catch {
+      setMessage("Could not validate coupon.");
+    }
   }
 
   return (
@@ -197,28 +223,42 @@ export default function CartPage() {
                     </div>
 
                     <div className="mt-5 grid gap-3">
-                      {coupons.map((coupon) => (
-                        <div
-                          key={coupon.id}
-                          className="rounded-2xl border border-orange-100 bg-white px-4 py-4"
-                        >
-                          <div className="flex items-center justify-between gap-4">
-                            <div>
-                              <p className="font-semibold text-foreground">{coupon.code}</p>
-                              <p className="mt-1 text-sm text-subtle">{coupon.description}</p>
+                      {coupons.map((coupon) => {
+                        const isApplied = appliedCoupon === coupon.code;
+                        return (
+                          <button
+                            type="button"
+                            key={coupon.id}
+                            disabled={!coupon.available}
+                            onClick={() => void handleToggleCoupon(coupon)}
+                            className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
+                              isApplied
+                                ? "border-emerald-500 bg-emerald-50 shadow-[0_10px_25px_rgba(16,185,129,0.10)]"
+                                : coupon.available
+                                  ? "border-orange-100 bg-white hover:border-orange-300 cursor-pointer"
+                                  : "border-orange-100 bg-white opacity-60 cursor-not-allowed"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-4">
+                              <div>
+                                <p className="font-semibold text-foreground">{coupon.code}</p>
+                                <p className="mt-1 text-sm text-subtle">{coupon.description}</p>
+                              </div>
+                              <span
+                                className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${
+                                  isApplied
+                                    ? "bg-emerald-600 text-white"
+                                    : coupon.available
+                                      ? "bg-emerald-50 text-emerald-700"
+                                      : "bg-stone-100 text-stone-500"
+                                }`}
+                              >
+                                {isApplied ? "Applied" : coupon.available ? "Ready" : "Locked"}
+                              </span>
                             </div>
-                            <span
-                              className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${
-                                coupon.available
-                                  ? "bg-emerald-50 text-emerald-700"
-                                  : "bg-stone-100 text-stone-500"
-                              }`}
-                            >
-                              {coupon.available ? "Ready" : "Locked"}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -253,11 +293,11 @@ export default function CartPage() {
                     </div>
                     <div className="flex items-center justify-between text-subtle">
                       <span>Discount</span>
-                      <span>-{formatRupees(cart.charges.discount)}</span>
+                      <span>-{formatRupees(discountAmount || cart.charges.discount)}</span>
                     </div>
                     <div className="flex items-center justify-between border-t border-orange-100 pt-4 font-semibold text-foreground">
                       <span>Total</span>
-                      <span>{formatRupees(cart.charges.total)}</span>
+                      <span>{formatRupees(cart.charges.total + cart.charges.discount - (discountAmount || cart.charges.discount))}</span>
                     </div>
                   </div>
 

@@ -143,6 +143,21 @@ export default function CheckoutPage() {
     void getCart()
       .then((response) => setCart(response.data))
       .catch(() => setCart(null));
+
+    const savedCoupon = sessionStorage.getItem("cartCoupon");
+    if (savedCoupon) {
+      setCouponCode(savedCoupon);
+      void validateCoupon(savedCoupon).then((response) => {
+        if (response.data.valid) {
+          setAppliedCoupon(response.data.code);
+          setDiscountAmount(response.data.discountAmount);
+          setCouponMessage(response.data.message);
+        }
+        sessionStorage.removeItem("cartCoupon");
+      }).catch(() => {
+        sessionStorage.removeItem("cartCoupon");
+      });
+    }
   }, []);
 
   const addresses = useMemo(() => profile?.addresses ?? [], [profile?.addresses]);
