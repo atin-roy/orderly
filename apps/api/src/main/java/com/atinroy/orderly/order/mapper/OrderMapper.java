@@ -158,4 +158,5 @@ public final class OrderMapper {
         long duration = Duration.between(order.getCreatedDate(), deliveredAt).toMinutes();
         return "Delivered in " + duration + " min";
     }
+
 }
