@@ -1,8 +1,8 @@
 # Orderly
 
-A full-stack food delivery platform built as a class project. Think Swiggy/Zomato — customers browse restaurants and order food, restaurant owners manage their menus, delivery partners handle fulfillment, and admins oversee the whole thing.
+A full-stack food delivery platform built as a class project. Comparable to Swiggy/Zomato, customers browse restaurants and order food, restaurant owners manage their menus, delivery partners handle fulfillment, and admins oversee the whole thing.
 
-Built with a **Next.js** frontend, **Spring Boot** backend, and **PostgreSQL** — all containerized with Docker Compose and managed as a Turborepo monorepo.
+Built with a **Next.js** frontend, **Spring Boot** backend, and **PostgreSQL**, all containerized with Docker Compose and managed as a Turborepo monorepo.
 
 ---
 
